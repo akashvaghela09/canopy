@@ -33,6 +33,7 @@ async function boot() {
         unsubscribe();
         if (screen === "lesson") store.dispatch(appActions.navigate({ kind: "lesson", lesson }));
         if (screen === "section") store.dispatch(appActions.navigate({ kind: "section", section }));
+        if (new URLSearchParams(location.search).get("settings")) store.dispatch(appActions.openSettings(true));
       });
     }
   }

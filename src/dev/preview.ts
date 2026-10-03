@@ -2,7 +2,8 @@
 // IPC calls from JSON produced by `canopy-lesson preview <id>` (see
 // tools/preview.sh). For screenshots and visual review only.
 //
-// URL parameters: ?lesson=2.03&screen=lesson|home|section&section=2&theme=light|dark
+// URL parameters: ?lesson=2.03&screen=lesson|home|section|firstRun&section=2
+//   &theme=light|dark&completed=<id>&settings=1 (open the settings sheet)
 
 import { emit } from "@tauri-apps/api/event";
 import { mockIPC } from "@tauri-apps/api/mocks";
@@ -22,7 +23,8 @@ export async function setupPreview(): Promise<boolean> {
   const res = await fetch(`/preview/${lessonId}.json`);
   const data: PreviewData = await res.json();
   const screen = params.get("screen") ?? "lesson";
-  const settings: Record<string, string> = { firstRunDone: "1", theme: params.get("theme") ?? "system" };
+  const settings: Record<string, string> = { theme: params.get("theme") ?? "system" };
+  if (screen !== "firstRun") settings.firstRunDone = "1";
   if (params.get("completed")) {
     const c = data.catalog as { completed: Record<string, number>; lessons: { id: string }[] };
     const upTo = params.get("completed")!;
