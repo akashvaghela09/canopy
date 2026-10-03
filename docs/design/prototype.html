@@ -1,0 +1,809 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Canopy prototype</title>
+<!--
+  Canopy visual reference. Static, self-contained, no network.
+  Fonts: the app bundles Inter Variable + JetBrains Mono Variable (@fontsource). This file falls
+  back to whatever is installed (Inter / JetBrains Mono / Fira Code / system).
+  Tokens mirror docs/design/DESIGN.md section 5. Change the data-theme attribute on <html> to switch.
+-->
+<style>
+/* ============ tokens ============ */
+:root{
+  --bg:#F3F5F8; --surface:#FFFFFF; --raised:#FFFFFF; --sunken:#EEF0F3; --canvas:#F9FAFC;
+  --fg:#171B20; --fg2:#51555C; --fg3:#74787D; --fg-inv:#FCFCFC;
+  --edge:#D5D8DB; --edge2:#BABEC3;
+  --accent:#00736A; --accent-fg:#FCFCFC; --accent-soft:#D9F6F1; --selection:#D0ECE7;
+  --ink:#171B20; --ink-fg:#FCFCFC;
+  --success:#267D30; --success-soft:#DFF6DE; --warning:#9D6304; --warning-soft:#FFF0D7;
+  --danger:#B63132; --danger-soft:#FEE9E6; --focus:#0F74C5;
+  --diff-add:#DBF8DA; --diff-del:#FEE9E6; --c-ours:#D7EAFE; --c-theirs:#D1F2D7; --c-base:#E9EBEE;
+  --term-bg:#EEF0F3; --term-fg:#171B20; --term-cursor:#00736A;
+  --ansi-red:#AC3031; --ansi-green:#207029; --ansi-yellow:#825B00; --ansi-blue:#2063B0; --ansi-dim:#71757A;
+  --g-main:#52555B; --g0:#2266A4; --g1:#9C4438; --g2:#21763C; --g3:#814A8D; --g4:#8A5601; --g5:#5D57A4; --g6:#057176; --g7:#676803;
+  --g-unreach:#868686; --g-ghost:#868686; --g-head:#171B20; --g-label:#FCFCFC; --g-hl:rgba(0,115,106,.14);
+  --shadow:0 4px 12px rgba(0,0,0,.12);
+  --sans:"Inter Variable",Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono Variable","JetBrains Mono","Fira Code",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  --ease:cubic-bezier(.2,0,0,1);
+  color-scheme:light;
+}
+:root[data-theme="dark"]{
+  --bg:#0C1015; --surface:#171B20; --raised:#21242A; --sunken:#080B10; --canvas:#13161C;
+  --fg:#E5E8ED; --fg2:#AAAEB4; --fg3:#83868C; --fg-inv:#090B0F;
+  --edge:#2A2E34; --edge2:#3F4349;
+  --accent:#55CEC0; --accent-fg:#090B0F; --accent-soft:#123430; --selection:#15433E;
+  --ink:#E5E8ED; --ink-fg:#0C1015;
+  --success:#80CD82; --success-soft:#1D341E; --warning:#F3AE58; --warning-soft:#3C2A0E;
+  --danger:#FB817A; --danger-soft:#47211E; --focus:#6AB3FD;
+  --diff-add:#182F19; --diff-del:#421C19; --c-ours:#1B2F45; --c-theirs:#1C3324; --c-base:#272A30;
+  --term-bg:#080B10; --term-fg:#E5E8ED; --term-cursor:#55CEC0;
+  --ansi-red:#FB817A; --ansi-green:#80CD82; --ansi-yellow:#EBBD57; --ansi-blue:#7CB4FC; --ansi-dim:#6E7278;
+  --g-main:#BABEC4; --g0:#80BDFB; --g1:#F69C8D; --g2:#82CB92; --g3:#D7A0E3; --g4:#E5AB66; --g5:#B0ADFB; --g6:#4ECCD3; --g7:#BBBE67;
+  --g-unreach:#717171; --g-ghost:#717171; --g-head:#E5E8ED; --g-label:#090B0F; --g-hl:rgba(85,206,192,.16);
+  --shadow:0 4px 12px rgba(0,0,0,.4);
+  color-scheme:dark;
+}
+/* ============ base ============ */
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font:13px/20px var(--sans);color:var(--fg);background:var(--bg);-webkit-font-smoothing:antialiased;font-feature-settings:"cv11","tnum"}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+button:focus-visible,[tabindex]:focus-visible,input:focus-visible{outline:2px solid var(--focus);outline-offset:2px;border-radius:4px}
+code,kbd,.mono{font-family:var(--mono);font-variant-ligatures:none}
+code{font-size:12px;background:var(--sunken);padding:1px 5px;border-radius:4px;color:var(--fg)}
+kbd{font-size:11px;line-height:16px;padding:0 5px;border:1px solid var(--edge2);border-radius:4px;background:var(--surface)}
+svg{display:block}
+.screen{display:none;height:100%}
+.screen.active{display:flex;flex-direction:column}
+.caps{font-size:11px;line-height:16px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--fg3)}
+/* ============ prototype controls (not part of the app) ============ */
+#proto{position:fixed;left:12px;bottom:12px;z-index:50;display:flex;gap:6px;align-items:center;background:var(--raised);border:1px solid var(--edge2);border-radius:8px;padding:6px 8px;box-shadow:var(--shadow);font-size:12px}
+#proto span{color:var(--fg3);margin-left:6px}
+#proto button{height:24px;padding:0 8px;border-radius:4px;color:var(--fg2)}
+#proto button[aria-pressed="true"]{background:var(--ink);color:var(--ink-fg)}
+/* ============ buttons ============ */
+.btn{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 12px;border-radius:4px;font-weight:500;white-space:nowrap;transition:background .12s,border-color .12s,opacity .12s}
+.btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.btn-primary{background:var(--ink);color:var(--ink-fg)}
+.btn-primary:hover{opacity:.9}
+.btn-secondary{background:var(--surface);border:1px solid var(--edge2);color:var(--fg)}
+.btn-secondary:hover{background:var(--sunken)}
+.btn-ghost{color:var(--fg2)}
+.btn-ghost:hover{background:var(--sunken);color:var(--fg)}
+.btn-danger{background:var(--danger);color:var(--fg-inv)}
+.btn-danger-ghost{color:var(--danger)}
+.btn-danger-ghost:hover{background:var(--danger-soft)}
+.btn-lg{height:32px;padding:0 14px}
+.btn-sm{height:24px;padding:0 8px;font-size:12px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.icon-btn{width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;border-radius:4px;color:var(--fg2)}
+.icon-btn:hover{background:var(--sunken);color:var(--fg)}
+.icon-btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.link{color:var(--accent);text-decoration:none}.link:hover{text-decoration:underline}
+.chip{display:inline-flex;align-items:center;height:20px;padding:0 6px;border-radius:4px;font-size:11px;line-height:16px;font-weight:500;background:var(--sunken);color:var(--fg2);white-space:nowrap}
+.chip-outline{background:none;border:1px solid var(--edge2)}
+.chip-warn{background:none;border:1px solid var(--warning);color:var(--fg2)}
+.chip-count{font-family:var(--mono);font-weight:500}
+/* ============ top bar ============ */
+.topbar{height:44px;flex:none;display:flex;align-items:center;gap:4px;padding:0 12px 0 8px;background:var(--surface);border-bottom:1px solid var(--edge)}
+.crumbs{display:flex;align-items:center;gap:2px;min-width:0}
+.crumb{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 8px;border-radius:4px;color:var(--fg2);font-weight:500;white-space:nowrap}
+.crumb:hover{background:var(--sunken);color:var(--fg)}
+.crumb.current{color:var(--fg);font-weight:500}
+.crumb-sep{color:var(--fg3);padding:0 2px}
+.wordmark{display:inline-flex;align-items:center;gap:8px;color:var(--fg);font-weight:600}
+.wordmark svg{width:18px;height:18px}
+.topbar .spacer{flex:1}
+.navpair{display:flex;align-items:center;gap:2px;margin-right:12px}
+.navpair .btn{height:28px}
+/* ============ progress ============ */
+.bar{height:4px;border-radius:999px;background:var(--edge);overflow:hidden}
+:root[data-theme="dark"] .bar{background:var(--edge2)}
+.bar.lg{height:6px}
+.bar i{display:block;height:100%;background:var(--accent);border-radius:999px;transform-origin:left;transition:transform .24s var(--ease)}
+.bar.done i{background:var(--success)}
+/* ============ HOME ============ */
+.home-scroll{flex:1;overflow:auto}
+.home{max-width:1040px;margin:0 auto;padding:28px 32px 48px}
+.home h1{font-size:24px;line-height:32px;font-weight:600;letter-spacing:-.01em}
+.overall{display:flex;align-items:baseline;justify-content:space-between;margin:20px 0 8px}
+.overall .num{color:var(--fg2);font-variant-numeric:tabular-nums}
+.continue{margin-top:24px;border:1px solid var(--edge);border-radius:6px;background:var(--surface);padding:16px 20px;display:grid;grid-template-columns:1fr auto;gap:4px 24px;align-items:center}
+.continue .sec{color:var(--fg2);display:flex;justify-content:space-between}
+.continue .lesson{display:flex;align-items:center;gap:10px;font-size:16px;line-height:24px;font-weight:600;margin-top:4px}
+.continue .lesson .id{font-family:var(--mono);font-size:13px;font-weight:500;color:var(--fg3)}
+.continue .desc{color:var(--fg2);grid-column:1}
+.continue .btn{grid-row:1/4;grid-column:2;align-self:center}
+.level{margin-top:28px}
+.level .caps{margin-bottom:10px}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+@media (max-width:1000px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.card{text-align:left;border:1px solid var(--edge);border-radius:6px;background:var(--surface);padding:14px 16px 16px;display:flex;flex-direction:column;gap:8px;transition:background .12s,border-color .12s;position:relative}
+.card:hover{border-color:var(--edge2);background:var(--raised)}
+.card .t{display:flex;gap:8px;align-items:baseline;font-weight:500;min-width:0}
+.card .n{font-family:var(--mono);font-size:12px;color:var(--fg3);flex:none;width:16px}
+.card .t span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.card .s{font-size:12px;line-height:18px;color:var(--fg2);display:flex;align-items:center;gap:6px}
+.card .s.ok{color:var(--success)}
+.card .s svg{width:14px;height:14px}
+.card.current{box-shadow:inset 2px 0 0 var(--accent)}
+.card.current .t::after{content:"●";color:var(--accent);font-size:9px;margin-left:auto;padding-left:6px}
+.home-foot{margin-top:40px;font-size:12px;color:var(--fg3);display:flex;gap:8px}
+/* ============ WORKSPACE ============ */
+.ws{flex:1;display:grid;grid-template-columns:360px minmax(480px,1fr) 320px;min-height:0;background:var(--edge);gap:1px}
+.ws.editing{grid-template-columns:360px minmax(480px,1fr) minmax(480px,1fr)}
+.pane{background:var(--surface);min-width:0;min-height:0;display:flex;flex-direction:column}
+.pane-h{height:36px;flex:none;display:flex;align-items:center;gap:10px;padding:0 8px 0 12px;border-bottom:1px solid var(--edge);background:var(--surface)}
+.pane-h .ctx{font-family:var(--mono);font-size:12px;color:var(--fg2)}
+.pane-h .spacer{flex:1}
+.center{display:grid;grid-template-rows:48fr 52fr;gap:1px;background:var(--edge);min-height:0}
+/* lesson panel */
+.lesson-body{flex:1;overflow:auto;padding:16px 16px 20px}
+.lesson-body > * + *{margin-top:14px}
+.l-kind{display:flex;align-items:center;gap:8px;font-size:11px;line-height:16px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--fg3)}
+.l-kind .id{font-family:var(--mono);letter-spacing:0}
+.l-title{font-size:20px;line-height:28px;font-weight:600;letter-spacing:-.01em;margin-top:4px}
+.l-sub{font-size:12px;line-height:18px;color:var(--fg3);margin-top:2px}
+.prose{font-size:14px;line-height:22px;max-width:440px}
+.prose > * + *{margin-top:10px}
+.prose h2{font-size:13px;line-height:20px;font-weight:600;letter-spacing:.02em;margin-top:18px;color:var(--fg)}
+.prose ol{padding-left:22px}
+.prose li + li{margin-top:4px}
+.prose code{font-size:13px}
+.banner{display:flex;gap:10px;padding:10px 12px;border-radius:6px;border:1px solid;font-size:13px;line-height:20px;align-items:flex-start}
+.banner svg{width:16px;height:16px;flex:none;margin-top:2px;stroke-width:1.75;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.banner b{font-weight:600}
+.banner .x{margin-left:auto;flex:none}
+.banner-info{background:var(--accent-soft);border-color:color-mix(in oklch,var(--accent) 40%,transparent)}
+.banner-info svg{stroke:var(--accent)}
+.banner-warn{background:var(--warning-soft);border-color:color-mix(in oklch,var(--warning) 50%,transparent)}
+.banner-warn svg{stroke:var(--warning)}
+.banner-success{background:var(--success-soft);border-color:color-mix(in oklch,var(--success) 50%,transparent)}
+.banner-success svg{stroke:var(--success)}
+.block{border:1px solid var(--edge);border-radius:6px;padding:12px}
+.block-h{font-size:11px;line-height:16px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--fg3);margin-bottom:8px}
+.q-prompt{font-size:14px;line-height:22px;font-weight:500}
+.q-opts{margin-top:8px;display:flex;flex-direction:column}
+.q-opt{display:flex;align-items:center;gap:10px;height:32px;padding:0 4px;border-radius:4px;cursor:pointer}
+.q-opt:hover{background:var(--sunken)}
+.radio{width:16px;height:16px;border-radius:50%;border:1.5px solid var(--edge2);flex:none;position:relative}
+.radio.on{border-color:var(--ink)}
+.radio.on::after{content:"";position:absolute;inset:3px;border-radius:50%;background:var(--ink)}
+.q-foot{display:flex;justify-content:flex-end;align-items:center;gap:10px;margin-top:8px}
+.q-ok{border-color:var(--success)}
+.q-ok .q-foot{justify-content:space-between}
+.ok-line{display:flex;align-items:center;gap:6px;color:var(--success);font-weight:500}
+.ok-line svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.input{height:28px;border:1px solid var(--edge2);border-radius:4px;background:var(--surface);padding:0 8px;font:inherit;color:var(--fg)}
+.input.mono{font-family:var(--mono);font-size:12px}
+.input:focus{outline:2px solid var(--focus);outline-offset:1px;border-color:var(--focus)}
+.q-help{font-size:12px;line-height:18px;color:var(--fg3);margin-top:6px}
+.q-wrong{font-size:13px;color:var(--fg2);margin-top:6px}
+.hint-btn{margin-top:8px}
+.actions-row{display:flex;align-items:center;gap:8px}
+.actions-row .ran{font-size:12px;color:var(--fg3)}
+/* goals footer */
+.goals{flex:none;border-top:1px solid var(--edge);max-height:40%;display:flex;flex-direction:column;background:var(--surface)}
+.goals-h{display:flex;align-items:center;justify-content:space-between;padding:10px 16px 4px}
+.goals-h .caps{color:var(--fg3)}
+.goals ul{list-style:none;padding:0 16px;overflow:auto}
+.goal{display:flex;align-items:center;gap:10px;min-height:32px;font-size:14px;line-height:20px}
+.goal .g{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--edge2);flex:none;display:flex;align-items:center;justify-content:center;transition:background .16s,border-color .16s}
+.goal.pass .g{background:var(--success);border-color:var(--success)}
+.goal .g svg{width:12px;height:12px;stroke:var(--fg-inv);fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;opacity:0;transition:opacity .12s .06s}
+.goal.pass .g svg{opacity:1}
+.goal .pin{margin-left:auto;color:var(--fg3);width:14px;height:14px}
+.goals-f{display:flex;align-items:center;justify-content:space-between;padding:8px 12px 12px 10px}
+.done-band{display:none;margin:0 16px 6px;padding:8px 12px;border-radius:6px;background:var(--success-soft);border:1px solid color-mix(in oklch,var(--success) 50%,transparent);align-items:center;gap:8px;font-weight:600}
+.done-band svg{width:16px;height:16px;stroke:var(--success);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.done-card{display:none;margin:4px 16px 8px;padding:10px 12px;border:1px solid var(--edge2);border-radius:6px;background:var(--raised);align-items:center;gap:12px}
+.done-card .t{flex:1}
+.done-card .t b{font-weight:500}
+.complete .done-band{display:flex}
+.complete .done-card{display:flex;animation:rise .24s var(--ease)}
+.complete .goals-h{display:none}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+/* graph pane */
+.graph-wrap{flex:1;background:var(--canvas);position:relative;overflow:auto;padding:12px 16px}
+.graph-wrap svg{width:560px;height:220px}  /* fixed CSS-px geometry: lane 28, spacing 56 in this sample; the pane scrolls/pans, it never scales */
+.gflag{font-family:var(--mono);font-size:11px;font-weight:600}
+.gid{font-family:var(--mono);font-size:10px;fill:var(--fg3)}
+.seg{display:inline-flex;height:28px;border:1px solid var(--edge2);border-radius:4px;overflow:hidden}
+.seg button{height:100%;padding:0 10px;font-size:12px;font-weight:500;color:var(--fg2);display:inline-flex;align-items:center;gap:6px}
+.seg button:hover{background:var(--sunken)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--ink-fg)}
+.seg button svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.icon-toggle[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent)}
+.op-chip{display:inline-flex;align-items:center;gap:6px;height:20px;padding:0 6px 0 4px;border-radius:4px;font-size:11px;font-weight:500;background:var(--warning-soft);border:1px solid color-mix(in oklch,var(--warning) 50%,transparent);color:var(--fg)}
+.op-chip svg{width:12px;height:12px;stroke:var(--warning);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.stash-strip{position:absolute;left:0;right:0;bottom:0;height:24px;display:flex;align-items:center;gap:8px;padding:0 12px;font-size:11px;color:var(--fg2);border-top:1px solid var(--edge);background:var(--surface)}
+.stash{display:inline-flex;align-items:center;gap:6px;height:18px;padding:0 6px;border:1px dashed var(--edge2);border-radius:4px;font-family:var(--mono);font-size:10.5px;color:var(--fg2)}
+.stash svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:1.75}
+/* terminal */
+.term{flex:1;background:var(--term-bg);color:var(--term-fg);font-family:var(--mono);font-size:13px;line-height:1.45;padding:10px 12px;overflow:auto;white-space:pre;font-variant-ligatures:none}
+.term .p{color:var(--fg2)}
+.term .red{color:var(--ansi-red)}.term .grn{color:var(--ansi-green)}.term .yel{color:var(--ansi-yellow)}.term .blu{color:var(--ansi-blue)}.term .dim{color:var(--ansi-dim)}
+.term .cur{display:inline-block;width:2px;height:15px;background:var(--term-cursor);vertical-align:-2px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.term-hint{flex:none;display:flex;gap:8px;align-items:center;padding:6px 12px;font-size:12px;color:var(--fg3);border-bottom:1px solid var(--edge);background:var(--surface)}
+.term-hint > span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.term-hint .x{margin-left:auto;flex:none}
+.warn-chip{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--fg2);border:1px solid var(--warning);border-radius:4px;height:20px;padding:0 6px}
+/* inspector */
+.tabs{display:flex;height:36px;border-bottom:1px solid var(--edge);padding:0 8px;flex:none}
+.tab{position:relative;height:36px;padding:0 10px;font-weight:500;color:var(--fg2);display:flex;align-items:center;gap:6px}
+.tab:hover{color:var(--fg)}
+.tab[aria-selected="true"]{color:var(--fg)}
+.tab[aria-selected="true"]::after{content:"";position:absolute;left:10px;right:10px;bottom:-1px;height:2px;background:var(--fg)}
+.tab .dot{width:6px;height:6px;border-radius:50%;background:var(--fg3)}
+.tree{padding:8px 8px;font-size:13px;overflow:auto}
+.editing .tree{flex:none;height:160px;border-bottom:1px solid var(--edge)}
+.tr{display:flex;align-items:center;gap:6px;height:24px;padding:0 6px;border-radius:4px;white-space:nowrap}
+.tr:hover{background:var(--sunken)}
+.tr.sel{background:var(--selection)}
+.tr.conf{background:var(--danger-soft)}
+.tr svg{width:14px;height:14px;stroke:var(--fg3);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.tr.dim{color:var(--fg3)}
+.tr .st{margin-left:auto;font-family:var(--mono);font-size:11px;font-weight:600;width:14px;text-align:center}
+.st.m{color:var(--warning)}.st.u{color:var(--fg3)}.st.c{color:var(--danger)}.st.a{color:var(--success)}
+.editor{display:none;flex:1;flex-direction:column;min-height:0}
+.editing .editor{display:flex}
+.ed-h{height:32px;display:flex;align-items:center;gap:8px;padding:0 8px 0 12px;border-bottom:1px solid var(--edge);font-family:var(--mono);font-size:12px;color:var(--fg2)}
+.ed-h .spacer{flex:1}
+.ed{flex:1;overflow:auto;font-family:var(--mono);font-size:13px;line-height:20px;font-variant-ligatures:none;padding:8px 0}
+.ln{display:grid;grid-template-columns:40px 92px 1fr;min-height:20px}
+.ln .n{color:var(--fg3);text-align:right;padding-right:10px;font-size:11px}
+.ln .lbl{font-size:10px;line-height:20px;color:var(--fg2);padding-left:6px;font-weight:600;letter-spacing:.04em;white-space:nowrap}
+.ln.ours{background:var(--c-ours)}.ln.theirs{background:var(--c-theirs)}
+.ln.mark{font-weight:600}
+/* components screen */
+.comp{flex:1;overflow:auto;padding:28px 32px 60px;max-width:1100px;margin:0 auto;width:100%}
+.comp h2{font-size:16px;line-height:24px;font-weight:600;margin:28px 0 12px}
+.comp h2:first-child{margin-top:0}
+.row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.swatches{display:grid;grid-template-columns:repeat(9,1fr);gap:8px}
+.sw{height:56px;border-radius:6px;display:flex;align-items:flex-end;padding:6px;font-family:var(--mono);font-size:10px;color:var(--g-label)}
+.toast{display:inline-flex;align-items:center;gap:10px;width:320px;padding:10px 12px;border:1px solid var(--edge2);border-radius:6px;background:var(--raised);box-shadow:var(--shadow)}
+.toast svg{width:16px;height:16px;flex:none;stroke-width:1.75;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.toast .t{flex:1}
+.tip{display:inline-flex;align-items:center;gap:6px;background:var(--ink);color:var(--ink-fg);font-size:12px;line-height:18px;padding:3px 8px;border-radius:4px}
+.tip kbd{background:transparent;border-color:color-mix(in oklch,var(--ink-fg) 40%,transparent);color:inherit}
+.lrow{display:grid;grid-template-columns:24px 48px 1fr auto auto;gap:10px;align-items:center;height:40px;padding:0 12px;border-radius:4px;width:620px}
+.lrow:hover{background:var(--sunken)}
+.lrow.next{background:var(--sunken)}
+.lrow .id{font-family:var(--mono);font-size:12px;color:var(--fg3)}
+.lrow .nx{font-size:12px;font-weight:500;color:var(--accent)}
+.gl{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--edge2);display:flex;align-items:center;justify-content:center}
+.gl.ok{background:var(--success);border-color:var(--success)}
+.gl svg{width:12px;height:12px;stroke:var(--fg-inv);fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.gl.skip{border-color:var(--fg3)}.gl.skip svg{stroke:var(--fg3)}
+.dialog{width:440px;border:1px solid var(--edge2);border-radius:8px;background:var(--raised);box-shadow:var(--shadow);padding:20px}
+.dialog h3{font-size:16px;line-height:24px;font-weight:600;margin-bottom:6px}
+.dialog p{font-size:14px;line-height:22px;color:var(--fg2)}
+.dialog .f{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}
+.upd{width:440px;border:1px solid var(--edge);border-radius:6px;padding:12px 14px;background:var(--surface)}
+.upd .h{font-weight:500;display:flex;align-items:center;gap:8px}
+.upd .h svg{width:16px;height:16px;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.upd .m{font-size:12px;color:var(--fg3);margin-top:2px}
+.upd .f{display:flex;gap:8px;margin-top:10px}
+</style>
+</head>
+<body>
+
+<!-- ======================= prototype controls ======================= -->
+<div id="proto" aria-label="Prototype controls">
+  <span>Screen</span>
+  <button data-screen="home" aria-pressed="false">Home</button>
+  <button data-screen="ws" aria-pressed="true">Lesson</button>
+  <button data-screen="comp" aria-pressed="false">Components</button>
+  <span>Theme</span>
+  <button data-theme="light" aria-pressed="true">Light</button>
+  <button data-theme="dark" aria-pressed="false">Dark</button>
+  <span>Lesson state</span>
+  <button data-ws="default" aria-pressed="true">In progress</button>
+  <button data-ws="editing" aria-pressed="false">Editing file</button>
+  <button data-ws="complete" aria-pressed="false">Complete</button>
+</div>
+
+<!-- shared icon sprite -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+  <symbol id="i-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></symbol>
+  <symbol id="i-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
+  <symbol id="i-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></symbol>
+  <symbol id="i-warn" viewBox="0 0 24 24"><path d="m21.7 18-8-14a2 2 0 0 0-3.4 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.7-3"/><path d="M12 9v4M12 17h.01"/></symbol>
+  <symbol id="i-bulb" viewBox="0 0 24 24"><path d="M15 14c.2-1 .7-1.7 1.5-2.5A6 6 0 1 0 6 7c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6M10 22h4"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="m6 3 14 9-14 9z"/></symbol>
+  <symbol id="i-braces" viewBox="0 0 24 24"><path d="M8 3H7a2 2 0 0 0-2 2v5a2 2 0 0 1-2 2 2 2 0 0 1 2 2v5c0 1.1.9 2 2 2h1M16 21h1a2 2 0 0 0 2-2v-5c0-1.1.9-2 2-2a2 2 0 0 1-2-2V5a2 2 0 0 0-2-2h-1"/></symbol>
+  <symbol id="i-reset" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 17v5M9 10.8V5a1 1 0 0 0-1-1H7a1 1 0 0 1 0-2h10a1 1 0 0 1 0 2h-1a1 1 0 0 0-1 1v5.8l2.6 2.6c.6.6.2 1.6-.7 1.6H7.1c-.9 0-1.3-1-.7-1.6z"/></symbol>
+  <symbol id="i-term" viewBox="0 0 24 24"><path d="m4 17 6-6-6-6M12 19h8"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-more" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></symbol>
+  <symbol id="i-folder" viewBox="0 0 24 24"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.7-.9L9.6 3.9A2 2 0 0 0 7.9 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2z"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></symbol>
+  <symbol id="i-gitdir" viewBox="0 0 24 24"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.7-.9L9.6 3.9A2 2 0 0 0 7.9 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2z"/><circle cx="12" cy="13" r="2"/><path d="M14 13h2M8 13h2"/></symbol>
+  <symbol id="i-archive" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="5" rx="1"/><path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8M10 12h4"/></symbol>
+  <symbol id="i-merge" viewBox="0 0 24 24"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M6 21V9a9 9 0 0 0 9 9"/></symbol>
+  <symbol id="i-pause" viewBox="0 0 24 24"><rect x="14" y="4" width="4" height="16" rx="1"/><rect x="6" y="4" width="4" height="16" rx="1"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M3 21v-5h5M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></symbol>
+  <symbol id="i-logo" viewBox="0 0 24 24"><path d="M6 21V9M6 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM18 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM6 15c0-3 3-3 6-3s6 0 6-3"/></symbol>
+</svg>
+
+<!-- ======================= HOME ======================= -->
+<section class="screen" id="screen-home" aria-label="Home">
+  <header class="topbar">
+    <a class="crumb wordmark" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><use href="#i-logo"/></svg>Canopy</a>
+    <div class="spacer"></div>
+    <span class="chip chip-count" title="Lessons complete">128 / 225</span>
+    <button class="icon-btn" aria-label="Settings" style="margin-left:6px;width:28px;height:28px"><svg><use href="#i-settings"/></svg></button>
+  </header>
+  <div class="home-scroll">
+    <div class="home">
+      <h1>Learn git by using it</h1>
+      <div class="overall">
+        <span class="caps">Overall progress</span>
+        <span class="num">128 of 225 · 57%</span>
+      </div>
+      <div class="bar lg" role="progressbar" aria-valuenow="128" aria-valuemax="225" aria-label="Overall progress"><i style="transform:scaleX(.569)"></i></div>
+
+      <div class="continue" role="group" aria-label="Continue">
+        <div class="sec"><span>Section 6 · Merging</span><span>6 of 17 complete</span></div>
+        <div class="lesson"><span class="caps" style="color:var(--fg3)">Next up</span><span class="id">6.08</span><span>Your first conflict</span></div>
+        <div class="desc">Trigger a conflict and read both sides of the markers.</div>
+        <button class="btn btn-primary btn-lg">Continue <svg><use href="#i-right"/></svg></button>
+      </div>
+
+      <div class="level"><div class="caps">Beginner</div><div class="grid">
+        <button class="card"><div class="t"><span class="n">1</span><span>Orientation</span></div><div class="s ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><use href="#i-check"/></svg>Complete</div><div class="bar done"><i></i></div></button>
+        <button class="card"><div class="t"><span class="n">2</span><span>The core loop</span></div><div class="s ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><use href="#i-check"/></svg>Complete</div><div class="bar done"><i></i></div></button>
+        <button class="card"><div class="t"><span class="n">3</span><span>Looking around</span></div><div class="s ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><use href="#i-check"/></svg>Complete</div><div class="bar done"><i></i></div></button>
+        <button class="card"><div class="t"><span class="n">4</span><span>Basic undo</span></div><div class="s ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><use href="#i-check"/></svg>Complete</div><div class="bar done"><i></i></div></button>
+      </div></div>
+
+      <div class="level"><div class="caps">Core</div><div class="grid">
+        <button class="card"><div class="t"><span class="n">5</span><span>Branching</span></div><div class="s ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><use href="#i-check"/></svg>Complete</div><div class="bar done"><i></i></div></button>
+        <button class="card current" aria-label="Section 6, Merging, 6 of 17 complete, current section"><div class="t"><span class="n">6</span><span>Merging</span></div><div class="s">Continue · 6 of 17</div><div class="bar"><i style="transform:scaleX(.353)"></i></div></button>
+        <button class="card"><div class="t"><span class="n">7</span><span>Remotes</span></div><div class="s">Not started</div><div class="bar"><i style="transform:scaleX(0)"></i></div></button>
+        <button class="card"><div class="t"><span class="n">8</span><span>Stashing and worktrees</span></div><div class="s">3 of 10</div><div class="bar"><i style="transform:scaleX(.3)"></i></div></button>
+      </div></div>
+
+      <div class="level"><div class="caps">Intermediate</div><div class="grid">
+        <button class="card"><div class="t"><span class="n">9</span><span>Rewriting history</span></div><div class="s">Not started</div><div class="bar"><i style="transform:scaleX(0)"></i></div></button>
+        <button class="card"><div class="t"><span class="n">10</span><span>Recovery</span></div><div class="s">Not started</div><div class="bar"><i style="transform:scaleX(0)"></i></div></button>
+        <button class="card"><div class="t"><span class="n">11</span><span>Detective work</span></div><div class="s">2 of 13</div><div class="bar"><i style="transform:scaleX(.154)"></i></div></button>
+        <button class="card"><div class="t"><span class="n">12</span><span>Workflows</span></div><div class="s">Not started</div><div class="bar"><i style="transform:scaleX(0)"></i></div></button>
+      </div></div>
+
+      <div class="level"><div class="caps">Advanced</div><div class="grid">
+        <button class="card"><div class="t"><span class="n">13</span><span>Configuration and productivity</span></div><div class="s">Not started</div><div class="bar"><i style="transform:scaleX(0)"></i></div></button>
+        <button class="card"><div class="t"><span class="n">14</span><span>Internals</span></div><div class="s">Not started</div><div class="bar"><i style="transform:scaleX(0)"></i></div></button>
+        <button class="card"><div class="t"><span class="n">15</span><span>Specialist tools</span></div><div class="s">Not started</div><div class="bar"><i style="transform:scaleX(0)"></i></div></button>
+      </div></div>
+
+      <div class="home-foot"><span>Lessons 2026.10.03.1</span><span>·</span><a class="link" href="#">Check for updates</a></div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= LESSON WORKSPACE ======================= -->
+<section class="screen active" id="screen-ws" aria-label="Lesson workspace">
+  <header class="topbar">
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <a class="crumb wordmark" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><use href="#i-logo"/></svg>Canopy</a>
+      <span class="crumb-sep">›</span><a class="crumb" href="#">6 Merging</a>
+      <span class="crumb-sep">›</span><span class="crumb current"><span class="mono" style="color:var(--fg3);font-size:12px">6.08</span>Your first conflict</span>
+    </nav>
+    <div class="spacer"></div>
+    <div class="navpair">
+      <button class="btn btn-ghost" title="Previous lesson (Alt+←)"><svg><use href="#i-left"/></svg>6.07</button>
+      <button class="btn btn-ghost" title="Next lesson (Alt+→)">6.09<svg><use href="#i-right"/></svg></button>
+    </div>
+    <span class="chip chip-count" title="Lessons complete">128 / 225</span>
+    <button class="icon-btn" aria-label="Settings" style="margin-left:6px;width:28px;height:28px"><svg><use href="#i-settings"/></svg></button>
+  </header>
+
+  <div class="ws" id="ws">
+    <!-- ---------- lesson panel ---------- -->
+    <section class="pane" role="region" aria-label="Lesson">
+      <div class="pane-h"><span class="caps">Lesson</span><span class="spacer"></span>
+        <button class="icon-btn" aria-label="Collapse lesson panel (Alt+[)"><svg><use href="#i-left"/></svg></button></div>
+      <div class="lesson-body">
+        <div>
+          <div class="l-kind"><span class="id">6.08</span><span>·</span><span>Concept</span></div>
+          <h1 class="l-title">Your first conflict</h1>
+          <div class="l-sub">Teaches reading conflict markers</div>
+        </div>
+
+        <div class="banner banner-info" role="note">
+          <svg viewBox="0 0 24 24"><use href="#i-info"/></svg>
+          <div><b>Recommended first</b><br><a class="link" href="#">6.02 Three-way merge</a></div>
+          <button class="icon-btn x" aria-label="Dismiss"><svg><use href="#i-x"/></svg></button>
+        </div>
+
+        <div class="prose">
+          <p>When two branches change the same lines of the same file, git cannot pick a side for you. It stops the merge, writes both versions into the file between markers, and waits.</p>
+          <p>The block between <code>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</code> and <code>=======</code> is the branch you are on. The block between <code>=======</code> and <code>&gt;&gt;&gt;&gt;&gt;&gt;&gt; feature</code> is the branch you are merging in.</p>
+          <h2>Try it</h2>
+          <ol>
+            <li>Merge <code>feature</code> into <code>main</code>. git stops with a conflict in <code>recipe.txt</code>.</li>
+            <li>Check the status of the repo and find the file listed as "both modified".</li>
+            <li>Open <code>recipe.txt</code> in the files panel and read the two blocks.</li>
+            <li>Answer the questions in the lesson panel.</li>
+          </ol>
+        </div>
+
+        <div class="block q-ok" role="group" aria-label="Question 1">
+          <div class="block-h">Question 1 of 2</div>
+          <div class="q-prompt">Which branch's text sits between <code>&lt;&lt;&lt;&lt;&lt;&lt;&lt;</code> and <code>=======</code>?</div>
+          <div class="q-opts" role="radiogroup">
+            <label class="q-opt"><span class="radio"></span>feature</label>
+            <label class="q-opt"><span class="radio on"></span>main (HEAD)</label>
+            <label class="q-opt"><span class="radio"></span>the merge base</label>
+          </div>
+          <div class="q-foot"><span class="ok-line"><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>Correct.</span><a class="link" href="#" style="font-size:12px">Change answer</a></div>
+        </div>
+
+        <div class="block" role="group" aria-label="Question 2">
+          <div class="block-h">Question 2 of 2</div>
+          <div class="q-prompt">Which commit added the line <code>- 2 eggs</code> to recipe.txt on <code>feature</code>?</div>
+          <div style="margin-top:8px;display:flex;gap:8px;align-items:center">
+            <input class="input mono" style="width:160px" value="a1f3" aria-label="Commit hash or ref" placeholder="hash or ref">
+            <button class="btn btn-secondary">Check answer</button>
+          </div>
+          <div class="q-help">At least 4 characters of the id, or a name like <code>feature~1</code>. Click a commit on the graph to paste its id.</div>
+          <div class="q-wrong" role="status">Not quite. Try again.</div>
+        </div>
+
+        <div>
+          <div class="block-h" style="margin-bottom:4px">Hints</div>
+          <button class="btn btn-secondary btn-sm hint-btn" style="margin-top:0"><svg><use href="#i-bulb"/></svg>Show hint 1 of 2</button>
+        </div>
+
+        <div class="prose">
+          <h2>What just happened</h2>
+          <p>Nothing is broken. The merge is paused; the graph shows <code>main</code> and <code>feature</code> still apart, and the files panel marks <code>recipe.txt</code> as conflicted. The next lesson resolves it.</p>
+        </div>
+      </div>
+
+      <div class="goals" aria-label="Goals">
+        <div class="done-band" role="status"><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>Lesson complete</div>
+        <div class="goals-h"><span class="caps">Goals</span><span class="chip chip-count goal-count">1/3</span></div>
+        <ul>
+          <li class="goal pass g1"><span class="g"><svg viewBox="0 0 24 24"><use href="#i-check"/></svg></span>Start merging feature into main<svg class="pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><title>This goal stays done once reached.</title><use href="#i-pin"/></svg></li>
+          <li class="goal g2"><span class="g"><svg viewBox="0 0 24 24"><use href="#i-check"/></svg></span>Answer question 1</li>
+          <li class="goal g3"><span class="g"><svg viewBox="0 0 24 24"><use href="#i-check"/></svg></span>Answer question 2</li>
+        </ul>
+        <div class="done-card"><div class="t">Done. Next: <b>6.09 Resolve a conflict</b>.</div><button class="btn btn-ghost btn-sm">Stay here</button><button class="btn btn-primary btn-sm">Next lesson</button></div>
+        <div class="goals-f">
+          <button class="btn btn-danger-ghost"><svg><use href="#i-reset"/></svg>Reset lesson</button>
+          <button class="btn btn-secondary next-btn">Next <svg><use href="#i-right"/></svg></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- center ---------- -->
+    <div class="center">
+      <section class="pane" role="region" aria-label="Graph">
+        <div class="pane-h">
+          <span class="caps">Graph</span><span class="ctx">project</span>
+          <span class="op-chip"><svg viewBox="0 0 24 24"><use href="#i-merge"/></svg>Merge in progress · conflict</span>
+          <span class="spacer"></span>
+          <button class="icon-btn icon-toggle" aria-pressed="true" aria-label="Follow terminal (Alt+G)" title="Follow terminal"><svg><use href="#i-eye"/></svg></button>
+          <button class="icon-btn" aria-label="Graph view options"><svg><use href="#i-more"/></svg></button>
+          <button class="icon-btn" aria-label="Collapse graph"><svg><use href="#i-down"/></svg></button>
+        </div>
+        <div class="graph-wrap">
+          <svg width="560" height="220" viewBox="0 0 560 220" role="img" aria-label="6 commits. Branches: main at 4 commits, feature at 2 commits, diverged from main 2 commits ago. HEAD on main. Merge in progress.">
+            <!-- lanes: feature y=70, main y=130. spacing 56px -->
+            <!-- edges (under nodes) -->
+            <g fill="none" stroke-width="2" stroke-linecap="round">
+              <path d="M60 130 H228" stroke="var(--g-main)"/>
+              <path d="M116 130 C 144 130, 144 70, 172 70 H228" stroke="var(--g2)"/>
+            </g>
+            <!-- main commits -->
+            <g>
+              <circle cx="60" cy="130" r="6" fill="var(--g-main)"/><text class="gid" x="60" y="150" text-anchor="middle">c0ffee1</text>
+              <circle cx="116" cy="130" r="6" fill="var(--g-main)"/><text class="gid" x="116" y="150" text-anchor="middle">9b2d4e7</text>
+              <circle cx="172" cy="130" r="6" fill="var(--g-main)"/><text class="gid" x="172" y="150" text-anchor="middle">4d1a8c2</text>
+              <circle cx="228" cy="130" r="6" fill="var(--g-main)"/><text class="gid" x="228" y="150" text-anchor="middle">e7a90f3</text>
+              <!-- HEAD ring -->
+              <circle cx="228" cy="130" r="11" fill="none" stroke="var(--g-head)" stroke-width="2"/>
+            </g>
+            <!-- feature commits -->
+            <g>
+              <circle cx="172" cy="70" r="6" fill="var(--g2)"/><text class="gid" x="172" y="90" text-anchor="middle">a1f3c55</text>
+              <circle cx="228" cy="70" r="6" fill="var(--g2)"/><text class="gid" x="228" y="90" text-anchor="middle">b84e210</text>
+            </g>
+            <!-- tag on 9b2d4e7 (non-tip: below the node) -->
+            <g transform="translate(96,158)">
+              <path d="M6 0 H58 a2 2 0 0 1 2 2 V16 a2 2 0 0 1 -2 2 H6 L0 9 Z" fill="var(--canvas)" stroke="var(--fg2)" stroke-width="1.5"/>
+              <text class="gflag" x="12" y="13" fill="var(--fg)" font-weight="500">v0.1 ●</text>
+            </g>
+            <!-- main flag + HEAD label -->
+            <g>
+              <line x1="234" y1="130" x2="252" y2="130" stroke="var(--g-main)" stroke-width="2"/>
+              <text class="gflag" x="252" y="116" fill="var(--g-head)">HEAD</text>
+              <rect x="252" y="121" width="42" height="18" rx="9" fill="var(--g-main)"/>
+              <text class="gflag" x="273" y="134" text-anchor="middle" fill="var(--g-label)">main</text>
+            </g>
+            <!-- feature flag -->
+            <g>
+              <line x1="234" y1="70" x2="252" y2="70" stroke="var(--g2)" stroke-width="2"/>
+              <rect x="252" y="61" width="60" height="18" rx="9" fill="var(--g2)"/>
+              <text class="gflag" x="282" y="74" text-anchor="middle" fill="var(--g-label)">feature</text>
+            </g>
+            <!-- merge base marker (diamond) on 9b2d4e7 -->
+            <g transform="translate(116,130)">
+              <path d="M0 -12 L12 0 L0 12 L-12 0 Z" fill="none" stroke="var(--fg2)" stroke-width="1.5"/>
+              <text class="gid" x="0" y="-17" text-anchor="middle" fill="var(--fg2)">base</text>
+            </g>
+          </svg>
+        </div>
+      </section>
+
+      <section class="pane" role="region" aria-label="Terminal">
+        <div class="pane-h">
+          <span class="caps">Terminal</span><span class="ctx">project</span>
+          <span class="spacer"></span>
+          <button class="btn btn-ghost btn-sm">Clear</button>
+          <button class="icon-btn" aria-label="Keyboard: press Alt+1 to 4 or F6 to leave the terminal" title="Alt+1–4 or F6 moves focus out of the terminal"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M8 14h8"/></svg></button>
+        </div>
+        <div class="term-hint" role="note"><span>Tab completes commands here. Press <kbd>Alt</kbd>+<kbd>1</kbd>–<kbd>4</kbd> or <kbd>F6</kbd> to move to another pane.</span><button class="icon-btn x" aria-label="Dismiss"><svg><use href="#i-x"/></svg></button></div>
+        <div class="term" tabindex="0" aria-label="Terminal"><span class="p">project (main) $</span> git log --oneline --graph --all
+* <span class="yel">b84e210</span> (<span class="grn">feature</span>) Add eggs to the recipe
+* <span class="yel">a1f3c55</span> Rename recipe heading
+| * <span class="yel">e7a90f3</span> (<span class="blu">HEAD -&gt; main</span>) Add baking time
+| * <span class="yel">4d1a8c2</span> Fix typo in title
+|/
+* <span class="yel">9b2d4e7</span> (<span class="yel">tag: v0.1</span>) Add recipe
+* <span class="yel">c0ffee1</span> Add README
+<span class="p">project (main) $</span> git merge feature
+Auto-merging recipe.txt
+<span class="red">CONFLICT (content): Merge conflict in recipe.txt</span>
+Automatic merge failed; fix conflicts and then commit the result.
+<span class="p">project (main|MERGING) $</span> git status
+On branch main
+You have unmerged paths.
+  (fix conflicts and run "git commit")
+  (use "git merge --abort" to abort the merge)
+
+Unmerged paths:
+  (use "git add &lt;file&gt;..." to mark resolution)
+	<span class="red">both modified:   recipe.txt</span>
+
+no changes added to commit (use "git add" and/or "git commit -a")
+<span class="p">project (main|MERGING) $</span> <span class="cur"></span></div>
+      </section>
+    </div>
+
+    <!-- ---------- inspector ---------- -->
+    <section class="pane" role="region" aria-label="Inspector">
+      <div class="tabs" role="tablist">
+        <button class="tab" role="tab" aria-selected="true">Files</button>
+        <button class="tab" role="tab" aria-selected="false">Changes<span class="dot" aria-label="has new changes"></span></button>
+        <span class="spacer" style="flex:1"></span>
+        <button class="icon-btn" style="align-self:center" aria-label="Collapse inspector (Alt+])"><svg><use href="#i-right"/></svg></button>
+      </div>
+      <div class="tree" role="tree" aria-label="Files in project">
+        <div class="tr" role="treeitem" aria-expanded="true"><svg><use href="#i-down"/></svg><svg><use href="#i-folder"/></svg>project</div>
+        <div class="tr dim" role="treeitem" style="padding-left:24px"><svg><use href="#i-right"/></svg><svg><use href="#i-gitdir"/></svg>.git</div>
+        <div class="tr" role="treeitem" style="padding-left:44px"><svg><use href="#i-file"/></svg>.gitignore</div>
+        <div class="tr" role="treeitem" style="padding-left:44px"><svg><use href="#i-file"/></svg>README.md</div>
+        <div class="tr conf sel-when-editing" role="treeitem" style="padding-left:44px"><svg><use href="#i-file"/></svg>recipe.txt<span class="st c" title="Conflicted">!</span></div>
+        <div class="tr" role="treeitem" style="padding-left:44px"><svg><use href="#i-file"/></svg>notes.txt<span class="st u" title="Untracked">?</span></div>
+      </div>
+      <div class="editor" aria-label="Editor">
+        <div class="ed-h"><span>recipe.txt</span><span class="chip chip-warn" style="font-family:var(--sans)">conflicted</span><span class="spacer"></span><button class="btn btn-ghost btn-sm" style="font-family:var(--sans)">Save</button><button class="icon-btn" aria-label="Close editor (Esc)"><svg><use href="#i-x"/></svg></button></div>
+        <div class="ed">
+          <div class="ln"><span class="n">1</span><span class="lbl"></span><span># Pancakes</span></div>
+          <div class="ln"><span class="n">2</span><span class="lbl"></span><span></span></div>
+          <div class="ln mark ours"><span class="n">3</span><span class="lbl">HEAD (main)</span><span>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</span></div>
+          <div class="ln ours"><span class="n">4</span><span class="lbl"></span><span>- 200 g flour</span></div>
+          <div class="ln ours"><span class="n">5</span><span class="lbl"></span><span>- 300 ml milk</span></div>
+          <div class="ln ours"><span class="n">6</span><span class="lbl"></span><span>- bake 12 minutes</span></div>
+          <div class="ln mark"><span class="n">7</span><span class="lbl"></span><span>=======</span></div>
+          <div class="ln theirs"><span class="n">8</span><span class="lbl">feature</span><span>- 200 g flour</span></div>
+          <div class="ln theirs"><span class="n">9</span><span class="lbl"></span><span>- 300 ml milk</span></div>
+          <div class="ln theirs"><span class="n">10</span><span class="lbl"></span><span>- 2 eggs</span></div>
+          <div class="ln mark theirs"><span class="n">11</span><span class="lbl"></span><span>&gt;&gt;&gt;&gt;&gt;&gt;&gt; feature</span></div>
+          <div class="ln"><span class="n">12</span><span class="lbl"></span><span></span></div>
+          <div class="ln"><span class="n">13</span><span class="lbl"></span><span>Mix, rest, fry.</span></div>
+        </div>
+      </div>
+    </section>
+  </div>
+</section>
+
+<!-- ======================= COMPONENTS ======================= -->
+<section class="screen" id="screen-comp" aria-label="Components">
+  <header class="topbar">
+    <a class="crumb wordmark" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><use href="#i-logo"/></svg>Canopy</a>
+    <span class="crumb-sep">›</span><span class="crumb current">Component reference</span>
+    <div class="spacer"></div>
+    <span class="chip chip-count">128 / 225</span>
+    <button class="icon-btn" aria-label="Settings" style="margin-left:6px;width:28px;height:28px"><svg><use href="#i-settings"/></svg></button>
+  </header>
+  <div class="comp">
+    <h2>Buttons</h2>
+    <div class="row">
+      <button class="btn btn-primary">Continue</button>
+      <button class="btn btn-secondary">Check answer</button>
+      <button class="btn btn-ghost">Stay here</button>
+      <button class="btn btn-danger">Reset lesson</button>
+      <button class="btn btn-danger-ghost"><svg><use href="#i-reset"/></svg>Reset lesson</button>
+      <button class="btn btn-primary" disabled>Checking…</button>
+      <button class="btn btn-secondary"><svg><use href="#i-play"/></svg>Teammate pushes a fix</button>
+      <button class="icon-btn" aria-label="View script"><svg><use href="#i-braces"/></svg></button>
+      <span style="font-size:12px;color:var(--fg3)">Ran 1×</span>
+    </div>
+
+    <h2>Repo switcher · follow toggle · operation chip</h2>
+    <div class="row">
+      <div class="seg" role="group" aria-label="Repository shown on the graph">
+        <button aria-pressed="true"><svg viewBox="0 0 24 24"><use href="#i-term"/></svg>Your clone</button>
+        <button aria-pressed="false">origin</button>
+        <button aria-pressed="false">Teammate</button>
+      </div>
+      <button class="icon-btn icon-toggle" aria-pressed="false" aria-label="Follow terminal" style="width:28px;height:28px"><svg><use href="#i-eye"/></svg></button>
+      <span class="op-chip"><svg viewBox="0 0 24 24"><use href="#i-pause"/></svg>Rebase in progress · 2 of 4</span>
+      <span class="chip">Practice</span><span class="chip">Boss</span><span class="chip chip-outline">Guided</span><span class="chip chip-outline">Optional</span><span class="chip chip-warn">Destructive</span><span class="chip chip-warn">Needs git 2.38</span>
+    </div>
+
+    <h2>Lesson list rows</h2>
+    <div>
+      <div class="lrow"><span class="gl ok"><svg viewBox="0 0 24 24"><use href="#i-check"/></svg></span><span class="id">6.07</span><span>Read merges in history</span><span></span><span class="chip">Practice</span></div>
+      <div class="lrow next"><span class="gl"></span><span class="id">6.08</span><span style="font-weight:500">Your first conflict</span><span class="nx">Next</span><span class="chip">Concept</span></div>
+      <div class="lrow"><span class="gl"></span><span class="id">6.13</span><span>See the common ancestor in conflicts</span><span class="chip chip-warn">Needs git 2.35</span><span class="chip">Practice</span></div>
+      <div class="lrow"><span class="gl skip" title="Skipped (tool not available). Counts as done."><svg viewBox="0 0 24 24"><use href="#i-check"/></svg></span><span class="id">15.12</span><span>Signed commits and tags</span><span></span><span class="chip">Practice</span></div>
+      <div class="lrow"><span class="gl"></span><span class="id">6.17</span><span>Boss: integrate three features</span><span></span><span class="chip">Boss</span></div>
+    </div>
+
+    <h2>Graph vocabulary</h2>
+    <div style="background:var(--canvas);border:1px solid var(--edge);border-radius:6px;padding:8px">
+      <svg viewBox="0 0 1000 250" style="width:100%;height:auto" role="img" aria-label="Graph legend: normal, merge, HEAD, ghost, unreachable, flags, remote flag, tag, revert link, copy arrow, range highlight, stash">
+        <!-- row 1: nodes -->
+        <g font-family="var(--sans)" font-size="11" fill="var(--fg2)">
+          <circle cx="40" cy="40" r="6" fill="var(--g0)"/><text x="40" y="68" text-anchor="middle">commit</text>
+          <circle cx="120" cy="40" r="6" fill="var(--g0)"/><circle cx="120" cy="40" r="3" fill="none" stroke="var(--canvas)" stroke-width="2"/><text x="120" y="68" text-anchor="middle">merge</text>
+          <circle cx="200" cy="40" r="6" fill="var(--g-main)"/><circle cx="200" cy="40" r="11" fill="none" stroke="var(--g-head)" stroke-width="2"/><text x="200" y="68" text-anchor="middle">HEAD ring</text>
+          <circle cx="280" cy="40" r="6" fill="none" stroke="var(--g-ghost)" stroke-width="1.5" stroke-dasharray="3 2" opacity=".55"/><text x="280" y="68" text-anchor="middle">rewritten (ghost)</text>
+          <circle cx="380" cy="40" r="6" fill="var(--g-unreach)"/><text x="380" y="68" text-anchor="middle">unreachable</text>
+          <g transform="translate(460,40)"><path d="M0 -12 L12 0 L0 12 L-12 0 Z" fill="none" stroke="var(--fg2)" stroke-width="1.5"/><circle r="6" fill="var(--g-main)"/></g><text x="460" y="68" text-anchor="middle">merge base</text>
+          <circle cx="560" cy="40" r="6" fill="var(--g3)"/><circle cx="560" cy="40" r="7" fill="none" stroke="var(--fg)" stroke-width="1.5" transform="translate(0,0)"/><text x="560" y="68" text-anchor="middle">selected / hover</text>
+          <g transform="translate(602,31)"><rect width="128" height="18" rx="4" fill="var(--sunken)" stroke="var(--edge2)"/><text x="64" y="13" text-anchor="middle" font-family="var(--mono)" font-size="10.5" fill="var(--fg2)">12 earlier commits</text></g><text x="666" y="68" text-anchor="middle">collapsed history</text>
+          <!-- range highlight -->
+          <rect x="760" y="26" width="140" height="28" rx="10" fill="var(--g-hl)"/>
+          <circle cx="780" cy="40" r="6" fill="var(--g0)"/><circle cx="780" cy="40" r="8" fill="none" stroke="var(--accent)" stroke-width="1.5"/>
+          <circle cx="830" cy="40" r="6" fill="var(--g0)"/><circle cx="830" cy="40" r="8" fill="none" stroke="var(--accent)" stroke-width="1.5"/>
+          <circle cx="880" cy="40" r="6" fill="var(--g0)"/><circle cx="880" cy="40" r="8" fill="none" stroke="var(--accent)" stroke-width="1.5"/>
+          <text x="830" y="68" text-anchor="middle">range main..feature</text>
+        </g>
+        <!-- row 2: labels -->
+        <g font-family="var(--sans)" font-size="11" fill="var(--fg2)">
+          <g transform="translate(20,110)"><rect width="52" height="18" rx="9" fill="var(--g0)"/><text class="gflag" x="26" y="13" text-anchor="middle" fill="var(--g-label)">feature</text></g><text x="46" y="148" text-anchor="middle">local branch</text>
+          <g transform="translate(106,110)"><rect x=".75" y=".75" width="106" height="16.5" rx="8.25" fill="none" stroke="var(--g0)" stroke-width="1.5" stroke-dasharray="3 2"/><text class="gflag" x="54" y="13" text-anchor="middle" fill="var(--g0)"><tspan font-weight="400">origin/</tspan>feature</text></g><text x="159" y="148" text-anchor="middle">remote-tracking</text>
+          <g transform="translate(230,110)"><text class="gflag" x="0" y="-4" fill="var(--g-head)">HEAD</text><rect width="42" height="18" rx="9" fill="var(--g-main)"/><text class="gflag" x="21" y="13" text-anchor="middle" fill="var(--g-label)">main</text></g><text x="251" y="148" text-anchor="middle">HEAD → main</text>
+          <g transform="translate(320,110)"><path d="M6 0 H64 a2 2 0 0 1 2 2 V16 a2 2 0 0 1 -2 2 H6 L0 9 Z" fill="var(--canvas)" stroke="var(--fg2)" stroke-width="1.5"/><text class="gflag" x="12" y="13" fill="var(--fg)" font-weight="500">v1.2.0 ●</text></g><text x="353" y="148" text-anchor="middle">annotated tag</text>
+          <g transform="translate(420,110)"><path d="M6 0 H44 a2 2 0 0 1 2 2 V16 a2 2 0 0 1 -2 2 H6 L0 9 Z" fill="var(--canvas)" stroke="var(--fg2)" stroke-width="1.5"/><text class="gflag" x="12" y="13" fill="var(--fg)" font-weight="500">wip</text></g><text x="443" y="148" text-anchor="middle">lightweight tag</text>
+          <g transform="translate(500,110)"><text class="gflag" x="0" y="-4" fill="var(--g-head)">HEAD (detached)</text><circle cx="10" cy="9" r="6" fill="var(--g-main)"/><circle cx="10" cy="9" r="11" fill="none" stroke="var(--g-head)" stroke-width="2"/></g><text x="540" y="148" text-anchor="middle">detached HEAD</text>
+          <g transform="translate(640,110)"><text class="gflag" x="0" y="-4" fill="var(--g-head)">HEAD <tspan font-size="9" font-weight="500" fill="var(--fg3)">· hotfix-wt</tspan></text><circle cx="10" cy="9" r="6" fill="var(--g1)"/><circle cx="10" cy="9" r="11" fill="none" stroke="var(--g-head)" stroke-width="2"/></g><text x="680" y="148" text-anchor="middle">worktree HEAD</text>
+          <g transform="translate(775,101)"><rect width="164" height="18" rx="4" fill="none" stroke="var(--edge2)" stroke-dasharray="3 2"/><text x="8" y="13" font-family="var(--mono)" font-size="10.5" fill="var(--fg2)">stash@{0} WIP on main</text></g><text x="857" y="148" text-anchor="middle">stash (parked strip)</text>
+        </g>
+        <!-- row 3: links -->
+        <g fill="none" stroke-width="2" stroke-linecap="round" font-family="var(--sans)" font-size="11">
+          <path d="M30 210 H150" stroke="var(--g-main)"/><circle cx="30" cy="210" r="6" fill="var(--g-main)"/><circle cx="90" cy="210" r="6" fill="var(--g-main)"/><circle cx="150" cy="210" r="6" fill="var(--g-main)"/>
+          <path d="M150 198 C 130 170, 50 170, 30 198" stroke="var(--fg3)" stroke-width="1.5" stroke-dasharray="4 3"/>
+          <text x="90" y="176" text-anchor="middle" fill="var(--fg3)" font-family="var(--mono)" font-size="10" stroke="none">undoes</text>
+          <text x="90" y="238" text-anchor="middle" fill="var(--fg2)" stroke="none">revert link</text>
+
+          <path d="M260 210 H320" stroke="var(--g-ghost)" stroke-width="1.5" stroke-dasharray="3 2" opacity=".55"/>
+          <circle cx="260" cy="210" r="6" fill="none" stroke="var(--g-ghost)" stroke-width="1.5" stroke-dasharray="3 2" opacity=".55"/>
+          <circle cx="320" cy="210" r="6" fill="none" stroke="var(--g-ghost)" stroke-width="1.5" stroke-dasharray="3 2" opacity=".55"/>
+          <path d="M380 210 H440" stroke="var(--g2)"/><circle cx="380" cy="210" r="6" fill="var(--g2)"/><circle cx="440" cy="210" r="6" fill="var(--g2)"/>
+          <path d="M268 200 C 300 180, 340 180, 372 200" stroke="var(--fg3)" stroke-width="1.5" stroke-dasharray="1.5 3"/>
+          <path d="M372 200 l-6 -4 M372 200 l-7 2" stroke="var(--fg3)" stroke-width="1.5"/>
+          <text x="350" y="238" text-anchor="middle" fill="var(--fg2)" stroke="none">rebase: ghosts → copies, dotted arrow</text>
+
+          <path d="M560 210 H740" stroke="var(--g-main)"/>
+          <path d="M620 210 C 650 210, 650 185, 680 185 H 700 C 720 185, 720 210, 740 210" stroke="var(--g5)"/>
+          <circle cx="560" cy="210" r="6" fill="var(--g-main)"/><circle cx="620" cy="210" r="6" fill="var(--g-main)"/><circle cx="680" cy="185" r="6" fill="var(--g5)"/>
+          <circle cx="740" cy="210" r="6" fill="var(--g-main)"/><circle cx="740" cy="210" r="3" fill="none" stroke="var(--canvas)" stroke-width="2"/>
+          <text x="650" y="238" text-anchor="middle" fill="var(--fg2)" stroke="none">merge: lane color + incoming source color</text>
+
+          <path d="M820 210 H960" stroke="var(--g-main)"/>
+          <path d="M820 222 C 850 240, 880 240, 900 222 M900 222 C 915 210, 940 210, 960 222" stroke="var(--fg3)" stroke-width="1.5" stroke-dasharray="4 3" opacity=".6"/>
+          <circle cx="820" cy="210" r="6" fill="var(--g-main)"/><circle cx="900" cy="210" r="6" fill="var(--g-main)"/><circle cx="960" cy="210" r="6" fill="var(--g-main)"/>
+          <g font-family="var(--mono)" font-size="9" fill="var(--fg3)" stroke="none"><text x="820" y="200" text-anchor="middle">@{2}</text><text x="900" y="200" text-anchor="middle">@{1}</text><text x="960" y="200" text-anchor="middle">@{0}</text></g>
+          <text x="890" y="246" text-anchor="middle" fill="var(--fg2)" stroke="none" font-size="11">reflog ghost trail</text>
+        </g>
+      </svg>
+    </div>
+
+    <h2>Graph palette (main anchor + 8 hue slots, canvas behind)</h2>
+    <div class="swatches" style="background:var(--canvas);padding:8px;border:1px solid var(--edge);border-radius:6px">
+      <div class="sw" style="background:var(--g-main)">main</div>
+      <div class="sw" style="background:var(--g0)">0 · 250</div>
+      <div class="sw" style="background:var(--g1)">1 · 30</div>
+      <div class="sw" style="background:var(--g2)">2 · 150</div>
+      <div class="sw" style="background:var(--g3)">3 · 320</div>
+      <div class="sw" style="background:var(--g4)">4 · 70</div>
+      <div class="sw" style="background:var(--g5)">5 · 285</div>
+      <div class="sw" style="background:var(--g6)">6 · 200</div>
+      <div class="sw" style="background:var(--g7)">7 · 110</div>
+    </div>
+
+    <h2>Banners, toasts, tooltip</h2>
+    <div class="row" style="align-items:flex-start">
+      <div style="width:360px;display:flex;flex-direction:column;gap:10px">
+        <div class="banner banner-warn"><svg viewBox="0 0 24 24"><use href="#i-warn"/></svg><div><b>Destructive commands ahead.</b> This lesson throws away work on purpose. Only the learning folder changes, and Reset lesson brings it back.</div></div>
+        <div class="banner banner-warn"><svg viewBox="0 0 24 24"><use href="#i-warn"/></svg><div><b>HEAD is detached.</b> New commits here belong to no branch. Create a branch if you want to keep them.</div></div>
+        <div class="banner banner-success"><svg viewBox="0 0 24 24"><use href="#i-check"/></svg><div><b>Lesson complete.</b></div></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div class="toast" role="status"><svg viewBox="0 0 24 24" stroke="var(--success)"><use href="#i-check"/></svg><div class="t">Teammate pushed 1 commit to origin/main.</div><button class="icon-btn" aria-label="Dismiss"><svg><use href="#i-x"/></svg></button></div>
+        <div class="toast" role="alert"><svg viewBox="0 0 24 24" stroke="var(--danger)"><use href="#i-warn"/></svg><div class="t">"Teammate pushes a fix" did not finish.</div><button class="btn btn-ghost btn-sm">Show output</button></div>
+        <span class="tip">Follow terminal <kbd>Alt+G</kbd></span>
+      </div>
+    </div>
+
+    <h2>Lesson content updates (Settings → Lessons)</h2>
+    <div class="row" style="align-items:flex-start">
+      <div class="upd"><div class="h">Installed 2026.10.03.1</div><div class="m">Checked 2 days ago</div><div class="f"><button class="btn btn-secondary"><svg><use href="#i-refresh"/></svg>Check for updates</button></div></div>
+      <div class="upd"><div class="h">2026.11.02.1 available · 1.8 MB</div><div class="m">Installed 2026.10.03.1</div><details style="margin-top:8px;font-size:13px"><summary style="cursor:pointer;color:var(--fg2)">What changed</summary><ul style="padding:6px 0 0 18px;color:var(--fg2)"><li>6.13 now explains zdiff3 before the task</li><li>New hints in 9.11 Rebase conflicts</li><li>Fixed a typo in 2.10</li></ul></details><div class="f"><button class="btn btn-primary"><svg><use href="#i-download"/></svg>Download and install</button><button class="btn btn-ghost">Not now</button></div></div>
+      <div class="upd"><div class="h">Downloading…</div><div class="bar" style="margin-top:8px"><i style="transform:scaleX(.5)"></i></div><div class="m">0.9 of 1.8 MB</div><div class="f"><button class="btn btn-ghost">Cancel</button></div></div>
+      <div class="upd"><div class="h"><svg viewBox="0 0 24 24" stroke="var(--success)"><use href="#i-check"/></svg>Installed 2026.11.02.1</div><div class="m">Your progress is unchanged.</div><div class="f"><button class="btn btn-secondary">Done</button></div></div>
+      <div class="upd"><div class="h"><svg viewBox="0 0 24 24" stroke="var(--danger)"><use href="#i-warn"/></svg>Could not reach the update server.</div><div class="m">Check your connection and try again. Lessons keep working offline.</div><div class="f"><button class="btn btn-secondary">Try again</button><button class="btn btn-ghost">Not now</button></div></div>
+    </div>
+
+    <h2>Confirm dialog</h2>
+    <div class="dialog" role="dialog" aria-labelledby="d1"><h3 id="d1">Reset this lesson?</h3><p>Canopy deletes the lesson folder and builds it again from the start. Your progress in other lessons is not affected.</p><div class="f"><button class="btn btn-ghost">Cancel</button><button class="btn btn-danger">Reset lesson</button></div></div>
+
+    <h2>Three-area panel (Areas tab)</h2>
+    <div style="border:1px solid var(--edge);border-radius:6px;padding:12px;width:560px;background:var(--surface)">
+      <div style="display:grid;grid-template-columns:1fr 24px 1fr 24px 1fr;gap:4px;align-items:start">
+        <div class="caps">Working tree</div><div></div><div class="caps">Staging</div><div></div><div class="caps">HEAD</div>
+        <div style="border:1px solid var(--accent);border-radius:6px;padding:8px;font-family:var(--mono);font-size:11px;line-height:16px"><div style="font-weight:600;margin-bottom:4px">todo.txt <span class="chip" style="font-family:var(--sans);float:right">differs</span></div>buy milk<br>buy bread</div>
+        <div style="text-align:center;color:var(--fg3);padding-top:22px">→</div>
+        <div style="border:1px solid var(--edge2);border-radius:6px;padding:8px;font-family:var(--mono);font-size:11px;line-height:16px"><div style="font-weight:600;margin-bottom:4px">todo.txt <span class="chip" style="font-family:var(--sans);float:right">differs</span></div>buy milk</div>
+        <div style="text-align:center;color:var(--fg3);padding-top:22px">→</div>
+        <div style="border:1px dashed var(--edge2);border-radius:6px;padding:8px;font-family:var(--mono);font-size:11px;line-height:16px;color:var(--fg3)"><div style="font-weight:600;margin-bottom:4px;color:var(--fg2)">todo.txt</div>(absent)</div>
+        <div style="font-family:var(--mono);font-size:11px;color:var(--fg2);padding:4px 8px">README.md</div><div style="text-align:center;color:var(--fg3)">═</div><div style="font-family:var(--mono);font-size:11px;color:var(--fg2);padding:4px 8px">README.md</div><div style="text-align:center;color:var(--fg3)">═</div><div style="font-family:var(--mono);font-size:11px;color:var(--fg2);padding:4px 8px">README.md</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+(function(){
+  const root=document.documentElement, ws=document.getElementById('ws');
+  const screens={home:'screen-home',ws:'screen-ws',comp:'screen-comp'};
+  function press(group,val){document.querySelectorAll('#proto button['+group+']').forEach(b=>b.setAttribute('aria-pressed',String(b.getAttribute(group)===val)));}
+  document.getElementById('proto').addEventListener('click',e=>{
+    const b=e.target.closest('button'); if(!b) return;
+    if(b.dataset.screen){Object.values(screens).forEach(id=>document.getElementById(id).classList.remove('active'));document.getElementById(screens[b.dataset.screen]).classList.add('active');press('data-screen',b.dataset.screen);}
+    if(b.dataset.theme){root.setAttribute('data-theme',b.dataset.theme);press('data-theme',b.dataset.theme);}
+    if(b.dataset.ws){
+      ws.classList.remove('editing','complete');
+      if(b.dataset.ws!=='default') ws.classList.add(b.dataset.ws);
+      const complete=b.dataset.ws==='complete';
+      ws.querySelectorAll('.goal').forEach(g=>{ if(complete) g.classList.add('pass'); else if(!g.classList.contains('g1')) g.classList.remove('pass'); });
+      ws.querySelector('.goal-count').textContent=complete?'3/3':'1/3';
+      const nb=ws.querySelector('.next-btn'); nb.classList.toggle('btn-primary',complete); nb.classList.toggle('btn-secondary',!complete);
+      ws.querySelector('.sel-when-editing').classList.toggle('sel',b.dataset.ws==='editing');
+      press('data-ws',b.dataset.ws);
+    }
+  });
+})();
+</script>
+</body>
+</html>
