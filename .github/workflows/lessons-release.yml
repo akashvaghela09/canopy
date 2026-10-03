@@ -1,0 +1,59 @@
+name: Publish lesson pack
+
+# Builds, signs and publishes a lesson pack whenever lessons change on main.
+# The app's "Check for updates" reads
+#   https://github.com/<owner>/<repo>/releases/download/lessons-latest/latest.json
+# Setup: docs/CONTENT_UPDATES.md (needs the MINISIGN_SECRET_KEY and
+# MINISIGN_PASSWORD repository secrets).
+
+on:
+  push:
+    branches: [main]
+    paths: ["lessons/**"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Test all lessons
+        run: cargo run -q -p canopy-lesson -- test
+      - name: Stamp content version
+        id: version
+        run: |
+          v="$(date -u +%Y.%m.%d).${GITHUB_RUN_NUMBER}"
+          sed -i "s/^contentVersion:.*/contentVersion: \"$v\"/" lessons/manifest.yaml
+          echo "version=$v" >> "$GITHUB_OUTPUT"
+      - name: Changelog
+        run: git log -n 20 --format='- %s' -- lessons > changelog.md
+      - name: Package
+        run: |
+          base="https://github.com/${GITHUB_REPOSITORY}/releases/download/lessons-${{ steps.version.outputs.version }}"
+          tools/package-lessons.sh out "$base" changelog.md
+      - name: Sign
+        env:
+          MINISIGN_SECRET_KEY: ${{ secrets.MINISIGN_SECRET_KEY }}
+          MINISIGN_PASSWORD: ${{ secrets.MINISIGN_PASSWORD }}
+        run: |
+          sudo apt-get install -y minisign
+          printf '%s\n' "$MINISIGN_SECRET_KEY" > key.sec
+          for f in out/*.tar.gz; do printf '%s\n' "$MINISIGN_PASSWORD" | minisign -S -s key.sec -m "$f"; done
+          rm key.sec
+      - name: Release this version
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "lessons-${{ steps.version.outputs.version }}" out/*.tar.gz out/*.minisig out/latest.json \
+            --title "Lessons ${{ steps.version.outputs.version }}" --notes-file changelog.md
+      - name: Point lessons-latest at it
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view lessons-latest >/dev/null 2>&1 || gh release create lessons-latest --title "Latest lessons" --notes "Feed for Canopy's Check for updates." --latest=false
+          gh release upload lessons-latest out/latest.json --clobber
