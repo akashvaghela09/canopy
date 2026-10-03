@@ -1,0 +1,51 @@
+/* Graph motion: transform and opacity only (DESIGN.md section 9). */
+.canopy-graph .mv {
+  transition: transform var(--dur-graph) var(--ease-out);
+}
+.canopy-graph .grow {
+  animation: graph-grow 200ms var(--ease-out);
+}
+.canopy-graph .fade-in {
+  animation: graph-fade 200ms var(--ease-out);
+}
+.canopy-graph .node {
+  cursor: pointer;
+}
+.canopy-graph text {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+.canopy-graph .g-id {
+  font-size: 10px;
+  fill: var(--color-fg-3);
+}
+.canopy-graph .g-meta {
+  font-size: 10px;
+  fill: var(--color-fg-2);
+}
+.canopy-graph .g-flag {
+  font-size: 11px;
+  font-weight: 600;
+}
+.canopy-graph .g-head {
+  font-size: 11px;
+  font-weight: 600;
+  fill: var(--color-fg);
+}
+@keyframes graph-grow {
+  from {
+    opacity: 0;
+    scale: 0.6;
+  }
+}
+@keyframes graph-fade {
+  from {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .canopy-graph .grow,
+  .canopy-graph .fade-in {
+    animation-duration: 80ms;
+  }
+}

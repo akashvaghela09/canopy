@@ -1,0 +1,93 @@
+/* Rendered lesson Markdown (DESIGN.md 7.17) and small motion helpers. */
+.lesson-md p,
+.lesson-md ul,
+.lesson-md ol {
+  margin: 0 0 0.75rem;
+}
+.lesson-md h2 {
+  margin: 1.25rem 0 0.5rem;
+  font-size: var(--text-base);
+  line-height: var(--text-base--line-height);
+  font-weight: 600;
+}
+.lesson-md h3 {
+  margin: 1rem 0 0.5rem;
+  font-weight: 600;
+}
+.lesson-md ol {
+  list-style: decimal;
+  padding-left: 1.25rem;
+}
+.lesson-md ul {
+  list-style: disc;
+  padding-left: 1.25rem;
+}
+.lesson-md li {
+  margin: 0.25rem 0;
+}
+.lesson-md strong {
+  font-weight: 600;
+}
+.lesson-md code {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  background: var(--color-sunken);
+  border-radius: var(--radius-sm);
+  padding: 1px 5px;
+  font-variant-ligatures: none;
+}
+.lesson-md pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  background: var(--color-sunken);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  overflow-x: auto;
+  margin: 0 0 0.75rem;
+}
+.lesson-md pre code {
+  background: none;
+  padding: 0;
+}
+.lesson-md table {
+  border-collapse: collapse;
+  margin: 0 0 0.75rem;
+  font-size: var(--text-sm);
+}
+.lesson-md th,
+.lesson-md td {
+  border: 1px solid var(--color-edge);
+  padding: 2px 8px;
+  text-align: left;
+}
+.lesson-md a {
+  color: var(--color-accent);
+}
+
+.goal-pass {
+  animation: fade-in var(--dur-base) var(--ease-out);
+}
+.complete-card,
+.toast {
+  animation: slide-up var(--dur-slow) var(--ease-out);
+}
+.editor-sheet {
+  animation: slide-down 200ms var(--ease-out);
+}
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+@keyframes slide-down {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
