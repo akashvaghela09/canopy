@@ -4,7 +4,7 @@ name: Publish lesson pack
 # The app's "Check for updates" reads
 #   https://github.com/<owner>/<repo>/releases/download/lessons-latest/latest.json
 # Setup: docs/CONTENT_UPDATES.md (needs the MINISIGN_SECRET_KEY repository
-# secret; the key is password-less).
+# secret; the key has an empty password).
 
 on:
   push:
@@ -43,7 +43,9 @@ jobs:
           sudo apt-get install -y minisign
           umask 077
           printf '%s\n' "$MINISIGN_SECRET_KEY" > key.sec
-          for f in out/*.tar.gz; do minisign -S -s key.sec -m "$f" < /dev/null; done
+          # The key has an empty password: answer the prompt with an empty
+          # line (also harmless for keys made with -W, which never ask).
+          for f in out/*.tar.gz; do printf '\n' | minisign -S -s key.sec -m "$f"; done
           rm key.sec
       - name: Release this version
         env:

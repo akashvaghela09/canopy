@@ -23,9 +23,9 @@ Why signatures are mandatory: lesson `setup.sh` and action scripts run on the le
 
 ## One-time setup
 
-1. Generate a password-less signing key pair (keep the secret key safe; it is the only way to publish packs):
+1. Generate a signing key pair, pressing Enter for an empty password (keep the secret key safe; it is the only way to publish packs):
    ```sh
-   minisign -G -W -p canopy-lessons.pub -s canopy-lessons.key
+   minisign -G -p canopy-lessons.pub -s canopy-lessons.key
    ```
 2. Add the secret key as a repository secret: `gh secret set MINISIGN_SECRET_KEY < canopy-lessons.key`.
 3. The official feed URL and public key (`canopy-lessons.pub`, committed in the repo root) are built into the app by default (`src-tauri/src/updates.rs`). Keep `canopy-lessons.key` out of the repo (it is git-ignored) and store it somewhere safe. A fork can override both at build time:
