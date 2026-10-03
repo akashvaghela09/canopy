@@ -47,3 +47,17 @@ export function useThemeVersion(): number {
   }, []);
   return v;
 }
+
+/** One size for everything: the interface (rem) and the terminal font. */
+export const TEXT_SIZES = [
+  { value: 90, label: "Small" },
+  { value: 100, label: "Default" },
+  { value: 112, label: "Large" },
+  { value: 125, label: "Larger" },
+  { value: 140, label: "Largest" },
+];
+
+export function textScale(settings: Record<string, string>): number {
+  const v = Number(settings.textSize ?? 100);
+  return TEXT_SIZES.some((t) => t.value === v) ? v : 100;
+}

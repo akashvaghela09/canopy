@@ -65,6 +65,8 @@ struct Shared {
 
 pub struct Session {
     pub lesson_id: String,
+    /// A command was submitted and its prompt has not come back yet.
+    busy: Arc<std::sync::atomic::AtomicBool>,
     pub root: PathBuf,
     writer: Mutex<Box<dyn Write + Send>>,
     master: Mutex<Box<dyn MasterPty + Send>>,
@@ -111,6 +113,7 @@ impl Session {
         });
 
         let (refresh_tx, refresh_rx) = channel::<()>();
+        let busy = Arc::new(std::sync::atomic::AtomicBool::new(false));
 
         // Refresh worker: coalesces requests, then checks goals and snapshots.
         {
@@ -122,6 +125,7 @@ impl Session {
         {
             let shared = shared.clone();
             let refresh = refresh_tx.clone();
+            let busy = busy.clone();
             std::thread::spawn(move || {
                 let mut parser = MarkerParser::new();
                 let mut carry: Vec<u8> = Vec::new();
@@ -136,6 +140,7 @@ impl Session {
                         match chunk {
                             Chunk::Output(b) => text.extend(b),
                             Chunk::Prompt(ev) => {
+                                busy.store(false, std::sync::atomic::Ordering::Relaxed);
                                 *shared.cwd.lock().unwrap() = Some(PathBuf::from(&ev.cwd));
                                 if let Some(entry) = parser.command_for(&ev, now_ms()) {
                                     let _ = shared.db.lock().unwrap().add_command(&shared.lesson.meta.id, &entry);
@@ -174,6 +179,7 @@ impl Session {
         let _ = refresh_tx.send(());
         Ok(Session {
             lesson_id: id,
+            busy,
             root,
             writer: Mutex::new(writer),
             master: Mutex::new(master),
@@ -184,6 +190,9 @@ impl Session {
     }
 
     pub fn write(&self, data: &[u8]) -> Result<()> {
+        if data.contains(&b'\r') || data.contains(&b'\n') {
+            self.busy.store(true, std::sync::atomic::Ordering::Relaxed);
+        }
         let mut w = self.writer.lock().unwrap();
         w.write_all(data)?;
         w.flush()?;
@@ -196,6 +205,11 @@ impl Session {
             .unwrap()
             .resize(PtySize { cols: cols.max(20), rows: rows.max(5), pixel_width: 0, pixel_height: 0 })?;
         Ok(())
+    }
+
+    /// True while a command typed in the terminal is still running.
+    pub fn is_busy(&self) -> bool {
+        self.busy.load(std::sync::atomic::Ordering::Relaxed)
     }
 
     pub fn request_refresh(&self) {

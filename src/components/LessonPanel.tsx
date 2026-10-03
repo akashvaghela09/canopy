@@ -7,7 +7,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import type { PublicQuestion } from "../api";
 import { api } from "../api";
-import { appActions, lessonActions, runAction, skipLesson, submitAnswer, useAppDispatch, useAppSelector } from "../store";
+import { go, lessonActions, runAction, skipLesson, submitAnswer, useAppDispatch, useAppSelector } from "../store";
 import { missingRecommended, neighbours } from "../store/progress";
 import { Banner, Button, Chip, IconButton } from "./ui";
 
@@ -61,7 +61,7 @@ export function LessonPanel({
                 {missing.slice(0, 2).map((l, i) => (
                   <span key={l.id}>
                     {i > 0 && ", "}
-                    <button className="text-accent hover:underline" onClick={() => dispatch(appActions.navigate({ kind: "lesson", lesson: l.id }))}>
+                    <button className="text-accent hover:underline" onClick={() => dispatch(go({ kind: "lesson", lesson: l.id }))}>
                       {l.id} {l.title}
                     </button>
                   </span>
@@ -279,7 +279,7 @@ function GoalsFooter({ onReset }: { onReset: () => void }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [update]);
 
-  const goNext = () => nb.next && dispatch(appActions.navigate({ kind: "lesson", lesson: nb.next.id }));
+  const goNext = () => nb.next && dispatch(go({ kind: "lesson", lesson: nb.next.id }));
   const showQuestion = (id: string) => {
     const el = document.getElementById(`question-${id}`);
     el?.scrollIntoView({ behavior: "smooth", block: "start" });

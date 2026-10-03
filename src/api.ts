@@ -101,6 +101,7 @@ export const api = {
   terminalResize: (cols: number, rows: number) => invoke<void>("terminal_resize", { cols, rows }),
   terminalGoHome: () => invoke<void>("terminal_go_home"),
   learningFolder: () => invoke<string>("learning_folder"),
+  terminalBusy: () => invoke<boolean>("terminal_busy"),
   submitAnswer: (question: string, value: unknown) => invoke<boolean>("submit_answer", { question, value }),
   runAction: (action: string) => invoke<string>("run_action", { action }),
   listDir: (path: string) => invoke<DirEntry[]>("list_dir", { path }),

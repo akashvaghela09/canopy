@@ -20,6 +20,8 @@ type AppState = {
   settings: Record<string, string>;
   settingsOpen: boolean;
   shortcutsOpen: boolean;
+  /** Navigation waiting for the learner to confirm leaving a lesson. */
+  pendingNav: { to: Screen; reasons: string[] } | null;
   toasts: Toast[];
 };
 
@@ -27,10 +29,14 @@ let toastId = 0;
 
 const appSlice = createSlice({
   name: "app",
-  initialState: { screen: { kind: "loading" }, git: null, settings: {}, settingsOpen: false, shortcutsOpen: false, toasts: [] } as AppState,
+  initialState: { screen: { kind: "loading" }, git: null, settings: {}, settingsOpen: false, shortcutsOpen: false, toasts: [], pendingNav: null } as AppState,
   reducers: {
     navigate(s, a: PayloadAction<Screen>) {
       s.screen = a.payload;
+      s.pendingNav = null;
+    },
+    askToLeave(s, a: PayloadAction<{ to: Screen; reasons: string[] } | null>) {
+      s.pendingNav = a.payload;
     },
     setGit(s, a: PayloadAction<GitCheck>) {
       s.git = a.payload;
@@ -104,6 +110,8 @@ type LessonState = {
   completeCardDismissed: boolean;
   /** Bumped on reset so the terminal clears. */
   generation: number;
+  /** Path of a file with unsaved edits in the editor, if any. */
+  dirtyFile: string | null;
 };
 
 const initialLesson: LessonState = {
@@ -122,6 +130,7 @@ const initialLesson: LessonState = {
   missingTools: [],
   completeCardDismissed: false,
   generation: 0,
+  dirtyFile: null,
 };
 
 const lessonSlice = createSlice({
@@ -172,6 +181,9 @@ const lessonSlice = createSlice({
     },
     setMissingTools(s, a: PayloadAction<string[]>) {
       s.missingTools = a.payload;
+    },
+    setDirtyFile(s, a: PayloadAction<string | null>) {
+      s.dirtyFile = a.payload;
     },
     dismissNotice(s) {
       s.noticeDismissed = true;
@@ -240,4 +252,25 @@ export const resetProgress = createAsyncThunk("catalog/resetProgress", async (se
 export const skipLesson = createAsyncThunk("catalog/skipLesson", async (id: string, { dispatch }) => {
   await api.skipLesson(id);
   await dispatch(loadCatalog());
+});
+
+/**
+ * Go to another screen. Leaving a lesson keeps its folder and progress, but
+ * unsaved edits, a git command waiting on the editor and a running command
+ * are lost, so ask first when any of those apply.
+ */
+export const go = createAsyncThunk("app/go", async (to: Screen, { dispatch, getState }) => {
+  const state = getState() as RootState;
+  const from = state.app.screen;
+  const leaving = from.kind === "lesson" && !(to.kind === "lesson" && to.lesson === from.lesson);
+  if (!leaving) {
+    dispatch(appActions.navigate(to));
+    return;
+  }
+  const reasons: string[] = [];
+  if (state.lesson.dirtyFile) reasons.push(`Unsaved changes in ${state.lesson.dirtyFile} will be lost.`);
+  if (state.lesson.editor) reasons.push("git is waiting for you to finish in the editor; leaving cancels that command.");
+  else if (await api.terminalBusy().catch(() => false)) reasons.push("A command is still running in the terminal; leaving stops it.");
+  if (reasons.length) dispatch(appActions.askToLeave({ to, reasons }));
+  else dispatch(appActions.navigate(to));
 });

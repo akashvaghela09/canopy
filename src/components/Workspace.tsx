@@ -4,12 +4,13 @@
 import { PanelLeftOpen, PanelRightOpen, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { api } from "../api";
-import { appActions, lessonActions, useAppDispatch, useAppSelector } from "../store";
+import { go, lessonActions, useAppDispatch, useAppSelector } from "../store";
 import { EditorSheet } from "./EditorSheet";
 import { GraphPane } from "./GraphPane";
 import { Inspector, type InspectorTab, type OpenFile } from "./Inspector";
 import { LessonPanel } from "./LessonPanel";
 import { Terminal } from "./Terminal";
+import { textScale } from "../theme";
 import { Banner, Button, Dialog, IconButton, PaneHeader } from "./ui";
 
 type Panes = {
@@ -58,7 +59,8 @@ export function Workspace({ lessonId }: { lessonId: string }) {
   const [termHint, setTermHint] = useState(() => !localStorage.getItem("canopy.termHintDone"));
   const center = useRef<HTMLDivElement>(null);
   const meta = lesson.view?.meta;
-  const fontSize = Number(settings.terminalFontSize ?? 13);
+  // The terminal follows the one Text size setting (13px at Default).
+  const fontSize = Math.round((13 * textScale(settings)) / 100);
   // Small windows (DESIGN.md 4.1): narrower side panes, auto-collapse below 1100/960.
   const winW = useWindowWidth();
   const lessonW = winW < 1280 ? Math.min(panes.lessonW, 300) : panes.lessonW;
@@ -363,5 +365,5 @@ function Resizer({ orientation, onDrag, onReset }: { orientation: "vertical" | "
 
 export function useLessonNavigation() {
   const dispatch = useAppDispatch();
-  return (id: string) => dispatch(appActions.navigate({ kind: "lesson", lesson: id }));
+  return (id: string) => dispatch(go({ kind: "lesson", lesson: id }));
 }

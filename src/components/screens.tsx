@@ -4,7 +4,7 @@ import { openUrl } from "@tauri-apps/plugin-opener";
 import { Check, CheckCircle2, ChevronRight, Circle, ExternalLink, GitBranch, Settings } from "lucide-react";
 import { useEffect, useState } from "react";
 import { api, type LessonSummary } from "../api";
-import { appActions, loadCatalog, resetProgress, setSetting, useAppDispatch, useAppSelector } from "../store";
+import { appActions, go, loadCatalog, resetProgress, setSetting, useAppDispatch, useAppSelector } from "../store";
 import { nextLesson, overallProgress, sectionProgress } from "../store/progress";
 import { Button, Chip, Dialog, IconButton, ProgressBar } from "./ui";
 
@@ -23,14 +23,14 @@ export function TopBar() {
   return (
     <header className="flex h-[var(--size-topbar)] shrink-0 items-center gap-2 border-b border-edge bg-surface px-3">
       <nav aria-label="Breadcrumb" className="flex min-w-0 items-center gap-1.5 text-sm">
-        <button className="flex items-center gap-2 rounded-sm px-1 font-semibold hover:underline" onClick={() => dispatch(appActions.navigate({ kind: "home" }))}>
+        <button className="flex items-center gap-2 rounded-sm px-1 font-semibold hover:underline" onClick={() => dispatch(go({ kind: "home" }))}>
           <GitBranch size={18} strokeWidth={1.75} aria-hidden />
           Canopy
         </button>
         {section && (
           <>
             <ChevronRight size={14} className="text-fg-3" aria-hidden />
-            <button className="truncate rounded-sm text-fg-2 hover:text-fg hover:underline" onClick={() => dispatch(appActions.navigate({ kind: "section", section: section.id }))}>
+            <button className="truncate rounded-sm text-fg-2 hover:text-fg hover:underline" onClick={() => dispatch(go({ kind: "section", section: section.id }))}>
               {section.id} {section.title}
             </button>
           </>
@@ -63,7 +63,7 @@ export function GitGate() {
     dispatch(appActions.setGit(g));
     setChecking(false);
     setCheckedOnce(true);
-    if (g.ok) dispatch(appActions.navigate({ kind: "loading" }));
+    if (g.ok) dispatch(go({ kind: "loading" }));
   };
   const tooOld = git?.found && !git.ok;
   return (
@@ -106,7 +106,7 @@ export function FirstRun() {
   }, []);
   const finish = (lesson: string | null) => {
     dispatch(setSetting({ key: "firstRunDone", value: "1" }));
-    dispatch(appActions.navigate(lesson ? { kind: "lesson", lesson } : { kind: "home" }));
+    dispatch(go(lesson ? { kind: "lesson", lesson } : { kind: "home" }));
   };
   return (
     <main className="flex h-full items-center justify-center bg-bg">
@@ -196,7 +196,7 @@ export function Home() {
               <div className="mt-1 flex items-center gap-3">
                 <span className="font-mono text-sm text-fg-3">{next.id}</span>
                 <span className="text-lg font-medium">{next.title}</span>
-                <Button variant="primary" size="lg" className="ml-auto" onClick={() => dispatch(appActions.navigate({ kind: "lesson", lesson: next.id }))}>
+                <Button variant="primary" size="lg" className="ml-auto" onClick={() => dispatch(go({ kind: "lesson", lesson: next.id }))}>
                   {fresh ? "Start" : "Continue"} <ChevronRight size={16} />
                 </Button>
               </div>
@@ -225,7 +225,7 @@ export function Home() {
                   return (
                     <button
                       key={s.id}
-                      onClick={() => dispatch(appActions.navigate({ kind: "section", section: s.id }))}
+                      onClick={() => dispatch(go({ kind: "section", section: s.id }))}
                       aria-label={`Section ${s.id}, ${s.title}, ${p.done} of ${p.total} complete${current ? ", current section" : ""}`}
                       className={`rounded-md border border-edge bg-surface p-4 text-left transition-colors duration-[var(--dur-fast)] hover:border-edge-2 hover:bg-raised ${
                         current ? "border-l-2 border-l-accent" : ""
@@ -288,7 +288,7 @@ export function SectionView({ sectionId }: { sectionId: number }) {
         )}
         <ul className="mt-6" aria-label="Lessons">
           {lessons.map((l) => (
-            <LessonRow key={l.id} lesson={l} done={Boolean(cat.completed[l.id])} skipped={cat.skipped.includes(l.id)} isNext={next?.id === l.id} onOpen={() => dispatch(appActions.navigate({ kind: "lesson", lesson: l.id }))} />
+            <LessonRow key={l.id} lesson={l} done={Boolean(cat.completed[l.id])} skipped={cat.skipped.includes(l.id)} isNext={next?.id === l.id} onOpen={() => dispatch(go({ kind: "lesson", lesson: l.id }))} />
           ))}
         </ul>
         {p.done > 0 && (

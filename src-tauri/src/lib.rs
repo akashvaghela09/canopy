@@ -65,6 +65,7 @@ pub fn run() {
             commands::smoke_lesson,
             commands::terminal_go_home,
             commands::learning_folder,
+            commands::terminal_busy,
         ])
         .run(tauri::generate_context!())
         .expect("error while running Canopy");

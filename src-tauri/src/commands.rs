@@ -601,3 +601,9 @@ pub fn terminal_go_home(state: State<AppState>) -> CmdResult<()> {
 pub fn learning_folder(state: State<AppState>) -> String {
     state.paths.workspace().to_string_lossy().into_owned()
 }
+
+/// Is a terminal command still running? (Used to warn before leaving a lesson.)
+#[tauri::command]
+pub fn terminal_busy(state: State<AppState>) -> bool {
+    state.session.lock().unwrap().as_ref().is_some_and(|s| s.is_busy())
+}

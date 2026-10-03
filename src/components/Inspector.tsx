@@ -5,7 +5,7 @@ import { ChevronDown, ChevronRight, File, Folder, FolderGit2, PanelRightClose, R
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { api, inspect, type AreaRow, type DirEntry } from "../api";
 import type { Snapshot } from "../graph/types";
-import { useAppSelector } from "../store";
+import { lessonActions, useAppDispatch, useAppSelector } from "../store";
 import { CodeEditor } from "./CodeEditor";
 import { useActiveRepo } from "./GraphPane";
 import { Button, IconButton, Spinner } from "./ui";
@@ -188,6 +188,14 @@ function FileEditor({ file, tick, onClose }: { file: OpenFile; tick: unknown; on
   const [saved, setSaved] = useState<string | null>(file.content ?? null);
   const [error, setError] = useState<string | null>(null);
   const dirty = text !== null && text !== saved;
+  const dispatch = useAppDispatch();
+  // Tell the store, so leaving the lesson can warn about unsaved edits.
+  useEffect(() => {
+    dispatch(lessonActions.setDirtyFile(dirty && !file.readOnly ? file.path : null));
+    return () => {
+      dispatch(lessonActions.setDirtyFile(null));
+    };
+  }, [dirty, file.path, file.readOnly, dispatch]);
 
   // Reload from disk when the file changes outside the editor (and we have no edits).
   useEffect(() => {

@@ -6,9 +6,9 @@ import { Button, Dialog, IconButton, useFocusTrap } from "./components/ui";
 import { LessonUpdates } from "./components/Updates";
 import { paneFocus, Workspace } from "./components/Workspace";
 import { isAppChord } from "./components/Terminal";
-import { appActions, catalogActions, lessonActions, loadCatalog, resetProgress, setSetting, useAppDispatch, useAppSelector } from "./store";
+import { appActions, catalogActions, go, lessonActions, loadCatalog, resetProgress, setSetting, useAppDispatch, useAppSelector } from "./store";
 import { neighbours } from "./store/progress";
-import { applyMotion, applyTheme } from "./theme";
+import { applyMotion, applyTheme, TEXT_SIZES, textScale } from "./theme";
 import { useRef, useState } from "react";
 
 let booting = false;
@@ -51,8 +51,8 @@ export default function App() {
   useEffect(() => applyTheme(settings.theme), [settings.theme]);
   useEffect(() => applyMotion(settings.motion), [settings.motion]);
   useEffect(() => {
-    document.documentElement.style.fontSize = `${Number(settings.uiScale ?? 100)}%`;
-  }, [settings.uiScale]);
+    document.documentElement.style.fontSize = `${textScale(settings)}%`;
+  }, [settings]);
 
   // Backend events.
   useEffect(() => {
@@ -98,10 +98,10 @@ export default function App() {
         e.preventDefault();
         const nb = neighbours(cat, screen.lesson);
         const to = e.key === "ArrowLeft" ? nb.prev : nb.next;
-        if (to) dispatch(appActions.navigate({ kind: "lesson", lesson: to.id }));
+        if (to) dispatch(go({ kind: "lesson", lesson: to.id }));
       } else if (e.altKey && e.key === "Home") {
         e.preventDefault();
-        dispatch(appActions.navigate({ kind: "home" }));
+        dispatch(go({ kind: "home" }));
       } else if (e.ctrlKey && e.key === ",") {
         e.preventDefault();
         dispatch(appActions.openSettings(true));
@@ -110,14 +110,15 @@ export default function App() {
         dispatch(appActions.openShortcuts(true));
       } else if (e.ctrlKey && (e.key === "=" || e.key === "-" || e.key === "0")) {
         e.preventDefault();
-        const cur = Number(settings.terminalFontSize ?? 13);
-        const next = e.key === "0" ? 13 : Math.min(18, Math.max(11, cur + (e.key === "=" ? 1 : -1)));
-        dispatch(setSetting({ key: "terminalFontSize", value: String(next) }));
+        const steps = TEXT_SIZES.map((t) => t.value);
+        const cur = steps.indexOf(textScale(settings));
+        const next = e.key === "0" ? 100 : steps[Math.min(steps.length - 1, Math.max(0, cur + (e.key === "=" ? 1 : -1)))];
+        dispatch(setSetting({ key: "textSize", value: String(next) }));
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [dispatch, screen, cat, settings.terminalFontSize]);
+  }, [dispatch, screen, cat, settings]);
 
   if (bootError) {
     return (
@@ -145,6 +146,7 @@ export default function App() {
         {screen.kind === "lesson" && <Workspace lessonId={screen.lesson} />}
       </div>
       <SettingsSheet />
+      <LeaveDialog />
       <Shortcuts />
       <Toasts />
     </div>
@@ -213,12 +215,17 @@ function SettingsSheet() {
             <Row label="Theme">
               <ThemeRadios value={settings.theme ?? "system"} onChange={(v) => set("theme", v)} />
             </Row>
-            <Row label="Interface size">
-              <select value={settings.uiScale ?? "100"} onChange={(e) => set("uiScale", e.target.value)} className="h-7 rounded-sm border border-edge-2 bg-surface px-2">
-                <option value="90">90%</option>
-                <option value="100">Default</option>
-                <option value="110">110%</option>
+            <Row label="Text size">
+              <select value={String(textScale(settings))} onChange={(e) => set("textSize", e.target.value)} className="h-7 rounded-sm border border-edge-2 bg-surface px-2" aria-describedby="text-size-note">
+                {TEXT_SIZES.map((t) => (
+                  <option key={t.value} value={t.value}>
+                    {t.label}
+                  </option>
+                ))}
               </select>
+              <div id="text-size-note" className="mt-1 text-xs text-fg-3">
+                Lessons, panels and the terminal. Ctrl+= and Ctrl+- also work.
+              </div>
             </Row>
             <Row label="Reduce motion">
               <select value={settings.motion ?? "system"} onChange={(e) => set("motion", e.target.value)} className="h-7 rounded-sm border border-edge-2 bg-surface px-2">
@@ -237,17 +244,6 @@ function SettingsSheet() {
                   Show the graph as a text list (screen readers)
                 </label>
               </div>
-            </Row>
-          </SettingsGroup>
-          <SettingsGroup title="Terminal">
-            <Row label="Font size">
-              <select value={settings.terminalFontSize ?? "13"} onChange={(e) => set("terminalFontSize", e.target.value)} className="h-7 rounded-sm border border-edge-2 bg-surface px-2">
-                {[11, 12, 13, 14, 15, 16, 18].map((n) => (
-                  <option key={n} value={n}>
-                    {n}
-                  </option>
-                ))}
-              </select>
             </Row>
           </SettingsGroup>
           <SettingsGroup title="Lessons">
@@ -334,7 +330,7 @@ const SHORTCUTS: [string, string][] = [
   ["Ctrl+,", "Settings"],
   ["Ctrl+/", "Keyboard shortcuts"],
   ["Ctrl+Shift+C / V", "Copy / paste in the terminal"],
-  ["Ctrl+= / Ctrl+- / Ctrl+0", "Terminal font size"],
+  ["Ctrl+= / Ctrl+- / Ctrl+0", "Text size (bigger / smaller / default)"],
   ["Ctrl+Enter", "Save and continue (editor sheet)"],
 ];
 
@@ -363,6 +359,35 @@ function Shortcuts() {
           ))}
         </tbody>
       </table>
+    </Dialog>
+  );
+}
+
+function LeaveDialog() {
+  const dispatch = useAppDispatch();
+  const pending = useAppSelector((s) => s.app.pendingNav);
+  if (!pending) return null;
+  return (
+    <Dialog
+      title="Leave this lesson?"
+      onClose={() => dispatch(appActions.askToLeave(null))}
+      actions={
+        <>
+          <Button variant="ghost" data-autofocus onClick={() => dispatch(appActions.askToLeave(null))}>
+            Stay
+          </Button>
+          <Button variant="danger" onClick={() => dispatch(appActions.navigate(pending.to))}>
+            Leave anyway
+          </Button>
+        </>
+      }
+    >
+      <ul className="list-disc space-y-1 pl-5">
+        {pending.reasons.map((r) => (
+          <li key={r}>{r}</li>
+        ))}
+      </ul>
+      <p className="mt-3">Your lesson folder and progress are kept. You can come back and carry on.</p>
     </Dialog>
   );
 }
