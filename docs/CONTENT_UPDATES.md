@@ -28,7 +28,7 @@ Why signatures are mandatory: lesson `setup.sh` and action scripts run on the le
    minisign -G -p canopy-lessons.pub -s canopy-lessons.key
    ```
 2. In the GitHub repo settings, add secrets `MINISIGN_SECRET_KEY` (contents of `canopy-lessons.key`) and `MINISIGN_PASSWORD`.
-3. Build release apps with the feed and public key baked in:
+3. The official feed URL and public key (`canopy-lessons.pub`, committed in the repo root) are built into the app by default (`src-tauri/src/updates.rs`). Keep `canopy-lessons.key` out of the repo (it is git-ignored) and store it somewhere safe. A fork can override both at build time:
    ```sh
    export CANOPY_CONTENT_FEED="https://github.com/<owner>/<repo>/releases/download/lessons-latest/latest.json"
    export CANOPY_CONTENT_PUBKEY="<the base64 key line from canopy-lessons.pub>"

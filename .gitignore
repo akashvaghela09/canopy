@@ -31,3 +31,7 @@ target/
 
 # Browser preview data (tools/preview.sh)
 /public/preview/
+
+# Lesson-pack signing key: never commit (docs/CONTENT_UPDATES.md)
+*.key
+canopy-lessons.key
