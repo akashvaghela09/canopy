@@ -417,7 +417,7 @@ dependencies = [
 
 [[package]]
 name = "canopy"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "anyhow",
  "canopy-core",
@@ -438,7 +438,7 @@ dependencies = [
 
 [[package]]
 name = "canopy-core"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "anyhow",
  "portable-pty",
@@ -451,7 +451,7 @@ dependencies = [
 
 [[package]]
 name = "canopy-lesson"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "anyhow",
  "canopy-core",
