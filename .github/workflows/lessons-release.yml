@@ -20,6 +20,8 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # full history for the changelog
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
       - name: Test all lessons
@@ -52,7 +54,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release create "lessons-${{ steps.version.outputs.version }}" out/*.tar.gz out/*.minisig out/latest.json \
-            --title "Lessons ${{ steps.version.outputs.version }}" --notes-file changelog.md
+            --title "Lessons ${{ steps.version.outputs.version }}" --notes-file changelog.md --latest=false
       - name: Point lessons-latest at it
         env:
           GH_TOKEN: ${{ github.token }}
