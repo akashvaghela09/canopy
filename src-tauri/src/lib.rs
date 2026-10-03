@@ -61,6 +61,8 @@ pub fn run() {
             commands::skip_lesson,
             commands::check_updates,
             commands::install_update,
+            commands::frontend_log,
+            commands::smoke_lesson,
         ])
         .run(tauri::generate_context!())
         .expect("error while running Canopy");

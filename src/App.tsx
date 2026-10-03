@@ -14,6 +14,7 @@ import { useRef, useState } from "react";
 let booting = false;
 
 export default function App() {
+  const [bootError, setBootError] = useState<string | null>(null);
   const dispatch = useAppDispatch();
   const screen = useAppSelector((s) => s.app.screen);
   const settings = useAppSelector((s) => s.app.settings);
@@ -25,21 +26,26 @@ export default function App() {
     if (screen.kind !== "loading" || booting) return;
     booting = true;
     (async () => {
+      api.frontendLog("info", "boot: checking git");
       const git = await api.gitCheck();
+      api.frontendLog("info", `boot: git ${git.version} ok=${git.ok}`);
       dispatch(appActions.setGit(git));
       if (!git.ok) return dispatch(appActions.navigate({ kind: "gate" }));
       const s = await api.getSettings();
       dispatch(appActions.setSettings(s));
-      await dispatch(loadCatalog());
+      api.frontendLog("info", "boot: loading lessons");
+      await dispatch(loadCatalog()).unwrap();
+      api.frontendLog("info", "boot: ready");
       dispatch(appActions.navigate(s.firstRunDone ? { kind: "home" } : { kind: "firstRun" }));
     })()
       .finally(() => {
         booting = false;
       })
       .catch((e) => {
-      console.error(e);
-      dispatch(appActions.pushToast({ kind: "danger", text: "Canopy could not start.", detail: String(e) }));
-    });
+        console.error(e);
+        api.frontendLog("error", `boot failed: ${String(e)}`);
+        setBootError(String(e));
+      });
   }, [screen.kind, dispatch]);
 
   useEffect(() => applyTheme(settings.theme), [settings.theme]);
@@ -113,6 +119,19 @@ export default function App() {
     return () => window.removeEventListener("keydown", onKey);
   }, [dispatch, screen, cat, settings.terminalFontSize]);
 
+  if (bootError) {
+    return (
+      <main className="flex h-full items-center justify-center bg-bg p-8">
+        <div className="max-w-xl">
+          <h1 className="text-xl font-semibold">Canopy could not start.</h1>
+          <pre className="selectable mt-3 rounded-md bg-sunken p-3 font-mono text-xs whitespace-pre-wrap">{bootError}</pre>
+          <Button className="mt-4" onClick={() => location.reload()}>
+            Try again
+          </Button>
+        </div>
+      </main>
+    );
+  }
   if (screen.kind === "loading") return <div className="h-full bg-bg" />;
   if (screen.kind === "gate") return <GitGate />;
   if (screen.kind === "firstRun") return <FirstRun />;

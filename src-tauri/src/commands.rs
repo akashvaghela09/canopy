@@ -116,12 +116,18 @@ pub fn get_catalog(state: State<AppState>) -> CmdResult<CatalogView> {
             meta: l.meta.clone(),
         })
         .collect();
+    // One lock for both reads: a second `lock()` in the same expression
+    // would deadlock (the first guard lives until the end of the statement).
+    let (completed, skipped) = {
+        let db = state.db.lock().unwrap();
+        (db.completed().map_err(anyhow_err)?, db.skipped().map_err(anyhow_err)?)
+    };
     Ok(CatalogView {
         manifest: catalog.manifest.clone(),
         sections: catalog.sections.clone(),
         lessons,
-        completed: state.db.lock().unwrap().completed().map_err(anyhow_err)?,
-        skipped: state.db.lock().unwrap().skipped().map_err(anyhow_err)?,
+        completed,
+        skipped,
     })
 }
 
@@ -563,4 +569,18 @@ fn lesson_fingerprint(state: &AppState, id: &str) -> Option<String> {
         s.push_str(&fs::read_to_string(lesson.dir.join(f)).unwrap_or_default());
     }
     Some(s)
+}
+
+/// Frontend errors and logs, printed to stderr (visible when Canopy is
+/// started from a terminal).
+#[tauri::command]
+pub fn frontend_log(level: String, message: String) {
+    eprintln!("[frontend {level}] {message}");
+}
+
+/// Smoke test hook: CANOPY_SMOKE_LESSON=<id> opens that lesson after boot and
+/// types a command (see src/main.tsx). Unset in normal use.
+#[tauri::command]
+pub fn smoke_lesson() -> Option<String> {
+    std::env::var("CANOPY_SMOKE_LESSON").ok().filter(|s| !s.is_empty())
 }

@@ -16,8 +16,8 @@ use canopy_core::git::Git;
 use canopy_core::goal::GoalFile;
 use canopy_core::marker::{Chunk, MarkerParser};
 use canopy_core::snapshot::{self, Snapshot};
-use notify_debouncer_mini::notify::{RecommendedWatcher, RecursiveMode};
-use notify_debouncer_mini::{new_debouncer, DebounceEventResult, Debouncer};
+use notify_debouncer_mini::notify::event::ModifyKind;
+use notify_debouncer_mini::notify::{recommended_watcher, Event, EventKind, RecommendedWatcher, RecursiveMode, Watcher};
 use portable_pty::{native_pty_system, Child, CommandBuilder, MasterPty, PtySize};
 use serde::Serialize;
 use tauri::ipc::Channel;
@@ -70,7 +70,7 @@ pub struct Session {
     master: Mutex<Box<dyn MasterPty + Send>>,
     child: Mutex<Box<dyn Child + Send + Sync>>,
     refresh: Sender<()>,
-    _watcher: Debouncer<RecommendedWatcher>,
+    _watcher: RecommendedWatcher,
 }
 
 impl Session {
@@ -159,13 +159,17 @@ impl Session {
         }
 
         // Files changed outside the terminal (editor saves, actions).
+        // Only real changes count. Access events (git reading files while we
+        // take a snapshot) would otherwise trigger a refresh loop.
         let watch_tx = refresh_tx.clone();
-        let mut watcher = new_debouncer(Duration::from_millis(250), move |res: DebounceEventResult| {
-            if res.is_ok() {
-                let _ = watch_tx.send(());
+        let mut watcher = recommended_watcher(move |res: notify_debouncer_mini::notify::Result<Event>| {
+            if let Ok(ev) = res {
+                if is_change(&ev.kind) {
+                    let _ = watch_tx.send(());
+                }
             }
         })?;
-        watcher.watcher().watch(&root, RecursiveMode::Recursive)?;
+        watcher.watch(&root, RecursiveMode::Recursive)?;
 
         let _ = refresh_tx.send(());
         Ok(Session {
@@ -231,10 +235,19 @@ pub fn spawn_shell(env: &EnvVars, start_dir: &Path, size: (u16, u16)) -> Result<
     Ok(Shell { master: pair.master, child, reader, writer })
 }
 
+fn is_change(kind: &EventKind) -> bool {
+    match kind {
+        EventKind::Create(_) | EventKind::Remove(_) => true,
+        EventKind::Modify(ModifyKind::Metadata(_)) => false,
+        EventKind::Modify(_) => true,
+        _ => false,
+    }
+}
+
 fn refresh_loop(shared: Arc<Shared>, rx: Receiver<()>) {
     while rx.recv().is_ok() {
-        // Coalesce bursts (a command often triggers marker + file events).
-        std::thread::sleep(Duration::from_millis(60));
+        // Coalesce bursts (a command often triggers a marker plus many file events).
+        std::thread::sleep(Duration::from_millis(150));
         while rx.try_recv().is_ok() {}
         match compute_update(&shared) {
             Ok(update) => {

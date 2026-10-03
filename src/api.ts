@@ -105,6 +105,7 @@ export const api = {
   readFile: (path: string) => invoke<string>("read_file", { path }),
   writeFile: (path: string, content: string) => invoke<void>("write_file", { path, content }),
   editorFinish: (id: string, content: string | null) => invoke<void>("editor_finish", { id, content }),
+  frontendLog: (level: string, message: string) => invoke<void>("frontend_log", { level, message }).catch(() => {}),
   getSettings: () => invoke<Record<string, string>>("get_settings"),
   setSetting: (key: string, value: string) => invoke<void>("set_setting", { key, value }),
   resetProgress: (section: number | null) => invoke<void>("reset_progress", { section }),
