@@ -3,13 +3,16 @@
 // bottom lane. Only transform and opacity animate.
 
 import { CircleDashed } from "lucide-react";
-import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { GraphEdge, GraphLabel, GraphLayout, GraphNode } from "./layout";
 import "./graph.css";
 
-const COL = 58; // commit spacing along the time axis (fits a 7-char id under each node)
+const COL_IDS = 58; // commit spacing when nodes show 7-char ids
+const COL_SUBJECTS = 104; // commit spacing when nodes show (truncated) subjects
+const SUBJECT_CHARS = 15;
+let COL = COL_SUBJECTS;
 const LANE = 56; // spacing between lanes (room for stacked flags)
-const PAD_X = 32;
+let PAD_X = 32; // wider when nodes show messages, so the first one is not clipped
 const PAD_TOP = 64;
 const PAD_BOTTOM = 36;
 const R = 6;
@@ -65,6 +68,9 @@ type Props = {
 };
 
 export function GraphView({ layout, showIds, selected, onSelect, extraHeads = [], ariaLabel }: Props) {
+  COL = showIds ? COL_IDS : COL_SUBJECTS;
+  PAD_X = showIds ? 32 : COL_SUBJECTS / 2 + 4;
+  const [hovered, setHovered] = useState<string | null>(null);
   const labelsByTarget = useMemo(() => {
     const m = new Map<string, GraphLabel[]>();
     const order = { branch: 0, remote: 1, tag: 2, bisect: 3, head: 4, stash: 5 };
@@ -120,9 +126,11 @@ export function GraphView({ layout, showIds, selected, onSelect, extraHeads = []
     <div ref={scroller} className="flex h-full w-full items-center overflow-auto">
       <svg width={Math.max(g.width, 200)} height={g.height} role="img" aria-label={ariaLabel} className="canopy-graph my-auto block shrink-0">
         <g className="edges">
-          {layout.edges.map((e) => (
-            <Edge key={e.id} edge={e} byId={byId} g={g} />
-          ))}
+          {layout.edges
+            .filter((e) => e.kind !== "copy" || e.from === selected || e.from === hovered || e.to === selected || e.to === hovered)
+            .map((e) => (
+              <Edge key={e.id} edge={e} byId={byId} g={g} />
+            ))}
         </g>
         <g className="nodes">
           {layout.nodes.map((n) => (
@@ -132,16 +140,18 @@ export function GraphView({ layout, showIds, selected, onSelect, extraHeads = []
               g={g}
               isNew={!seen.current.has(n.id)}
               isHead={layout.head.commit === n.id}
+              detached={layout.head.detached}
               selected={selected === n.id}
               showId={showIds}
               onSelect={onSelect}
+              onHover={setHovered}
             />
           ))}
         </g>
         <g className="labels">
           {[...labelsByTarget.entries()].map(([target, labels]) => {
             const node = byId.get(target);
-            return node ? <Flags key={target} node={node} labels={labels} g={g} detached={layout.head.detached} /> : null;
+            return node ? <Flags key={target} node={node} labels={labels} g={g} /> : null;
           })}
           {extraHeads.map((h) => {
             const node = byId.get(h.commit);
@@ -231,6 +241,8 @@ function Node({
   selected,
   showId,
   onSelect,
+  onHover,
+  detached,
 }: {
   node: GraphNode;
   g: Geometry;
@@ -239,6 +251,8 @@ function Node({
   selected: boolean;
   showId: boolean;
   onSelect?: (id: string) => void;
+  onHover?: (id: string | null) => void;
+  detached?: boolean;
 }) {
   const x = g.x(node);
   const y = g.y(node);
@@ -265,6 +279,8 @@ function Node({
       // Keep focus where it is (e.g. a commit question input) so a click can fill it.
       onMouseDown={(e) => e.preventDefault()}
       onClick={() => onSelect?.(node.id)}
+      onMouseEnter={() => onHover?.(node.id)}
+      onMouseLeave={() => onHover?.(null)}
     >
       <g className={isNew ? "grow" : undefined}>
       <title>{`${short} · ${node.subject} · ${node.author} · ${time}`}</title>
@@ -280,44 +296,39 @@ function Node({
       ) : (
         <circle r={R} fill={fill} />
       )}
-      {isHead && <circle r={R + 5} fill="none" stroke="var(--color-graph-head)" strokeWidth={2} />}
-      {selected && <circle r={R + 3} fill="none" stroke="var(--color-fg)" strokeWidth={1.5} />}
-      {showId && (
-        <text y={R + 14} textAnchor="middle" className="g-id" opacity={node.kind === "ghost" ? 0.7 : 1}>
-          {short}
-        </text>
+      {isHead && (
+        <>
+          <circle r={R + 5} fill="none" stroke="var(--color-graph-head)" strokeWidth={2} />
+          <text y={-R - 10} textAnchor="middle" className="g-head">
+            {detached ? "HEAD (detached)" : "HEAD"}
+          </text>
+        </>
       )}
+      {selected && <circle r={R + 3} fill="none" stroke="var(--color-fg)" strokeWidth={1.5} />}
+      <text y={R + 14} textAnchor="middle" className={showId ? "g-id" : "g-subject"} opacity={node.kind === "ghost" || node.kind === "lost" ? 0.7 : 1}>
+        {showId ? short : node.subject.length > SUBJECT_CHARS ? `${node.subject.slice(0, SUBJECT_CHARS - 1)}…` : node.subject}
+      </text>
       </g>
     </g>
   );
 }
 
-function Flags({ node, labels, g, detached }: { node: GraphNode; labels: GraphLabel[]; g: Geometry; detached: boolean }) {
+function Flags({ node, labels, g }: { node: GraphNode; labels: GraphLabel[]; g: Geometry }) {
   const flags = labels.filter((l) => l.kind !== "head");
-  const head = labels.find((l) => l.kind === "head");
   const x0 = g.x(node) + R + 8;
   const y0 = g.y(node);
   // Stack upward from the node so flags never cover the ids drawn below nodes.
   const n = Math.max(flags.length, 1);
   const top = y0 - FLAG_H / 2 - (n - 1) * (FLAG_H + 2);
   const rowOf = (i: number) => (n - 1 - i) * (FLAG_H + 2);
-  const currentIdx = flags.findIndex((f) => f.current);
+  if (flags.length === 0) return null;
   return (
     <g className="mv" style={{ transform: `translate(${x0}px, ${top}px)` }}>
       {flags.length > 0 && <line x1={-8 + 2} y1={rowOf(0) + FLAG_H / 2} x2={0} y2={rowOf(0) + FLAG_H / 2} stroke={colorVar(flags[0].color)} strokeWidth={2} />}
       {flags.map((f, i) => (
         <Flag key={f.id} label={f} y={rowOf(i)} />
       ))}
-      {head && (
-        <text
-          x={currentIdx >= 0 || flags.length > 0 ? 0 : -R - 8}
-          y={-4}
-          textAnchor={currentIdx >= 0 || flags.length > 0 ? "start" : "middle"}
-          className="g-head"
-        >
-          {detached ? "HEAD (detached)" : "HEAD"}
-        </text>
-      )}
+
     </g>
   );
 }

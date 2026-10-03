@@ -31,8 +31,11 @@ pub struct CheckContext<'a> {
 pub struct GoalResult {
     pub label: String,
     pub passed: bool,
-    /// Stays passed once reached (shown with a pin).
+    /// Stays passed once reached.
     pub sticky: bool,
+    /// The question this goal checks, if it is an answer goal (the UI jumps to it).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub question: Option<String>,
     /// Why a check could not be evaluated (for authors; not shown to learners).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub error: Option<String>,
@@ -45,8 +48,12 @@ pub fn evaluate_goals(file: &GoalFile, ctx: &CheckContext, sticky: &mut HashSet<
         .iter()
         .enumerate()
         .map(|(i, goal)| {
+            let question = match &goal.check.kind {
+                CheckKind::Answer { question } => Some(question.clone()),
+                _ => None,
+            };
             if goal.sticky && sticky.contains(&i) {
-                return GoalResult { label: goal.label.clone(), passed: true, sticky: true, error: None };
+                return GoalResult { label: goal.label.clone(), passed: true, sticky: true, question, error: None };
             }
             let (passed, error) = match eval(&goal.check, ctx) {
                 Ok(p) => (p, None),
@@ -55,7 +62,7 @@ pub fn evaluate_goals(file: &GoalFile, ctx: &CheckContext, sticky: &mut HashSet<
             if passed && goal.sticky {
                 sticky.insert(i);
             }
-            GoalResult { label: goal.label.clone(), passed, sticky: goal.sticky, error }
+            GoalResult { label: goal.label.clone(), passed, sticky: goal.sticky, question, error }
         })
         .collect()
 }

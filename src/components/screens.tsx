@@ -1,26 +1,24 @@
 // Top bar, git gate, first run, home and section view (DESIGN.md sections 2-3).
 
 import { openUrl } from "@tauri-apps/plugin-opener";
-import { Check, CheckCircle2, ChevronLeft, ChevronRight, Circle, ExternalLink, GitBranch, Settings } from "lucide-react";
-import { useState } from "react";
+import { Check, CheckCircle2, ChevronRight, Circle, ExternalLink, GitBranch, Settings } from "lucide-react";
+import { useEffect, useState } from "react";
 import { api, type LessonSummary } from "../api";
 import { appActions, loadCatalog, resetProgress, setSetting, useAppDispatch, useAppSelector } from "../store";
-import { neighbours, nextLesson, overallProgress, sectionProgress } from "../store/progress";
+import { nextLesson, overallProgress, sectionProgress } from "../store/progress";
 import { Button, Chip, Dialog, IconButton, ProgressBar } from "./ui";
 
 const LEVELS = ["beginner", "core", "intermediate", "advanced"];
+const LEVEL_NAMES: Record<string, string> = { beginner: "Beginner", core: "Everyday", intermediate: "Intermediate", advanced: "Advanced" };
 
 export function TopBar() {
   const dispatch = useAppDispatch();
   const screen = useAppSelector((s) => s.app.screen);
   const cat = useAppSelector((s) => s.catalog.data);
   if (!cat) return null;
-  const overall = overallProgress(cat);
   const lesson = screen.kind === "lesson" ? cat.lessons.find((l) => l.id === screen.lesson) : undefined;
   const sectionId = screen.kind === "section" ? screen.section : lesson?.section;
   const section = cat.sections.find((s) => s.id === sectionId);
-  const nb = lesson ? neighbours(cat, lesson.id) : null;
-  const go = (id: string) => dispatch(appActions.navigate({ kind: "lesson", lesson: id }));
 
   return (
     <header className="flex h-[var(--size-topbar)] shrink-0 items-center gap-2 border-b border-edge bg-surface px-3">
@@ -48,22 +46,6 @@ export function TopBar() {
         )}
       </nav>
       <div className="ml-auto flex items-center gap-2">
-        {nb && (
-          <div className="mr-2 flex items-center gap-1 text-sm text-fg-2">
-            <Button variant="ghost" size="sm" icon={ChevronLeft} disabled={!nb.prev} onClick={() => nb.prev && go(nb.prev.id)} title="Previous lesson (Alt+←)">
-              {nb.prev?.id ?? ""}
-            </Button>
-            <Button variant="ghost" size="sm" disabled={!nb.next} onClick={() => nb.next && go(nb.next.id)} title="Next lesson (Alt+→)">
-              {nb.next?.id ?? ""}
-              <ChevronRight size={14} />
-            </Button>
-          </div>
-        )}
-        <Chip tone="count" className="transition-opacity duration-[var(--dur-base)]">
-          <span aria-label={`${overall.done} of ${overall.total} lessons complete`}>
-            {overall.done} / {overall.total}
-          </span>
-        </Chip>
         <IconButton icon={Settings} label="Settings (Ctrl+,)" size={28} onClick={() => dispatch(appActions.openSettings(true))} />
       </div>
     </header>
@@ -118,38 +100,37 @@ export function GitGate() {
 export function FirstRun() {
   const dispatch = useAppDispatch();
   const git = useAppSelector((s) => s.app.git);
-  const theme = useAppSelector((s) => s.app.settings.theme ?? "system");
+  const [folder, setFolder] = useState("");
+  useEffect(() => {
+    api.learningFolder().then(setFolder, () => {});
+  }, []);
   const finish = (lesson: string | null) => {
     dispatch(setSetting({ key: "firstRunDone", value: "1" }));
     dispatch(appActions.navigate(lesson ? { kind: "lesson", lesson } : { kind: "home" }));
   };
   return (
     <main className="flex h-full items-center justify-center bg-bg">
-      <div className="w-[640px]">
+      <div className="w-[560px]">
         <h1 className="text-2xl font-semibold">Welcome to Canopy</h1>
-        <p className="mt-2 text-base text-fg-2">
-          Learn git by using it. Every command you type runs in real git, inside a learning folder that Canopy creates for you.
+        <p className="mt-3 text-base text-fg-2">
+          Learn git by using it. Every command you type runs in real git, inside lesson folders Canopy creates
+          {folder ? (
+            <>
+              {" "}
+              in <code className="selectable rounded-sm bg-sunken px-1 font-mono text-sm">{folder}</code>
+            </>
+          ) : null}
+          . Your own projects are never touched.
         </p>
-        <div className="mt-6 grid grid-cols-2 gap-4">
-          <div className="rounded-md border border-edge bg-surface p-4">
-            <div className="font-medium">Learning folder</div>
-            <p className="mt-1 text-sm text-fg-2">Canopy keeps every lesson in its own folder. Your own projects are never touched.</p>
-          </div>
-          <fieldset className="rounded-md border border-edge bg-surface p-4">
-            <legend className="sr-only">Appearance</legend>
-            <div className="font-medium">Appearance</div>
-            <ThemeRadios value={theme} onChange={(v) => dispatch(setSetting({ key: "theme", value: v }))} />
-          </fieldset>
-        </div>
-        <p className="mt-5 flex items-center gap-2 text-sm text-fg-2">
+        <p className="mt-4 flex items-center gap-2 text-sm text-fg-2">
           <Check size={16} className="text-success" aria-hidden /> git {git?.version} found
         </p>
         <div className="mt-6 flex items-center gap-4">
           <Button variant="primary" size="lg" onClick={() => finish("1.01")}>
-            Start with lesson 1.01
+            Start the first lesson
           </Button>
           <Button variant="link" onClick={() => finish(null)}>
-            Browse all sections
+            Browse all lessons
           </Button>
         </div>
       </div>
@@ -186,17 +167,21 @@ export function Home() {
   return (
     <main className="h-full overflow-y-auto">
       <div className="mx-auto max-w-[1040px] px-8 py-8">
-        <div className="flex items-baseline justify-between">
-          <h1 className="text-base font-medium">Overall progress</h1>
-          <span className="text-sm text-fg-2 tabular-nums">
-            {overall.done} of {overall.total} · {pct}%
-          </span>
-        </div>
-        <div className="mt-2">
-          <ProgressBar done={overall.done} total={overall.total} label="Overall progress" thick />
-        </div>
+        {!fresh && (
+          <div className="mb-6">
+            <div className="flex items-baseline justify-between">
+              <h1 className="text-base font-medium">Your progress</h1>
+              <span className="text-sm text-fg-2 tabular-nums">
+                {overall.done} of {overall.total} · {pct}%
+              </span>
+            </div>
+            <div className="mt-2">
+              <ProgressBar done={overall.done} total={overall.total} label="Overall progress" thick />
+            </div>
+          </div>
+        )}
 
-        <section className="mt-6 rounded-md border border-edge bg-surface p-4" aria-label="Continue">
+        <section className="rounded-md border border-edge bg-surface p-4" aria-label="Continue">
           {next && nextSection ? (
             <>
               <div className="flex justify-between text-sm text-fg-2">
@@ -231,7 +216,7 @@ export function Home() {
           if (!sections.length) return null;
           return (
             <section key={level} className="mt-8" aria-label={level}>
-              <h2 className="text-2xs font-semibold tracking-[0.06em] text-fg-3 uppercase">{level}</h2>
+              <h2 className="text-2xs font-semibold tracking-[0.06em] text-fg-3 uppercase">{LEVEL_NAMES[level] ?? level}</h2>
               <div className="mt-2 grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-3">
                 {sections.map((s) => {
                   const p = sectionProgress(cat, s.id);
@@ -249,11 +234,10 @@ export function Home() {
                       <div className="flex items-baseline gap-2 text-sm font-medium">
                         <span className="font-mono text-fg-3">{s.id}</span>
                         <span className="truncate">{s.title}</span>
-                        {current && <Circle size={7} className="shrink-0 fill-accent text-accent" aria-hidden />}
                       </div>
                       <div className={`mt-1 flex items-center gap-1 text-xs ${p.state === "complete" ? "text-success" : "text-fg-2"}`}>
                         {p.state === "complete" && <Check size={12} aria-hidden />}
-                        {current && p.state !== "complete" ? `Continue · ${stateText}` : stateText}
+                        {stateText}
                       </div>
                       <div className="mt-3">
                         <ProgressBar done={p.done} total={p.total} label={`Section ${s.id} progress`} />
@@ -266,12 +250,7 @@ export function Home() {
           );
         })}
 
-        <footer className="mt-10 text-xs text-fg-3">
-          Lessons {cat.manifest.contentVersion} ·{" "}
-          <button className="hover:underline" onClick={() => dispatch(appActions.openSettings(true))}>
-            Check for updates
-          </button>
-        </footer>
+
       </div>
     </main>
   );
@@ -300,11 +279,7 @@ export function SectionView({ sectionId }: { sectionId: number }) {
             {p.done} of {p.total} · {pct}%
           </span>
           <ProgressBar done={p.done} total={p.total} label={`Section ${section.id} progress`} />
-          {p.done > 0 && (
-            <Button variant="danger-ghost" onClick={() => setConfirm(true)}>
-              Reset progress
-            </Button>
-          )}
+
         </div>
         {p.state === "complete" && (
           <p className="mt-4 text-sm text-fg-2">
@@ -316,6 +291,13 @@ export function SectionView({ sectionId }: { sectionId: number }) {
             <LessonRow key={l.id} lesson={l} done={Boolean(cat.completed[l.id])} skipped={cat.skipped.includes(l.id)} isNext={next?.id === l.id} onOpen={() => dispatch(appActions.navigate({ kind: "lesson", lesson: l.id }))} />
           ))}
         </ul>
+        {p.done > 0 && (
+          <div className="mt-8 text-right">
+            <button className="text-xs text-fg-3 hover:text-fg hover:underline" onClick={() => setConfirm(true)}>
+              Reset progress for this section
+            </button>
+          </div>
+        )}
       </div>
       {confirm && (
         <Dialog
@@ -346,12 +328,11 @@ export function SectionView({ sectionId }: { sectionId: number }) {
 }
 
 function LessonRow({ lesson, done, skipped, isNext, onOpen }: { lesson: LessonSummary; done: boolean; skipped: boolean; isNext: boolean; onOpen: () => void }) {
-  const kind = lesson.kind[0].toUpperCase() + lesson.kind.slice(1);
   return (
     <li>
       <button
         onClick={onOpen}
-        className={`grid h-10 w-full grid-cols-[24px_48px_1fr_auto_auto] items-center gap-2 rounded-sm px-3 text-left text-sm hover:bg-sunken ${isNext ? "bg-sunken" : ""}`}
+        className={`grid h-10 w-full grid-cols-[24px_48px_1fr_auto] items-center gap-2 rounded-sm px-3 text-left text-sm hover:bg-sunken ${isNext ? "bg-sunken" : ""}`}
       >
         {skipped ? (
           <span title="Skipped. Counts as done." className="relative inline-flex">
@@ -363,12 +344,9 @@ function LessonRow({ lesson, done, skipped, isNext, onOpen }: { lesson: LessonSu
         <span className={`truncate ${isNext ? "font-medium" : ""}`}>{lesson.title}</span>
         <span className="flex gap-1.5">
           {isNext && <span className="text-xs font-medium text-accent">Next</span>}
-          {lesson.flags.includes("destructive") && <Chip tone="warning">Destructive</Chip>}
-          {lesson.flags.includes("guided") && <Chip tone="outline">Guided</Chip>}
           {lesson.flags.includes("optional") && <Chip tone="outline">Optional</Chip>}
           {lesson.needsNewerGit && <Chip tone="warning">Needs git {lesson.minGit}</Chip>}
         </span>
-        <Chip>{kind}</Chip>
       </button>
     </li>
   );

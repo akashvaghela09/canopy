@@ -1,14 +1,14 @@
 // Center-top pane: the commit graph for the repo the learner is looking at
 // (DESIGN.md 4.4).
 
-import { Archive, ChevronDown, ChevronUp, Columns2, Eye, GitMerge, List, Terminal as TerminalIcon } from "lucide-react";
+import { Archive, ChevronDown, ChevronUp, Circle, CircleDot, Copy, GitMerge, Terminal as TerminalIcon, X } from "lucide-react";
 import { useMemo, useState } from "react";
 import type { RepoSnapshot } from "../api";
 import { GraphView } from "../graph/GraphView";
 import { layout } from "../graph/layout";
 import type { Snapshot } from "../graph/types";
 import { lessonActions, useAppDispatch, useAppSelector } from "../store";
-import { Banner, IconButton, PaneHeader } from "./ui";
+import { Banner, Button, IconButton, PaneHeader } from "./ui";
 
 /** The repo whose folder contains the terminal's cwd, if any. */
 export function repoForCwd(repos: RepoSnapshot[], cwd: string | null | undefined): RepoSnapshot | undefined {
@@ -36,11 +36,13 @@ export function GraphPane({ collapsed, onToggle, showIds }: { collapsed: boolean
   const snap = active?.snapshot ?? null;
   const [selected, setSelected] = useState<string | null>(null);
   const [sideBySide, setSideBySide] = useState(false);
-  const [asText, setAsText] = useState(false);
+  const asText = useAppSelector((s) => s.app.settings.graphText === "1");
+  const [keyHidden, setKeyHidden] = useState(() => localStorage.getItem("canopy.graphKeyHidden") === "1");
   const origin = repos.find((r) => r.snapshot?.bare);
   const showSide = sideBySide && origin !== undefined && origin.path !== active?.path;
   const originGraph = useMemo(() => (showSide && origin?.snapshot ? layout(origin.snapshot) : null), [showSide, origin]);
   const graph = useMemo(() => (snap ? layout(snap) : null), [snap]);
+  const selectedCommit = snap?.commits.find((c) => c.id === selected) ?? null;
   const extraHeads = useMemo(() => worktreeHeads(snap), [snap]);
 
   return (
@@ -71,17 +73,15 @@ export function GraphPane({ collapsed, onToggle, showIds }: { collapsed: boolean
             })}
           </div>
         )}
-        {repos.length > 1 && (
-          <IconButton
-            icon={Eye}
-            label="Follow terminal (Alt+G)"
-            pressed={pinned === null}
-            onClick={() => dispatch(lessonActions.pinRepo(pinned === null ? (active?.path ?? null) : null))}
-          />
+        {repos.length > 1 && pinned !== null && (
+          <Button variant="link" size="sm" className="mr-1 text-xs" onClick={() => dispatch(lessonActions.pinRepo(null))} title="Show the repo the terminal is in (Alt+G)">
+            Follow terminal
+          </Button>
         )}
-        <IconButton icon={List} label="Graph as text" pressed={asText} onClick={() => setAsText((v) => !v)} />
         {origin && (
-          <IconButton icon={Columns2} label="Show origin side by side" pressed={sideBySide} onClick={() => setSideBySide((v) => !v)} />
+          <Button variant="ghost" size="sm" onClick={() => setSideBySide((v) => !v)} aria-pressed={sideBySide}>
+            {sideBySide ? "Hide origin" : "Compare with origin"}
+          </Button>
         )}
         <IconButton icon={collapsed ? ChevronDown : ChevronUp} label={collapsed ? "Expand graph" : "Collapse graph"} onClick={onToggle} />
       </PaneHeader>
@@ -93,7 +93,10 @@ export function GraphPane({ collapsed, onToggle, showIds }: { collapsed: boolean
             </Banner>
           )}
           <div className="flex min-h-0 flex-1">
-            <div className="min-h-0 min-w-0 flex-1">
+            <div className="relative min-h-0 min-w-0 flex-1">
+            {selectedCommit && !asText && (
+              <CommitCard commit={selectedCommit} onClose={() => setSelected(null)} />
+            )}
             {graph && snap && asText ? (
               <GraphText snap={snap} />
             ) : graph && snap ? (
@@ -128,6 +131,32 @@ export function GraphPane({ collapsed, onToggle, showIds }: { collapsed: boolean
               </div>
             )}
           </div>
+          {graph && graph.nodes.length > 0 && !keyHidden && !asText && (
+            <div className="flex h-7 shrink-0 items-center gap-3 border-t border-edge px-3 text-2xs text-fg-2" aria-label="Graph key">
+              <span className="flex items-center gap-1">
+                <Circle size={9} className="fill-[var(--color-graph-main)] text-[var(--color-graph-main)]" /> commit
+              </span>
+              <span className="flex items-center gap-1">
+                <CircleDot size={11} /> HEAD: where you are
+              </span>
+              <span className="flex items-center gap-1">
+                <span className="rounded-full bg-[var(--color-graph-main)] px-1.5 text-[9px] leading-[13px] font-semibold text-[var(--color-graph-label-fg)]">main</span> branch
+              </span>
+              <span className="flex items-center gap-1">
+                <Circle size={9} className="fill-[var(--color-graph-unreachable)] text-[var(--color-graph-unreachable)]" /> grey: on no branch
+              </span>
+              <span>time →</span>
+              <IconButton
+                icon={X}
+                label="Hide the key"
+                className="ml-auto"
+                onClick={() => {
+                  localStorage.setItem("canopy.graphKeyHidden", "1");
+                  setKeyHidden(true);
+                }}
+              />
+            </div>
+          )}
           {snap && snap.stashes.length > 0 && (
             <div className="flex h-8 shrink-0 items-center gap-2 overflow-x-auto border-t border-edge px-3" aria-label="Stashes">
               <span className="text-2xs font-semibold tracking-[0.06em] text-fg-3 uppercase">Stashes</span>
@@ -183,5 +212,36 @@ function GraphText({ snap }: { snap: Snapshot }) {
         </li>
       ))}
     </ol>
+  );
+}
+
+/** Details for the clicked commit (DESIGN.md 8, "Node"). */
+function CommitCard({ commit, onClose }: { commit: Snapshot["commits"][number]; onClose: () => void }) {
+  const [copied, setCopied] = useState(false);
+  return (
+    <div className="absolute top-2 right-2 z-10 w-72 rounded-md border border-edge-2 bg-raised p-3 text-sm shadow-[0_4px_12px_oklch(0%_0_0/0.12)]" role="dialog" aria-label="Commit details">
+      <div className="flex items-start gap-2">
+        <div className="min-w-0 flex-1 font-medium break-words">{commit.subject}</div>
+        <IconButton icon={X} label="Close" onClick={onClose} />
+      </div>
+      <div className="mt-1 text-xs text-fg-2">
+        {commit.author} · {new Date(commit.time * 1000).toLocaleString()}
+        {!commit.reachable && " · on no branch"}
+      </div>
+      <div className="mt-2 flex items-center gap-2">
+        <code className="selectable rounded-sm bg-sunken px-1.5 font-mono text-xs">{commit.id.slice(0, 7)}</code>
+        <Button
+          variant="ghost"
+          size="sm"
+          icon={Copy}
+          onClick={() => {
+            navigator.clipboard.writeText(commit.id);
+            setCopied(true);
+          }}
+        >
+          {copied ? "Copied" : "Copy id"}
+        </Button>
+      </div>
+    </div>
   );
 }

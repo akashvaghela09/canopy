@@ -227,10 +227,16 @@ function SettingsSheet() {
               </select>
             </Row>
             <Row label="Graph">
-              <label className="flex items-center gap-2">
-                <input type="checkbox" checked={settings.graphIds !== "0"} onChange={(e) => set("graphIds", e.target.checked ? "1" : "0")} className="accent-[var(--color-accent)]" />
-                Show commit ids on nodes
-              </label>
+              <div className="flex flex-col gap-1.5">
+                <label className="flex items-center gap-2">
+                  <input type="checkbox" checked={settings.graphIds === "1"} onChange={(e) => set("graphIds", e.target.checked ? "1" : "0")} className="accent-[var(--color-accent)]" />
+                  Show commit ids instead of messages
+                </label>
+                <label className="flex items-center gap-2">
+                  <input type="checkbox" checked={settings.graphText === "1"} onChange={(e) => set("graphText", e.target.checked ? "1" : "0")} className="accent-[var(--color-accent)]" />
+                  Show the graph as a text list (screen readers)
+                </label>
+              </div>
             </Row>
           </SettingsGroup>
           <SettingsGroup title="Terminal">
@@ -249,6 +255,13 @@ function SettingsSheet() {
             <Row label="Progress">
               <Button variant="danger-ghost" disabled={done === 0} onClick={() => setConfirmAll(true)}>
                 Reset all progress…
+              </Button>
+            </Row>
+          </SettingsGroup>
+          <SettingsGroup title="Help">
+            <Row label="Keyboard">
+              <Button variant="link" onClick={() => dispatch(appActions.openShortcuts(true))}>
+                Keyboard shortcuts
               </Button>
             </Row>
           </SettingsGroup>

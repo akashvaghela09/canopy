@@ -2,6 +2,8 @@
 
 Status: v1.0, design lead hand-off. Pairs with `prototype.html` in this folder (visual reference for the home screen and lesson workspace in both themes). Product constraints come from `docs/ARCHITECTURE.md` (sections 1, 4.7, 4.8, 5, 9) and `docs/LESSON_FORMAT.md`; nothing here overrides them.
 
+> **Update 2026-10-03:** a usability review (`UX_REVIEW.md`) led to simplifications recorded in `UX_DECISIONS.md` (no completion card, no top-bar prev/next or progress chip, commit messages instead of ids on the graph, terminal focused on open, fewer chips and labels, and more). Where this spec and `UX_DECISIONS.md` differ, the decisions win.
+
 Contents
 
 1. Design principles

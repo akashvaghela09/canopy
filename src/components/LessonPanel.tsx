@@ -1,7 +1,7 @@
 // Left pane of the workspace: lesson text, notices, events, questions, hints
 // and the pinned goals footer (DESIGN.md 4.2).
 
-import { Braces, Check, CheckCircle2, ChevronRight, Circle, Lightbulb, Pin, Play, RotateCcw, X } from "lucide-react";
+import { ArrowRight, Check, CheckCircle2, Circle, Lightbulb, PanelLeftClose, Play, RotateCcw, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -9,18 +9,21 @@ import type { PublicQuestion } from "../api";
 import { api } from "../api";
 import { appActions, lessonActions, runAction, skipLesson, submitAnswer, useAppDispatch, useAppSelector } from "../store";
 import { missingRecommended, neighbours } from "../store/progress";
-import { Banner, Button, Chip } from "./ui";
+import { Banner, Button, Chip, IconButton } from "./ui";
 
-export function LessonPanel({ onReset, onViewScript }: { onReset: () => void; onViewScript: (path: string, source: string) => void }) {
+export function LessonPanel({
+  onReset,
+  onViewScript,
+  onCollapse,
+}: {
+  onReset: () => void;
+  onViewScript: (path: string, source: string) => void;
+  onCollapse: () => void;
+}) {
   const dispatch = useAppDispatch();
   const cat = useAppSelector((s) => s.catalog.data)!;
   const lesson = useAppSelector((s) => s.lesson);
   const view = lesson.view;
-  const titleRef = useRef<HTMLHeadingElement>(null);
-
-  useEffect(() => {
-    titleRef.current?.focus({ preventScroll: true });
-  }, [view?.meta.id]);
 
   if (!view) return <div className="p-4 text-sm text-fg-3">Loading lesson…</div>;
   const meta = view.meta;
@@ -28,31 +31,23 @@ export function LessonPanel({ onReset, onViewScript }: { onReset: () => void; on
   const sectionDoneOtherwise = cat.lessons.filter((l) => l.section === meta.section && l.id !== meta.id).every((l) => cat.completed[l.id]);
   const showNotice = missing.length > 0 && !lesson.noticeDismissed && !(meta.kind === "boss" && sectionDoneOtherwise);
   const { tryIt, after } = splitContent(view.content);
-  const kind = meta.kind.toUpperCase();
+  const complete = Boolean(lesson.update?.complete);
 
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <article className="min-h-0 flex-1 overflow-y-auto px-4 pt-4 pb-6" aria-labelledby="lesson-title">
-        <div className="flex items-center gap-2 text-2xs font-semibold tracking-[0.06em] text-fg-3 uppercase">
-          <span className="font-mono">{meta.id}</span> · <span>{kind}</span>
-          {meta.flags.includes("guided") && <Chip tone="outline">Guided</Chip>}
-          {meta.flags.includes("optional") && <Chip tone="outline">Optional</Chip>}
+      {/* Focus goes to the terminal; screen readers hear the lesson title. */}
+      <div className="sr-only" aria-live="polite">
+        Lesson {meta.id}: {meta.title}
+      </div>
+      <article className="min-h-0 flex-1 overflow-y-auto px-4 pt-3 pb-6" aria-labelledby="lesson-title">
+        <div className="flex items-start gap-2">
+          <h1 id="lesson-title" className="min-w-0 flex-1 pt-1 text-xl font-semibold">
+            {meta.title}
+          </h1>
+          <IconButton icon={PanelLeftClose} label="Hide lesson panel (Alt+[)" onClick={onCollapse} className="mt-1" />
         </div>
-        <h1 id="lesson-title" ref={titleRef} tabIndex={-1} className="mt-1 text-xl font-semibold outline-none">
-          {meta.title}
-        </h1>
-        {meta.teaches.length > 0 && (
-          <div className="mt-1 flex flex-wrap items-center gap-1 text-xs text-fg-3">
-            Teaches
-            {meta.teaches.map((t) => (
-              <span key={t} className="rounded-sm border border-edge-2 px-1 font-mono text-2xs text-fg-2">
-                {t.replace(/^concept-/, "")}
-              </span>
-            ))}
-          </div>
-        )}
 
-        <div className="mt-4 flex flex-col gap-3">
+        <div className="mt-3 flex flex-col gap-3">
           <Preflight />
           {meta.flags.includes("destructive") && (
             <Banner tone="warning" title="Destructive commands ahead.">
@@ -60,40 +55,37 @@ export function LessonPanel({ onReset, onViewScript }: { onReset: () => void; on
             </Banner>
           )}
           {showNotice && (
-            <Banner tone="info" title="Recommended first" onDismiss={() => dispatch(lessonActions.dismissNotice())}>
-              {missing.slice(0, 3).map((l, i) => (
-                <span key={l.id}>
-                  {i > 0 && ", "}
-                  <button className="text-accent hover:underline" onClick={() => dispatch(appActions.navigate({ kind: "lesson", lesson: l.id }))}>
-                    {l.id} {l.title}
-                  </button>
-                </span>
-              ))}
-              {missing.length > 3 && <span className="text-fg-2"> +{missing.length - 3} more</span>}
-            </Banner>
+            <p className="flex items-start gap-1 text-sm text-fg-2">
+              <span className="min-w-0 flex-1">
+                Easier after:{" "}
+                {missing.slice(0, 2).map((l, i) => (
+                  <span key={l.id}>
+                    {i > 0 && ", "}
+                    <button className="text-accent hover:underline" onClick={() => dispatch(appActions.navigate({ kind: "lesson", lesson: l.id }))}>
+                      {l.id} {l.title}
+                    </button>
+                  </span>
+                ))}
+                {missing.length > 2 && ` and ${missing.length - 2} more`}
+              </span>
+              <IconButton icon={X} label="Dismiss" onClick={() => dispatch(lessonActions.dismissNotice())} />
+            </p>
           )}
         </div>
 
         <Markdown text={tryIt} />
 
-        {view.actions.length > 0 && (
-          <section className="mt-4 rounded-md border border-edge p-3" aria-label="Events">
-            <div className="mb-2 text-2xs font-semibold tracking-[0.06em] text-fg-3 uppercase">Events</div>
-            <div className="flex flex-col gap-2">
-              {view.actions.map((a) => (
-                <div key={a.id} className="flex items-center gap-2">
-                  <Button icon={Play} loading={lesson.runningAction === a.id} disabled={lesson.status !== "running"} onClick={() => dispatch(runAction({ id: a.id, label: a.label }))}>
-                    {a.label}
-                  </Button>
-                  <Button variant="ghost" size="sm" icon={Braces} onClick={() => onViewScript(a.script, a.source)}>
-                    View script
-                  </Button>
-                  {lesson.actionRuns[a.id] ? <span className="text-xs text-fg-3">Ran {lesson.actionRuns[a.id]}×</span> : null}
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
+        {view.actions.map((a) => (
+          <div key={a.id} className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1">
+            <Button icon={Play} loading={lesson.runningAction === a.id} disabled={lesson.status !== "running"} onClick={() => dispatch(runAction({ id: a.id, label: a.label }))}>
+              {a.label}
+            </Button>
+            {lesson.actionRuns[a.id] ? <span className="text-xs text-fg-3">Ran {lesson.actionRuns[a.id]}×</span> : null}
+            <button className="text-xs text-fg-3 hover:text-fg hover:underline" onClick={() => onViewScript(a.script, a.source)}>
+              What does this do?
+            </button>
+          </div>
+        ))}
 
         {view.questions.map((q) => (
           <QuestionCard key={q.id} q={q} />
@@ -101,7 +93,15 @@ export function LessonPanel({ onReset, onViewScript }: { onReset: () => void; on
 
         {meta.hints.length > 0 && <Hints hints={meta.hints} />}
 
-        {after && <Markdown text={after} />}
+        {after &&
+          (complete ? (
+            <Markdown text={after} />
+          ) : (
+            <details className="mt-5 text-sm text-fg-2">
+              <summary className="cursor-pointer select-none">After you finish: what just happened</summary>
+              <Markdown text={after.replace(/^##\s+What just happened\s*/i, "")} />
+            </details>
+          ))}
       </article>
       <GoalsFooter onReset={onReset} />
     </div>
@@ -157,7 +157,7 @@ function QuestionCard({ q }: { q: PublicQuestion }) {
   };
 
   return (
-    <section className={`mt-4 rounded-md border p-3 ${correct ? "border-success" : "border-edge"}`} aria-label="Question">
+    <section id={`question-${q.id}`} className={`mt-4 scroll-mt-4 rounded-md border p-3 ${correct ? "border-success" : "border-edge"}`} aria-label="Question">
       <div className="text-base font-medium">{q.prompt}</div>
       <div className="mt-2">
         {q.type === "choice" ? (
@@ -261,73 +261,78 @@ function GoalsFooter({ onReset }: { onReset: () => void }) {
   const lesson = useAppSelector((s) => s.lesson);
   const view = lesson.view!;
   const update = lesson.update;
-  const labels = update?.goals ?? view.goals.map((label) => ({ label, passed: false, sticky: false }));
+  const labels = update?.goals ?? view.goals.map((label) => ({ label, passed: false, sticky: false, question: undefined as string | undefined }));
   const done = labels.filter((g) => g.passed).length;
   const complete = Boolean(update?.complete);
   const nb = neighbours(cat, view.meta.id);
-  const lastInSection = !nb.next || nb.next.section !== view.meta.section;
+  const nextIsNewSection = nb.next !== null && nb.next.section !== view.meta.section;
   const [announce, setAnnounce] = useState("");
   const prev = useRef<boolean[]>([]);
 
   useEffect(() => {
     const now = labels.map((g) => g.passed);
     labels.forEach((g, i) => {
-      if (g.passed && prev.current[i] === false) setAnnounce(`Goal done: ${g.label} (${done} of ${labels.length}).`);
+      if (g.passed && prev.current[i] === false) setAnnounce(`Goal complete: ${g.label} (${done} of ${labels.length}).`);
     });
     prev.current = now;
-    if (update?.justCompleted) setAnnounce(`Lesson complete.${nb.next ? ` Next: ${nb.next.id} ${nb.next.title}.` : ""}`);
+    if (update?.justCompleted) setAnnounce(`Lesson complete.${nb.next ? ` Next: ${nb.next.title}.` : ""}`);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [update]);
 
   const goNext = () => nb.next && dispatch(appActions.navigate({ kind: "lesson", lesson: nb.next.id }));
+  const showQuestion = (id: string) => {
+    const el = document.getElementById(`question-${id}`);
+    el?.scrollIntoView({ behavior: "smooth", block: "start" });
+    el?.querySelector<HTMLElement>("input, button")?.focus({ preventScroll: true });
+  };
 
   return (
-    <div className="flex max-h-[40%] shrink-0 flex-col border-t border-edge bg-surface">
+    <div className="flex max-h-[35%] shrink-0 flex-col border-t border-edge bg-surface">
       <div className="sr-only" aria-live="polite">
         {announce}
       </div>
-      <div className={`flex shrink-0 items-center justify-between px-4 pt-3 pb-1 ${complete ? "mx-3 mt-3 rounded-md border border-success/50 bg-success-soft px-3 py-2" : ""}`}>
-        {complete ? (
+      {complete ? (
+        <div className="mx-3 mt-3 flex shrink-0 items-center justify-between rounded-md border border-success/50 bg-success-soft px-3 py-2">
           <span className="flex items-center gap-1.5 text-sm font-medium">
-            <CheckCircle2 size={16} className="text-success" /> Lesson complete.
+            <CheckCircle2 size={16} className="text-success" /> Lesson complete
           </span>
-        ) : (
-          <span className="text-2xs font-semibold tracking-[0.06em] text-fg-3 uppercase">Goals</span>
-        )}
-        <Chip tone="count">
-          {done}/{labels.length}
-        </Chip>
-      </div>
-      <ul aria-label="Goals" className="min-h-0 flex-1 overflow-y-auto px-4 py-1">
-        {labels.map((g, i) => (
-          <li key={i} className="flex min-h-8 items-start gap-2 py-[5px] text-base leading-[22px]">
-            {g.passed ? (
-              <CheckCircle2 size={18} className="goal-pass mt-0.5 shrink-0 fill-success text-surface" aria-label="Done" />
-            ) : (
-              <Circle size={18} strokeWidth={1.5} className="mt-0.5 shrink-0 text-edge-2" aria-label="Not done yet" />
-            )}
-            <span className="min-w-0 flex-1">{g.label}</span>
-            {g.passed && g.sticky && <Pin size={14} className="mt-1 text-fg-3" aria-label="This goal stays done once reached." />}
-          </li>
-        ))}
-      </ul>
-      {complete && !lesson.completeCardDismissed && wasJustCompleted(lesson) && (
-        <div className="complete-card mx-3 mb-1 shrink-0 rounded-md border border-edge-2 bg-raised p-3 text-sm">
-          <div>{lastInSection ? `Done. That finishes Section ${view.meta.section}.` : `Done. Next: ${nb.next?.id} ${nb.next?.title}.`}</div>
-          <div className="mt-2 flex justify-end gap-2">
-            <Button variant="ghost" onClick={() => dispatch(lessonActions.dismissCompleteCard())}>
-              Stay here
-            </Button>
-            {nb.next && (
-              <Button variant="primary" onClick={goNext}>
-                {lastInSection ? "Next section" : "Next lesson"}
-              </Button>
-            )}
-          </div>
+          <Chip tone="count">
+            {done}/{labels.length}
+          </Chip>
+        </div>
+      ) : (
+        <div className="flex shrink-0 items-baseline justify-between px-4 pt-3">
+          <span className="text-sm font-medium">Goals</span>
+          <span className="text-xs text-fg-3">Ticks automatically as you work · {done}/{labels.length}</span>
         </div>
       )}
-      <div className="flex shrink-0 items-center justify-between px-3 pt-1 pb-3">
-        <Button variant="danger-ghost" icon={RotateCcw} onClick={onReset} title="Reset lesson (Alt+Shift+R)">
+      <ul aria-label="Goals" className="min-h-0 flex-1 overflow-y-auto px-4 py-1">
+        {labels.map((g, i) => {
+          const body = (
+            <>
+              {g.passed ? (
+                <CheckCircle2 size={18} className="goal-pass mt-0.5 shrink-0 fill-success text-surface" aria-label="Done" />
+              ) : (
+                <Circle size={18} strokeWidth={1.5} className="mt-0.5 shrink-0 text-edge-2" aria-label="Not done yet" />
+              )}
+              <span className="min-w-0 flex-1 text-left">{g.label}</span>
+            </>
+          );
+          return (
+            <li key={i} className="text-base leading-[22px]">
+              {g.question && !g.passed ? (
+                <button className="flex min-h-8 w-full items-start gap-2 rounded-sm py-[5px] hover:bg-sunken" onClick={() => showQuestion(g.question!)} title="Show the question">
+                  {body}
+                </button>
+              ) : (
+                <div className="flex min-h-8 items-start gap-2 py-[5px]">{body}</div>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+      <div className="flex shrink-0 items-center justify-between gap-2 px-3 pt-1 pb-3">
+        <Button variant="ghost" icon={RotateCcw} onClick={onReset} title="Reset lesson (Alt+Shift+R)">
           Reset lesson
         </Button>
         {view.meta.flags.includes("optional") && !complete && !cat.skipped.includes(view.meta.id) && (
@@ -336,22 +341,14 @@ function GoalsFooter({ onReset }: { onReset: () => void }) {
           </Button>
         )}
         {nb.next && (
-          <Button variant={complete ? "primary" : "ghost"} onClick={goNext}>
-            Next <ChevronRight size={14} />
+          <Button variant={complete ? "primary" : "ghost"} onClick={goNext} title="Next lesson (Alt+→)" className="min-w-0">
+            <span className="truncate">{complete ? (nextIsNewSection ? "Next section" : `Next: ${nb.next.title}`) : "Next"}</span>
+            <ArrowRight size={14} className="shrink-0" />
           </Button>
         )}
       </div>
     </div>
   );
-}
-
-// The backend tells us when a lesson first completed in this attempt; keep
-// showing the card until dismissed or the lesson changes.
-const justCompleted = new Set<string>();
-function wasJustCompleted(lesson: { id: string | null; update: { justCompleted: boolean } | null; generation: number }) {
-  const key = `${lesson.id}:${lesson.generation}`;
-  if (lesson.update?.justCompleted) justCompleted.add(key);
-  return justCompleted.has(key);
 }
 
 /** Tool missing / git too old card with a Skip option (DESIGN.md 4.8). */
@@ -402,3 +399,4 @@ function Preflight() {
     </Banner>
   );
 }
+

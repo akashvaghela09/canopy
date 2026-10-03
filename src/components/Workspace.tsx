@@ -1,12 +1,12 @@
 // Lesson workspace: lesson panel | graph over terminal | inspector
 // (DESIGN.md section 4.1).
 
-import { ChevronLeft, ChevronRight, Keyboard, Minus, Plus, X } from "lucide-react";
+import { PanelLeftOpen, PanelRightOpen, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { api } from "../api";
-import { appActions, lessonActions, setSetting, useAppDispatch, useAppSelector } from "../store";
+import { appActions, lessonActions, useAppDispatch, useAppSelector } from "../store";
 import { EditorSheet } from "./EditorSheet";
-import { GraphPane, useActiveRepo } from "./GraphPane";
+import { GraphPane } from "./GraphPane";
 import { Inspector, type InspectorTab, type OpenFile } from "./Inspector";
 import { LessonPanel } from "./LessonPanel";
 import { Terminal } from "./Terminal";
@@ -19,9 +19,11 @@ type Panes = {
   inspectorCollapsed: boolean;
   graphRatio: number;
   graphCollapsed: boolean;
+  /** Below 1280px the inspector starts collapsed unless opened there. */
+  inspectorOpenSmall: boolean;
 };
 
-const DEFAULT_PANES: Panes = { lessonW: 360, lessonCollapsed: false, inspectorW: 320, inspectorCollapsed: false, graphRatio: 0.48, graphCollapsed: false };
+const DEFAULT_PANES: Panes = { lessonW: 360, lessonCollapsed: false, inspectorW: 320, inspectorCollapsed: false, graphRatio: 0.48, graphCollapsed: false, inspectorOpenSmall: false };
 
 function loadPanes(): Panes {
   try {
@@ -62,7 +64,10 @@ export function Workspace({ lessonId }: { lessonId: string }) {
   const lessonW = winW < 1280 ? Math.min(panes.lessonW, 300) : panes.lessonW;
   const inspectorW = winW < 1280 ? Math.min(panes.inspectorW, 260) : panes.inspectorW;
   const lessonCollapsed = panes.lessonCollapsed || winW < 960;
-  const inspectorCollapsed = panes.inspectorCollapsed || winW < 1100;
+  const small = winW < 1280;
+  const inspectorCollapsed = small ? !panes.inspectorOpenSmall : panes.inspectorCollapsed;
+  const setInspectorOpen = (open: boolean) =>
+    setPanes((p) => (small ? { ...p, inspectorOpenSmall: open } : { ...p, inspectorCollapsed: !open }));
 
   useEffect(() => {
     localStorage.setItem("canopy.panes", JSON.stringify(panes));
@@ -104,7 +109,7 @@ export function Workspace({ lessonId }: { lessonId: string }) {
         setPanes((p) => ({ ...p, lessonCollapsed: !p.lessonCollapsed }));
       } else if (e.altKey && e.key === "]") {
         e.preventDefault();
-        setPanes((p) => ({ ...p, inspectorCollapsed: !p.inspectorCollapsed }));
+        setPanes((p) => (window.innerWidth < 1280 ? { ...p, inspectorOpenSmall: !p.inspectorOpenSmall } : { ...p, inspectorCollapsed: !p.inspectorCollapsed }));
       } else if (e.altKey && (e.key === "h" || e.key === "H")) {
         e.preventDefault();
         dispatch(lessonActions.showHint());
@@ -117,12 +122,11 @@ export function Workspace({ lessonId }: { lessonId: string }) {
     return () => window.removeEventListener("keydown", onKey);
   }, [dispatch]);
 
-  const tabs: InspectorTab[] = ["files", ...((meta?.panels ?? []).filter((p) => ["diff", "three-areas", "inside-git"].includes(p)) as InspectorTab[])];
-  if (meta?.repo && !tabs.includes("diff")) tabs.splice(1, 0, "diff");
+  // Fixed order; extra tabs only when the lesson uses them.
+  const tabs: InspectorTab[] = ["files", ...(["diff", "three-areas", "inside-git"] as InspectorTab[]).filter((t) => meta?.panels.includes(t))];
   const showGraph = meta ? meta.repo !== null || meta.repos.length > 0 : true;
   const editorMode = openFile !== null;
 
-  const { cwdRepo } = useActiveRepo();
   const leftFolder = lesson.update !== null && lesson.update.cwd === null;
 
   return (
@@ -133,9 +137,6 @@ export function Workspace({ lessonId }: { lessonId: string }) {
       ) : (
         <>
           <section role="region" aria-label="Lesson" data-pane="lesson" tabIndex={-1} className="flex min-h-0 shrink-0 flex-col border-r border-edge bg-surface" style={{ width: lessonW }}>
-            <PaneHeader label="Lesson">
-              <IconButton icon={ChevronLeft} label="Collapse lesson panel (Alt+[)" onClick={() => setPanes((p) => ({ ...p, lessonCollapsed: true }))} />
-            </PaneHeader>
             {lesson.status === "error" ? (
               <div className="p-4">
                 <Banner
@@ -155,7 +156,11 @@ export function Workspace({ lessonId }: { lessonId: string }) {
                 </Banner>
               </div>
             ) : (
-              <LessonPanel onReset={() => setConfirmReset(true)} onViewScript={(path, source) => setOpenFile({ path, readOnly: true, content: source, title: `${path} · read-only` })} />
+              <LessonPanel
+                onReset={() => setConfirmReset(true)}
+                onViewScript={(path, source) => setOpenFile({ path, readOnly: true, content: source, title: `${path} · read-only` })}
+                onCollapse={() => setPanes((p) => ({ ...p, lessonCollapsed: true }))}
+              />
             )}
           </section>
           <Resizer
@@ -168,10 +173,15 @@ export function Workspace({ lessonId }: { lessonId: string }) {
 
       {/* Center column */}
       <div ref={center} className="relative flex min-h-0 min-w-[480px] flex-1 flex-col">
+        {/* git's editor (commit message, rebase todo) covers the top of the centre column. */}
+        {lesson.editor && (
+          <div className="absolute inset-x-0 top-0 z-20" style={{ height: showGraph && !panes.graphCollapsed ? `${panes.graphRatio * 100}%` : "50%" }}>
+            <EditorSheet request={lesson.editor} onDone={() => paneFocus.terminal?.()} />
+          </div>
+        )}
         {showGraph && (
           <div className="relative min-h-0 shrink-0" style={{ height: panes.graphCollapsed ? 36 : `${panes.graphRatio * 100}%` }}>
-            <GraphPane collapsed={panes.graphCollapsed} onToggle={() => setPanes((p) => ({ ...p, graphCollapsed: !p.graphCollapsed }))} showIds={settings.graphIds !== "0"} />
-            {lesson.editor && <EditorSheet request={lesson.editor} onDone={() => paneFocus.terminal?.()} />}
+            <GraphPane collapsed={panes.graphCollapsed} onToggle={() => setPanes((p) => ({ ...p, graphCollapsed: !p.graphCollapsed }))} showIds={settings.graphIds === "1"} />
           </div>
         )}
         {showGraph && !panes.graphCollapsed && (
@@ -185,18 +195,14 @@ export function Workspace({ lessonId }: { lessonId: string }) {
           />
         )}
         <section role="region" aria-label="Terminal" data-pane="terminal" tabIndex={-1} className="flex min-h-[180px] flex-1 flex-col border-t border-edge">
-          <PaneHeader label="Terminal" context={lesson.update?.cwd === null ? "outside the learning folder" : lesson.update?.cwd || (cwdRepo ? cwdRepo.label : ".")}>
-            {meta?.flags.includes("destructive") && <span className="mr-2 rounded-sm border border-warning px-1.5 text-2xs text-fg-2">destructive lesson</span>}
-            <IconButton icon={Minus} label="Smaller text (Ctrl+-)" onClick={() => dispatch(setSetting({ key: "terminalFontSize", value: String(Math.max(11, fontSize - 1)) }))} />
-            <IconButton icon={Plus} label="Larger text (Ctrl+=)" onClick={() => dispatch(setSetting({ key: "terminalFontSize", value: String(Math.min(18, fontSize + 1)) }))} />
+          <PaneHeader label="Terminal" context={lesson.update?.cwd === null ? "outside the learning folder" : lesson.update?.cwd ? `in ${lesson.update.cwd}` : undefined}>
             <Button variant="ghost" size="sm" onClick={() => paneFocus.clearTerminal?.()}>
               Clear
             </Button>
-            <IconButton icon={Keyboard} label="Alt+1–4 or F6 moves focus out of the terminal" />
           </PaneHeader>
           {termHint && (
-            <div className="flex h-8 shrink-0 items-center gap-2 border-b border-edge px-3 text-xs text-fg-3">
-              <span className="truncate">Tab completes commands here. Press Alt+1–4 or F6 to move to another pane.</span>
+            <div className="flex h-8 shrink-0 items-center gap-2 border-b border-edge px-3 text-xs text-fg-2">
+              <span className="truncate">Type commands here and press Enter. Alt+1–4 or F6 moves to the other panes.</span>
               <IconButton
                 icon={X}
                 label="Dismiss"
@@ -209,8 +215,17 @@ export function Workspace({ lessonId }: { lessonId: string }) {
             </div>
           )}
           {leftFolder && (
-            <Banner tone="warning" title="You left the learning folder." className="mx-3 mt-2">
-              Canopy only watches repos inside it. The graph and goals will not update until you go back.
+            <Banner
+              tone="warning"
+              title="You left the learning folder."
+              className="mx-3 mt-2"
+              actions={
+                <Button size="sm" onClick={() => api.terminalGoHome().then(() => paneFocus.terminal?.())}>
+                  Go back
+                </Button>
+              }
+            >
+              The graph and goals update only inside it.
             </Banner>
           )}
           <div className="min-h-0 flex-1">
@@ -221,7 +236,11 @@ export function Workspace({ lessonId }: { lessonId: string }) {
                 reset={reset}
                 generation={lesson.generation}
                 fontSize={fontSize}
-                onStarted={() => dispatch(lessonActions.lessonStarted())}
+                onStarted={() => {
+                  dispatch(lessonActions.lessonStarted());
+                  // Beginners should be able to type straight away.
+                  paneFocus.terminal?.();
+                }}
                 onError={(m) => dispatch(lessonActions.lessonFailed(m))}
                 registerFocus={(f, clear) => {
                   paneFocus.terminal = f;
@@ -235,7 +254,7 @@ export function Workspace({ lessonId }: { lessonId: string }) {
 
       {/* Inspector */}
       {inspectorCollapsed ? (
-        <Rail label="Files" side="right" onOpen={() => setPanes((p) => ({ ...p, inspectorCollapsed: false }))} />
+        <Rail label="Files" side="right" onOpen={() => setInspectorOpen(true)} />
       ) : (
         <>
           <Resizer
@@ -253,7 +272,7 @@ export function Workspace({ lessonId }: { lessonId: string }) {
                 setOpenFile(f);
                 if (f) setTab("files");
               }}
-              onCollapse={() => setPanes((p) => ({ ...p, inspectorCollapsed: true }))}
+              onCollapse={() => setInspectorOpen(false)}
             />
           </div>
         </>
@@ -297,7 +316,7 @@ function Rail({ label, side, onOpen, chip }: { label: string; side: "left" | "ri
       aria-label={`Expand ${label}`}
       className={`flex w-[var(--size-rail)] shrink-0 flex-col items-center gap-3 bg-surface py-2 text-fg-2 hover:bg-sunken ${side === "left" ? "border-r" : "border-l"} border-edge`}
     >
-      {side === "left" ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+      {side === "left" ? <PanelLeftOpen size={16} /> : <PanelRightOpen size={16} />}
       <span className="text-2xs font-semibold tracking-[0.06em] uppercase [writing-mode:vertical-rl]">{label}</span>
       {chip && <span className="rounded-sm bg-sunken px-1 font-mono text-2xs">{chip}</span>}
     </button>

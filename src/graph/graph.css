@@ -49,3 +49,8 @@
     animation-duration: 80ms;
   }
 }
+.canopy-graph .g-subject {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  fill: var(--color-fg-2);
+}

@@ -52,7 +52,7 @@ export type LessonView = {
   hasAttempt: boolean;
 };
 
-export type GoalResult = { label: string; passed: boolean; sticky: boolean; error?: string };
+export type GoalResult = { label: string; passed: boolean; sticky: boolean; question?: string; error?: string };
 
 export type RepoSnapshot = {
   path: string;
@@ -99,6 +99,8 @@ export const api = {
   stopLesson: () => invoke<void>("stop_lesson"),
   terminalWrite: (data: string) => invoke<void>("terminal_write", { data }),
   terminalResize: (cols: number, rows: number) => invoke<void>("terminal_resize", { cols, rows }),
+  terminalGoHome: () => invoke<void>("terminal_go_home"),
+  learningFolder: () => invoke<string>("learning_folder"),
   submitAnswer: (question: string, value: unknown) => invoke<boolean>("submit_answer", { question, value }),
   runAction: (action: string) => invoke<string>("run_action", { action }),
   listDir: (path: string) => invoke<DirEntry[]>("list_dir", { path }),

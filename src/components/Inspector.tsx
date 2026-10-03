@@ -1,7 +1,7 @@
 // Right pane: Files (tree + editor), Changes (diff), Areas (three-area
 // panel) and .git (DESIGN.md 4.6).
 
-import { ChevronDown, ChevronRight, File, Folder, FolderGit2, RefreshCw, X } from "lucide-react";
+import { ChevronDown, ChevronRight, File, Folder, FolderGit2, PanelRightClose, RefreshCw, Terminal as TerminalIcon, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { api, inspect, type AreaRow, type DirEntry } from "../api";
 import type { Snapshot } from "../graph/types";
@@ -48,7 +48,7 @@ export function Inspector({
           </button>
         ))}
         <div className="mb-1.5 ml-auto">
-          <IconButton icon={ChevronRight} label="Collapse inspector (Alt+])" onClick={onCollapse} />
+          <IconButton icon={PanelRightClose} label="Hide files panel (Alt+])" onClick={onCollapse} />
         </div>
       </div>
       <div className="min-h-0 flex-1">
@@ -78,11 +78,16 @@ function statusGlyphs(snap: Snapshot | null | undefined, repoPath: string | unde
 function FilesTab({ openFile, onOpenFile, tick }: { openFile: OpenFile | null; onOpenFile: (f: OpenFile | null) => void; tick: unknown }) {
   const { active } = useActiveRepo();
   const glyphs = useMemo(() => statusGlyphs(active?.snapshot, active?.path), [active]);
+  // The tree follows the terminal: expand to and highlight its folder.
+  const cwd = useAppSelector((s) => s.lesson.update?.cwd ?? null);
+  // Section 1 teaches hidden files with `ls -a`; don't show them in the tree there.
+  const hideDot = useAppSelector((s) => s.lesson.view?.meta.section === 1);
+  const treeProps = { tick, glyphs, cwd, hideDot };
   if (openFile) {
     return (
       <div className="flex h-full flex-col">
         <div className="max-h-40 shrink-0 overflow-y-auto border-b border-edge">
-          <Tree path="" depth={0} tick={tick} glyphs={glyphs} selected={openFile.path} onOpen={(p) => onOpenFile({ path: p })} />
+          <Tree path="" depth={0} {...treeProps} selected={openFile.path} onOpen={(p) => onOpenFile({ path: p })} />
         </div>
         <FileEditor file={openFile} tick={tick} onClose={() => onOpenFile(null)} />
       </div>
@@ -90,16 +95,25 @@ function FilesTab({ openFile, onOpenFile, tick }: { openFile: OpenFile | null; o
   }
   return (
     <div className="h-full overflow-y-auto py-1">
-      <Tree path="" depth={0} tick={tick} glyphs={glyphs} onOpen={(p) => onOpenFile({ path: p })} />
+      <Tree path="" depth={0} {...treeProps} onOpen={(p) => onOpenFile({ path: p })} />
     </div>
   );
 }
+
+const GLYPH_MEANING: Record<string, string> = {
+  "?": "Untracked: git is not tracking this file yet",
+  A: "Staged: ready for the next commit",
+  M: "Modified since the last commit",
+  "!": "Conflict: needs resolving",
+};
 
 function Tree({
   path,
   depth,
   tick,
   glyphs,
+  cwd,
+  hideDot,
   selected,
   onOpen,
 }: {
@@ -107,11 +121,19 @@ function Tree({
   depth: number;
   tick: unknown;
   glyphs: Map<string, { glyph: string; cls: string }>;
+  cwd: string | null;
+  hideDot: boolean;
   selected?: string;
   onOpen: (path: string) => void;
 }) {
   const [entries, setEntries] = useState<DirEntry[] | null>(null);
   const [open, setOpen] = useState<Record<string, boolean>>({});
+  useEffect(() => {
+    if (!cwd || !entries) return;
+    const ancestor = entries.find((e) => e.dir && (cwd === e.path || cwd.startsWith(`${e.path}/`)));
+    if (ancestor && !open[ancestor.path]) setOpen((o) => ({ ...o, [ancestor.path]: true }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cwd, entries]);
   useEffect(() => {
     let live = true;
     api
@@ -126,14 +148,18 @@ function Tree({
   if (depth === 0 && entries.length === 0) return <div className="px-3 py-2 text-sm text-fg-3">This folder is empty.</div>;
   return (
     <ul role={depth === 0 ? "tree" : "group"}>
-      {entries.map((e) => {
+      {entries
+        .filter((e) => !hideDot || !e.name.startsWith(".") || e.name === ".git")
+        .map((e) => {
         const isGit = e.name === ".git";
+        const here = e.dir && cwd === e.path;
         const g = glyphs.get(e.path);
         const expanded = open[e.path];
         return (
           <li key={e.path} role="treeitem" aria-expanded={e.dir ? Boolean(expanded) : undefined}>
             <button
-              className={`flex h-6 w-full items-center gap-1.5 pr-3 text-left text-sm hover:bg-sunken ${selected === e.path ? "bg-selection" : ""} ${
+              title={here ? "The terminal is in this folder" : undefined}
+              className={`flex h-6 w-full items-center gap-1.5 pr-3 text-left text-sm hover:bg-sunken ${selected === e.path || here ? "bg-selection" : ""} ${
                 g?.glyph === "!" ? "bg-danger-soft" : ""
               } ${isGit ? "text-fg-3" : ""}`}
               style={{ paddingLeft: 8 + depth * 12 }}
@@ -142,9 +168,14 @@ function Tree({
               {e.dir ? expanded ? <ChevronDown size={14} className="text-fg-3" /> : <ChevronRight size={14} className="text-fg-3" /> : <span className="w-3.5" />}
               {isGit ? <FolderGit2 size={14} /> : e.dir ? <Folder size={14} className="text-fg-2" /> : <File size={14} className="text-fg-2" />}
               <span className="truncate">{e.name}</span>
-              {g && <span className={`ml-auto font-mono text-xs ${g.cls}`}>{g.glyph}</span>}
+              {here && <TerminalIcon size={12} className="text-fg-3" aria-label="terminal is here" />}
+              {g && (
+                <span className={`ml-auto font-mono text-xs ${g.cls}`} title={GLYPH_MEANING[g.glyph]}>
+                  {g.glyph}
+                </span>
+              )}
             </button>
-            {e.dir && expanded && <Tree path={e.path} depth={depth + 1} tick={tick} glyphs={glyphs} selected={selected} onOpen={onOpen} />}
+            {e.dir && expanded && <Tree path={e.path} depth={depth + 1} tick={tick} glyphs={glyphs} cwd={cwd} hideDot={hideDot} selected={selected} onOpen={onOpen} />}
           </li>
         );
       })}

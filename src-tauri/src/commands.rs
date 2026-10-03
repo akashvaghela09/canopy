@@ -584,3 +584,20 @@ pub fn frontend_log(level: String, message: String) {
 pub fn smoke_lesson() -> Option<String> {
     std::env::var("CANOPY_SMOKE_LESSON").ok().filter(|s| !s.is_empty())
 }
+
+/// "Go back" after leaving the learning folder: clear the input line and cd
+/// to the lesson's start folder.
+#[tauri::command]
+pub fn terminal_go_home(state: State<AppState>) -> CmdResult<()> {
+    let lesson_id = with_session(&state, |s| Ok(s.lesson_id.clone()))?;
+    let lesson = lesson_by_id(&state, &lesson_id)?;
+    let dir = state.paths.lesson_root(&lesson_id).join(&lesson.meta.start);
+    let quoted = format!("'{}'", dir.to_string_lossy().replace('\'', "'\\''"));
+    with_session(&state, |s| s.write(format!("\x15cd {quoted}\r").as_bytes()).map_err(anyhow_err))
+}
+
+/// Where Canopy keeps lesson folders (shown on the first-run screen).
+#[tauri::command]
+pub fn learning_folder(state: State<AppState>) -> String {
+    state.paths.workspace().to_string_lossy().into_owned()
+}
