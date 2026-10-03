@@ -7,7 +7,7 @@ requires: [rm, add, commit]
 flags: []
 repo: project
 start: project
-panels: [three-areas]
+panels: [three-areas, files]
 hints:
   - "`git mv notes.txt journal.txt` renames and stages in one go."
   - "For the second file: `mv draft.md chapter1.md`, then stage both the missing old name and the new name (or stage everything)."

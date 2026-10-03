@@ -19,4 +19,4 @@ Only the file you name is touched. Other modified files stay as they are.
 
 ## What just happened
 
-In the three-area panel, `notes.txt` in the working tree now matches the staging area and HEAD again. Nothing was committed and nothing moved in the graph; restore only rewrote the file on disk. Before you run it, use the diff to be sure the edits are really ones you want to lose.
+In the strip under the graph, `notes.txt` in the working tree now matches the staging area and HEAD again. Nothing was committed and nothing moved in the graph; restore only rewrote the file on disk. Before you run it, use the diff to be sure the edits are really ones you want to lose.

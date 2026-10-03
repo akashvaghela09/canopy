@@ -27,4 +27,4 @@ The long status is friendly but slow to read. The short form prints one line per
 
 ## What just happened
 
-You can now read a status at a glance. The two columns are the three-area panel in two characters: left for staging, right for the working tree.
+You can now read a status at a glance. The two columns are the three-area strip in two characters: left for staging, right for the working tree.

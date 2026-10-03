@@ -17,4 +17,4 @@ A blob id of all zeros means "not yet hashed": the working-tree file differs but
 
 ## What just happened
 
-Each porcelain diff is one of these comparisons with pretty output. Knowing which two things are compared is what the three-area panel in earlier lessons showed: working tree, index, HEAD.
+Each porcelain diff is one of these comparisons with pretty output. Knowing which two things are compared is what the three-area strip in earlier lessons showed: working tree, index, HEAD.

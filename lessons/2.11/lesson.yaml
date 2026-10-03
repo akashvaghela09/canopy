@@ -7,7 +7,7 @@ requires: [commit, status]
 flags: []
 repo: project
 start: project
-panels: [three-areas]
+panels: [three-areas, files]
 hints:
   - "`git rm old-draft.txt` deletes the file and stages the deletion in one step."
   - "`git rm --cached secrets.env` takes the file out of git but leaves it in your folder."

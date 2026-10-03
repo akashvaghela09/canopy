@@ -6,7 +6,7 @@ The staging area is a single binary file, `.git/index`. It is a flat list: for e
 
 1. `git ls-files -s` and count the entries. List the files of HEAD recursively and compare: the same four blobs.
 2. Stage `notes.txt` the way you normally would, then list the index again. Find the new line and its blob id.
-3. Confirm that the blob exists: type its id into the Objects box of the .git tab, or print it with `cat-file -p`. The Index section of the .git tab shows the new entry too.
+3. Confirm that the blob exists: type its id into the Objects box of the Inside .git tab of the Files panel, or print it with `cat-file -p`. The Index section of that tab shows the new entry too.
 4. Stage `extra.txt` with plumbing: `git update-index --add extra.txt`. List the index once more.
 5. Answer the questions in the lesson panel.
 

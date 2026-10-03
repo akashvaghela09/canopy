@@ -16,4 +16,4 @@ A **packfile** stores many objects in one file and can store an object as a **de
 
 ## What just happened
 
-Nothing about the history changed; `cat-file` still returns every object. Only the storage changed, from one file per object to one file for all, with deltas between similar versions. The Objects box in the .git tab still finds every object by id.
+Nothing about the history changed; `cat-file` still returns every object. Only the storage changed, from one file per object to one file for all, with deltas between similar versions. The Objects box in the Inside .git tab of the Files panel still finds every object by id.

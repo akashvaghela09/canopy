@@ -10,4 +10,4 @@
 
 ## What just happened
 
-Git noticed a new file but is not tracking it yet. "Untracked" means: git knows the file exists, but it is not part of any saved version, and git will not include it until you say so. In the three-area panel the file sits in the working tree column (the files on disk), outside git's reach.
+Git noticed a new file but is not tracking it yet. "Untracked" means: git knows the file exists, but it is not part of any saved version, and git will not include it until you say so. In the strip under the graph the file sits in the working tree column (the files on disk), outside git's reach.

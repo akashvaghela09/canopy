@@ -40,7 +40,7 @@ repos:                           # optional; every repo the graph can switch bet
   - { path: work, label: Your clone }
   - { path: origin.git, label: origin }
   - { path: teammate, label: Teammate }
-panels: [three-areas]            # optional extra panels: three-areas, diff, inside-git
+panels: [three-areas]            # optional: three-areas (strip under the graph), files (opens the Files drawer), inside-git (Inside .git tab)
 actions:                         # optional buttons in the lesson panel
   - { id: teammate-push, label: "Teammate pushes a fix", script: actions/teammate-push.sh }
 hints:                           # optional, shown one at a time on request, no penalty

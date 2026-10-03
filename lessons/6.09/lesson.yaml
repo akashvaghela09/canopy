@@ -7,7 +7,7 @@ requires: [conflict-read, add, commit]
 flags: []
 repo: cafe
 start: cafe
-panels: [diff]
+panels: []
 hints:
   - "Edit tagline.txt so it reads exactly: Fresh bread and pastries every morning. Delete the marker lines too."
   - "Staging the file tells git the conflict is resolved. Then commit; git has a merge message ready."

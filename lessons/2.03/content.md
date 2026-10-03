@@ -9,7 +9,7 @@ Staging takes a copy of a file *at that moment*. If you edit the file again afte
 ## Try it
 
 1. `todo.txt` was staged, then edited again. Check the status of the repo and find `todo.txt` in both lists.
-2. Watch the three-area panel: the staging column and the working tree column hold different text for the same file.
+2. Watch the strip under the graph: the staging column and the working tree column hold different text for the same file.
 3. Answer the question in the lesson panel.
 4. Commit `todo.txt` so the commit includes "buy bread".
 

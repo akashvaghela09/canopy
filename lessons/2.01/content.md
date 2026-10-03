@@ -12,4 +12,4 @@ That copies the current `intro.txt` into the staging area. The other files stay 
 
 ## What just happened
 
-Watch the three-area panel: `intro.txt` moved from the working tree column into the staging column. Nothing has been committed. Staging is how you choose; committing is how you save. Keeping the two apart lets you make several changes and save them one at a time.
+Watch the strip under the graph: `intro.txt` moved from the working tree column into the staging column. Nothing has been committed. Staging is how you choose; committing is how you save. Keeping the two apart lets you make several changes and save them one at a time.

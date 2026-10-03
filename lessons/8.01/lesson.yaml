@@ -8,7 +8,7 @@ flags: []
 minGit: "2.23"
 repo: work
 start: work
-panels: [three-areas]
+panels: [three-areas, files]
 hints:
   - "Try the switch first and read why git refuses. Then `git stash`, check the status, and switch again."
   - "After looking around on `release-notes`, switch back to `main`. Leave the stash where it is; the next lessons use it."

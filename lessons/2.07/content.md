@@ -13,4 +13,4 @@ Reading it: a line starting with `-` is the old version, a line starting with `+
 
 ## What just happened
 
-Diff is how you review your own work before you save it. The diff panel shows the same output with colour: red for removed lines, green for added ones.
+Diff is how you review your own work before you save it.

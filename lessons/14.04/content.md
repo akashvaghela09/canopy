@@ -12,4 +12,4 @@ A **tree** is a folder. Each line of a tree names one entry: its mode, its type,
 
 ## What just happened
 
-You followed the chain commit, root tree, `docs` tree, blob by hand. The graph draws commits only; to look inside a tree without the terminal, type its id into the Objects box of the .git tab. A tree's id depends on every id inside it, so changing one file changes its blob, its folder's tree, and every tree above it up to the root.
+You followed the chain commit, root tree, `docs` tree, blob by hand. The graph draws commits only; to look inside a tree without the terminal, type its id into the Objects box of the Inside .git tab of the Files panel. A tree's id depends on every id inside it, so changing one file changes its blob, its folder's tree, and every tree above it up to the root.

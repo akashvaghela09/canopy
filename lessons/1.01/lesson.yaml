@@ -11,3 +11,4 @@ hints:
   - "`pwd` prints where you are. `ls` lists what is here."
   - "Hidden names start with a dot. `ls -a` shows them too."
   - "`cd ..` goes up one level. From inside `notes`, run `cd ..` and then `cd photos`."
+panels: [files]

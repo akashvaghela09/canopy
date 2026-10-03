@@ -12,3 +12,4 @@ hints:
   - "\"Add ridge trail\" is two commits below the tip of main. `git switch --detach HEAD~2` takes you there; the status then says \"HEAD detached at ...\"."
   - "A commit made while detached has no branch pointing at it. Create one with the same command you use to create and switch in one step; the new branch starts at HEAD, which is your new commit."
   - "`git switch --detach HEAD~2`, write ideas.md, stage and commit, `git switch -c ideas`, then `git switch main`."
+panels: [files]

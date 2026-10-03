@@ -9,7 +9,7 @@ This lesson is guided: follow the commands and watch the graph.
 1. Draw the graph: `git log --oneline --graph`. `main` sits on "Add salt to soup".
 2. Run `git reset HEAD~1`.
 3. Draw the graph again. `main` and HEAD moved one commit back, and "Add salt to soup" is no longer listed.
-4. Run `git status` and look at `soup.md` in the three-area panel.
+4. Run `git status` and look at `soup.md` in the strip under the graph.
 5. Answer the questions in the lesson panel.
 
 ## What just happened

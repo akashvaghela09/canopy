@@ -12,3 +12,4 @@ hints:
   - "Create and switch to `river` in one step, commit the new trail file there, then switch back to main and commit the water note."
   - "Draw the graph with all branches after the second commit. The two newest commits sit side by side, and both point back to \"Add gear checklist\"."
   - "`git switch -c river`, write trails/river.md, stage and commit; `git switch main`, edit gear.md, stage and commit; `git log --oneline --graph --all`."
+panels: [files]

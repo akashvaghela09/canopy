@@ -3,11 +3,11 @@ section: 6
 title: Your first conflict
 kind: concept
 teaches: [conflict-read]
-requires: [merge-three-way, status, diff]
+requires: [merge-three-way, status]
 flags: []
 repo: cafe
 start: cafe
-panels: [diff]
+panels: [files]
 hints:
   - "Merge `new-title` into `main` the usual way. Git stops with CONFLICT instead of making a commit."
   - "Check the status: index.html is listed under \"Unmerged paths\" as \"both modified\". Then read the file."

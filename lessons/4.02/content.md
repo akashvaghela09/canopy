@@ -17,4 +17,4 @@ Without `--staged`, `restore` changes the file on disk instead (the previous les
 
 ## What just happened
 
-In the three-area panel, `draft.md` moved from the staging column back to the working-tree column, with the same content it had. The next commit will contain `post.md` only.
+In the strip under the graph, `draft.md` moved from the staging column back to the working-tree column, with the same content it had. The next commit will contain `post.md` only.

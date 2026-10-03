@@ -23,4 +23,4 @@ the line as it is on the branch you are merging
 
 ## What just happened
 
-The graph shows no new commit: the merge is in progress, not done. The diff panel's three-way view shows ours, theirs and the base side by side. The file on disk contains both versions and is not valid HTML until you fix it.
+The graph shows no new commit: the merge is in progress, not done. The file on disk contains both versions and is not valid HTML until you fix it.

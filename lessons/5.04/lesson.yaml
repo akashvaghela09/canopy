@@ -12,3 +12,4 @@ hints:
   - "`-c` creates the branch and switches to it. Without a start point it begins at the commit HEAD is on."
   - "\"Add ridge trail\" is two commits below the tip of main: `HEAD~2` from main, or its id from the log."
   - "`git switch -c maps`, then `git switch -c archive/first-trails HEAD~2`."
+panels: [files]

@@ -11,3 +11,4 @@ hints:
   - "`.gitignore` needs three lines: `build/`, `*.log` and `!audit.log`. The editor in the files panel is the simplest way to write them."
   - "In the terminal, `echo 'build/' > .gitignore` writes the first line and `echo '*.log' >> .gitignore` appends another (two arrows add to the end). Use single quotes around the `!` line, or the shell will complain."
   - "When the status shows only .gitignore, audit.log and notes.txt, stage everything and commit."
+panels: [files]

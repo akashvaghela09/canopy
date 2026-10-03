@@ -15,7 +15,7 @@ Patch mode is how one messy editing session becomes several focused commits.
 
 1. `report.py` has four separate edits: two rounding fixes and two temporary `print("DEBUG ...")` lines. Look at the unstaged diff.
 2. Run patch mode on the file. Stage the two fixes, skip the two DEBUG prints.
-3. Check the staged diff: both fixes, no DEBUG lines. The three-area panel shows the staged and working copies differ.
+3. Check the staged diff: both fixes, no DEBUG lines. The strip under the graph shows the staged and working copies differ.
 4. Commit the staged changes with the message `Fix rounding in report`.
 5. Check the status: `report.py` is still modified, because the DEBUG lines remain in the working tree only.
 
