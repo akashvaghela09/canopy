@@ -1,0 +1,13 @@
+id: "1.02"
+section: 1
+title: Make and view files
+kind: practice
+teaches: [term-files]
+requires: [term-navigate]
+flags: []
+repo: null
+start: "."
+hints:
+  - "`cat recipe.txt` prints the recipe. Count the eggs."
+  - "`mkdir project` makes the folder. Move into it before creating the files."
+  - "`touch notes.txt` makes an empty file. `echo \"hello git\" > hello.txt` writes text into a file."

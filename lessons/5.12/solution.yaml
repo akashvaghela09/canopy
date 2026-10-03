@@ -1,0 +1,17 @@
+commands: |
+  cat .git/HEAD
+  ls .git/refs/heads
+  cat .git/refs/heads/main
+  git log -1
+  git branch notes
+  ls .git/refs/heads
+  cat .git/refs/heads/notes
+  echo "See trails/ for individual routes." >> README.md
+  git add README.md
+  git commit -m "Point README at the trails folder"
+  cat .git/refs/heads/main
+  cat .git/refs/heads/notes
+answers:
+  head-content: 0
+  main-before: "@mark:gear"
+  after-branch: 0

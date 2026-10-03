@@ -1,0 +1,13 @@
+commands: |
+  git log --oneline --graph --all
+  git cherry -v feature-v2 feature
+  git show feature~2 | git patch-id
+  git show feature-v2~2 | git patch-id
+  git show feature | git patch-id
+  git show feature-v2 | git patch-id
+  git range-diff main feature feature-v2
+answers:
+  no-match: "@mark:f3"
+  matched: 2
+  counterpart: "@mark:v1"
+  ignores: 0

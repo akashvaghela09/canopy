@@ -1,0 +1,7 @@
+commands: |
+  git status
+  git diff
+answers:
+  removed-line: 1
+  new-port: 9090
+  added-config: 2

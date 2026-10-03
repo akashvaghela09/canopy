@@ -1,0 +1,29 @@
+{
+  "questions": [
+    {
+      "id": "ahead-count",
+      "prompt": "How many commits does add-soup have that main does not?",
+      "type": "number",
+      "answer": 2
+    },
+    {
+      "id": "new-commits",
+      "prompt": "How many new commits did the merge create?",
+      "type": "number",
+      "answer": 0
+    }
+  ],
+  "goals": [
+    { "label": "Answer: commits only on add-soup", "check": { "type": "answer", "question": "ahead-count" } },
+    { "label": "Merge add-soup into main", "check": { "type": "all", "checks": [
+        { "type": "currentBranch", "name": "main" },
+        { "type": "refAt", "ref": "main", "target": "@mark:soup2" }
+      ] } },
+    { "label": "No merge commit: main simply moved forward", "check": { "type": "all", "checks": [
+        { "type": "commitParents", "rev": "main", "count": 1 },
+        { "type": "commitCount", "range": "main", "equals": 4 }
+      ] } },
+    { "label": "Answer: new commits made by the merge", "check": { "type": "answer", "question": "new-commits" } },
+    { "label": "Finish with a clean working tree", "check": { "type": "status", "clean": true } }
+  ]
+}

@@ -1,0 +1,13 @@
+commands: |
+  git log --oneline --stat main..cleanup
+  GIT_SEQUENCE_EDITOR="sed -i -e '1s/^pick/edit/'" git rebase -i main
+  git reset --soft HEAD^
+  git restore --staged src/config.js
+  git commit -m "Document usage in README"
+  git add src/config.js
+  git commit -m "Add config module"
+  git rebase --continue
+  git commit --amend -m "fixup! Add config module"
+  GIT_SEQUENCE_EDITOR=true git rebase -i --autosquash main
+  git commit --amend -m "Add config tests"
+  git log --oneline main..cleanup

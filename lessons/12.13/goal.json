@@ -1,0 +1,62 @@
+{
+  "goals": [
+    {
+      "label": "main has the export feature without the DEBUG line",
+      "check": { "type": "all", "checks": [
+        { "type": "fileContent", "source": "main", "path": "src/export.js", "contains": "exportNotes" },
+        { "type": "fileContent", "source": "main", "path": "src/export.js", "notContains": "DEBUG" },
+        { "type": "fileContent", "source": "main", "path": "CHANGELOG.md", "contains": "export notes as text" }
+      ] }
+    },
+    {
+      "label": "main includes Sam's latest commit and is pushed",
+      "check": { "type": "all", "checks": [
+        { "type": "isAncestor", "ancestor": "@mark:sam-tip", "descendant": "main" },
+        { "type": "refAt", "ref": "origin/main", "target": "main" },
+        { "type": "fileContent", "repo": "origin.git", "source": "main", "path": "src/export.js", "notContains": "DEBUG" }
+      ] }
+    },
+    {
+      "label": "feature/export is deleted locally and on origin",
+      "check": { "type": "all", "checks": [
+        { "type": "branchExists", "name": "feature/export", "present": false },
+        { "type": "branchExists", "repo": "origin.git", "name": "feature/export", "present": false }
+      ] }
+    },
+    {
+      "label": "v1.1.0 is an annotated tag on main's history that contains the export feature, pushed to origin",
+      "check": { "type": "all", "checks": [
+        { "type": "tag", "name": "v1.1.0", "annotated": true },
+        { "type": "isAncestor", "ancestor": "v1.1.0", "descendant": "main" },
+        { "type": "fileInRev", "rev": "v1.1.0", "path": "src/export.js", "present": true },
+        { "type": "fileContent", "source": "v1.1.0", "path": "src/export.js", "notContains": "DEBUG" },
+        { "type": "tag", "repo": "origin.git", "name": "v1.1.0", "annotated": true }
+      ] }
+    },
+    {
+      "label": "v1.0.1 patches the 1.0.0 line: branched from v1.0.0, fix applied, no export feature, pushed",
+      "check": { "type": "all", "checks": [
+        { "type": "tag", "name": "v1.0.1", "annotated": true },
+        { "type": "isAncestor", "ancestor": "v1.0.0", "descendant": "v1.0.1" },
+        { "type": "not", "check": { "type": "isAncestor", "ancestor": "@mark:sam-tip", "descendant": "v1.0.1" } },
+        { "type": "fileInRev", "rev": "v1.0.1", "path": "src/export.js", "present": false },
+        { "type": "fileContent", "source": "v1.0.1", "path": "src/store.js", "contains": "slice(-LIMIT)" },
+        { "type": "tag", "repo": "origin.git", "name": "v1.0.1", "annotated": true }
+      ] }
+    },
+    {
+      "label": "main carries the fix and is pushed",
+      "check": { "type": "all", "checks": [
+        { "type": "fileContent", "source": "main", "path": "src/store.js", "contains": "slice(-LIMIT)" },
+        { "type": "fileContent", "repo": "origin.git", "source": "main", "path": "src/store.js", "contains": "slice(-LIMIT)" }
+      ] }
+    },
+    {
+      "label": "Finish on main with a clean working tree",
+      "check": { "type": "all", "checks": [
+        { "type": "currentBranch", "name": "main" },
+        { "type": "status", "clean": true }
+      ] }
+    }
+  ]
+}

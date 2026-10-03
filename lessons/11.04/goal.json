@@ -1,0 +1,99 @@
+{
+  "questions": [
+    {
+      "id": "who-summer",
+      "prompt": "Ignoring the whitespace-only reformat, who added the \"SUMMER\": 15 line?",
+      "type": "choice",
+      "options": [
+        "Priya Patel",
+        "Jordan Lee",
+        "Alex Rivera",
+        "Sam Chen"
+      ],
+      "answer": 0
+    },
+    {
+      "id": "summer-commit",
+      "prompt": "Which commit added that line?",
+      "type": "commit",
+      "answer": "@mark:summer-add"
+    },
+    {
+      "id": "who-format",
+      "prompt": "Who originally wrote the body of format_price, now in pricer/format.py?",
+      "type": "choice",
+      "options": [
+        "Alex Rivera",
+        "Sam Chen",
+        "Priya Patel",
+        "Jordan Lee"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    {
+      "label": "Blame while ignoring the reformat (-w or --ignore-rev)",
+      "check": {
+        "type": "usedCommand",
+        "matches": "^git(\\s+(--no-pager|-C\\s+\\S+|-c\\s+\\S+))*\\s+blame\\b.*(\\s-[A-Za-z]*w|--ignore-whitespace|--ignore-rev)"
+      }
+    },
+    {
+      "label": "Use an ignore-revs file",
+      "check": {
+        "type": "any",
+        "checks": [
+          {
+            "type": "usedCommand",
+            "matches": "^git(\\s+(--no-pager|-C\\s+\\S+|-c\\s+\\S+))*\\s+blame\\b.*--ignore-revs-file"
+          },
+          {
+            "type": "all",
+            "checks": [
+              {
+                "type": "config",
+                "key": "blame.ignoreRevsFile",
+                "present": true
+              },
+              {
+                "type": "usedCommand",
+                "matches": "^git(\\s+(--no-pager|-C\\s+\\S+|-c\\s+\\S+))*\\s+blame\\b",
+                "last": true
+              }
+            ]
+          }
+        ]
+      },
+      "sticky": true
+    },
+    {
+      "label": "Blame with copy detection (-C)",
+      "check": {
+        "type": "usedCommand",
+        "matches": "^git(\\s+(--no-pager|-C\\s+\\S+|-c\\s+\\S+))*\\s+blame\\b.*\\s-[A-Za-z]*C"
+      }
+    },
+    {
+      "label": "Who really added the SUMMER code",
+      "check": {
+        "type": "answer",
+        "question": "who-summer"
+      }
+    },
+    {
+      "label": "Which commit added it",
+      "check": {
+        "type": "answer",
+        "question": "summer-commit"
+      }
+    },
+    {
+      "label": "Who originally wrote format_price",
+      "check": {
+        "type": "answer",
+        "question": "who-format"
+      }
+    }
+  ]
+}

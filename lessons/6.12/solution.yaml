@@ -1,0 +1,13 @@
+commands: |
+  git merge search
+  git diff --name-only --diff-filter=U
+  git ls-files -u
+  cat .git/MERGE_HEAD
+  git log --merge --oneline
+  git restore --theirs index.html menu.md
+  git add index.html menu.md
+  git commit --no-edit
+answers:
+  unresolved-count: 2
+  merge-head: "7034888"
+  log-merge-count: 3

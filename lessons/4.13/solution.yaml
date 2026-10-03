@@ -1,0 +1,11 @@
+commands: |
+  git status
+  git log --oneline
+  git restore inventory.py
+  git restore --staged notes-personal.txt
+  git clean -nd
+  git clean -fd
+  git revert HEAD
+  git status
+  git log --oneline
+answers: {}

@@ -1,0 +1,31 @@
+{
+  "questions": [
+    {
+      "id": "url",
+      "prompt": "Which folder does the URL of origin point to?",
+      "type": "choice",
+      "options": ["origin.git", "work", "teammate", "The URL is a web address, not a folder"],
+      "answer": 0
+    },
+    {
+      "id": "remote-branches",
+      "prompt": "Not counting the `origin/HEAD -> origin/main` line, how many remote branches does `git branch -r` list?",
+      "type": "number",
+      "answer": 1
+    },
+    {
+      "id": "new-branch",
+      "prompt": "Which branch does ls-remote show that `git branch -r` does not? (name only, without origin/)",
+      "type": "text",
+      "accept": ["winter-closures", "origin/winter-closures", "refs/heads/winter-closures"]
+    }
+  ],
+  "goals": [
+    { "label": "Show the remote and its URL", "check": { "type": "usedCommand", "matches": "^git remote( -v| --verbose| show)\\b" } },
+    { "label": "List remote branches with git branch -r or -a", "check": { "type": "usedCommand", "matches": "^git branch\\b.*(\\s-[a-zA-Z]*[ar][a-zA-Z]*\\b|--remotes\\b|--all\\b)" } },
+    { "label": "Ask the remote directly with ls-remote", "check": { "type": "usedCommand", "matches": "^git ls-remote\\b" } },
+    { "label": "Answer: where the URL points", "check": { "type": "answer", "question": "url" } },
+    { "label": "Answer: how many remote branches the clone knows", "check": { "type": "answer", "question": "remote-branches" } },
+    { "label": "Answer: the branch only ls-remote shows", "check": { "type": "answer", "question": "new-branch" } }
+  ]
+}

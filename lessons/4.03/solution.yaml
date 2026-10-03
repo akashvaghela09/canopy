@@ -1,0 +1,8 @@
+commands: |
+  git show HEAD~1:settings.conf
+  cat settings.conf
+  git restore --source=HEAD~1 settings.conf
+  git status
+  git add settings.conf
+  git commit -m "Restore retries setting"
+answers: {}

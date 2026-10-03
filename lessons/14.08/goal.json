@@ -1,0 +1,134 @@
+{
+  "questions": [
+    {
+      "id": "wip1",
+      "prompt": "What is the full id of wip~1? (40 characters, or at least the first 7)",
+      "type": "text",
+      "accept": [
+        "ff62c7d",
+        "ff62c7d4",
+        "ff62c7d48",
+        "ff62c7d485",
+        "ff62c7d4850",
+        "ff62c7d48507",
+        "ff62c7d48507d",
+        "ff62c7d48507d1",
+        "ff62c7d48507d1e",
+        "ff62c7d48507d1ed",
+        "ff62c7d48507d1edf",
+        "ff62c7d48507d1edfa",
+        "ff62c7d48507d1edfa9",
+        "ff62c7d48507d1edfa91",
+        "ff62c7d48507d1edfa910",
+        "ff62c7d48507d1edfa910b",
+        "ff62c7d48507d1edfa910b3",
+        "ff62c7d48507d1edfa910b33",
+        "ff62c7d48507d1edfa910b33e",
+        "ff62c7d48507d1edfa910b33e1",
+        "ff62c7d48507d1edfa910b33e11",
+        "ff62c7d48507d1edfa910b33e11f",
+        "ff62c7d48507d1edfa910b33e11f3",
+        "ff62c7d48507d1edfa910b33e11f38",
+        "ff62c7d48507d1edfa910b33e11f38a",
+        "ff62c7d48507d1edfa910b33e11f38a6",
+        "ff62c7d48507d1edfa910b33e11f38a68",
+        "ff62c7d48507d1edfa910b33e11f38a68f",
+        "ff62c7d48507d1edfa910b33e11f38a68f4",
+        "ff62c7d48507d1edfa910b33e11f38a68f42",
+        "ff62c7d48507d1edfa910b33e11f38a68f422",
+        "ff62c7d48507d1edfa910b33e11f38a68f4220",
+        "ff62c7d48507d1edfa910b33e11f38a68f42209",
+        "ff62c7d48507d1edfa910b33e11f38a68f422096"
+      ]
+    },
+    {
+      "id": "abbrev",
+      "prompt": "What does `git rev-parse --abbrev-ref HEAD` print?",
+      "type": "text",
+      "accept": [
+        "main"
+      ]
+    },
+    {
+      "id": "gitdir",
+      "prompt": "From the repository root, what does `git rev-parse --git-dir` print?",
+      "type": "text",
+      "accept": [
+        ".git",
+        "./.git"
+      ]
+    },
+    {
+      "id": "prefix",
+      "prompt": "From inside docs/, what does `git rev-parse --show-prefix` print?",
+      "type": "text",
+      "accept": [
+        "docs/",
+        "docs"
+      ]
+    },
+    {
+      "id": "toplevel",
+      "prompt": "What is `--show-toplevel` for?",
+      "type": "choice",
+      "options": [
+        "Printing the absolute path of the repository's root folder",
+        "Printing the name of the default branch",
+        "Printing the id of the first commit",
+        "Listing the top-level files of HEAD"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    {
+      "label": "Resolve wip~1 to its id",
+      "check": {
+        "type": "answer",
+        "question": "wip1"
+      }
+    },
+    {
+      "label": "Use --abbrev-ref",
+      "check": {
+        "type": "usedCommand",
+        "matches": "\\bgit rev-parse\\b.*--abbrev-ref"
+      }
+    },
+    {
+      "label": "Report the current branch name",
+      "check": {
+        "type": "answer",
+        "question": "abbrev"
+      }
+    },
+    {
+      "label": "Report --git-dir from the root",
+      "check": {
+        "type": "answer",
+        "question": "gitdir"
+      }
+    },
+    {
+      "label": "Use --show-toplevel",
+      "check": {
+        "type": "usedCommand",
+        "matches": "\\bgit rev-parse\\b.*--show-toplevel"
+      }
+    },
+    {
+      "label": "Report --show-prefix from inside docs/",
+      "check": {
+        "type": "answer",
+        "question": "prefix"
+      }
+    },
+    {
+      "label": "Say what --show-toplevel is for",
+      "check": {
+        "type": "answer",
+        "question": "toplevel"
+      }
+    }
+  ]
+}

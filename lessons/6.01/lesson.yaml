@@ -1,0 +1,13 @@
+id: "6.01"
+section: 6
+title: Merge, fast-forward
+kind: practice
+teaches: [concept-merge, merge-ff]
+requires: [log-range, branch-merged, switch, concept-divergence]
+flags: []
+repo: cafe
+start: cafe
+hints:
+  - "A range like `main..add-soup` lists the commits add-soup has that main does not."
+  - "You are on `add-soup`. Merging always brings changes *into the branch you are on*, so move to `main` first."
+  - "On main, run `git merge add-soup`. Git reports \"Fast-forward\" and makes no new commit."

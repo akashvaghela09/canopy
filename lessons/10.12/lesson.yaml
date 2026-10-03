@@ -1,0 +1,19 @@
+id: "10.12"
+section: 10
+title: Choose the right rescue
+kind: practice
+teaches: [recovery-decision]
+requires: [recover-reset, recover-branch, recover-rebase, recover-stash, fsck-dangling]
+flags: []
+repo: case1-reset
+start: "."
+repos:
+  - { path: case1-reset, label: "Case 1: reset" }
+  - { path: case2-branch, label: "Case 2: deleted branch" }
+  - { path: case3-rebase, label: "Case 3: rebase" }
+  - { path: case4-stash, label: "Case 4: dropped stash" }
+  - { path: case5-edit, label: "Case 5: lost edit" }
+hints:
+  - "Reflog first, fsck second. Cases 1 to 3 are in a reflog (HEAD's or the branch's); case 4 is only in `fsck --unreachable`."
+  - "Case 1: reset main to the entry before the reset. Case 2: `git branch feature/invoices <id>`. Case 3: reset feature/pdf to `feature/pdf@{1}`. Case 4: `git stash apply <id>`."
+  - "Case 5: `git status` is clean, the reflog shows no move and fsck finds nothing. The edit was never staged, so there is no object to recover."

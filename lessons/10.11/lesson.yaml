@@ -1,0 +1,13 @@
+id: "10.11"
+section: 10
+title: When recovery stops
+kind: practice
+teaches: [reflog-expiry]
+requires: [reflog-read, config-identity]
+flags: [destructive]
+repo: scratch
+start: scratch
+hints:
+  - "Before changing anything, `git reflog` shows the lost commit at HEAD@{1} and `git show HEAD@{1}` prints it."
+  - "Set the local config `gc.reflogExpireUnreachable` to `now` (or run `git reflog expire --expire-unreachable=now --all`), then `git gc --prune=now`."
+  - "Afterwards `git show <old id>` fails (\"bad object\" for a full id, \"unknown revision\" for a short one): the entry is gone from the reflog and the object was pruned."

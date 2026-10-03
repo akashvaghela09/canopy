@@ -1,0 +1,84 @@
+{
+  "questions": [
+    {
+      "id": "loose-before",
+      "prompt": "How many loose objects did count-objects report before gc?",
+      "type": "number",
+      "answer": 37
+    },
+    {
+      "id": "loose-after",
+      "prompt": "How many loose objects are there after gc?",
+      "type": "number",
+      "answer": 0
+    },
+    {
+      "id": "delta-line",
+      "prompt": "In verify-pack -v output, a line ending with a number and a second object id means:",
+      "type": "choice",
+      "options": [
+        "The object is stored as a delta against that second object, at that chain depth",
+        "The object is corrupt and that id is its replacement",
+        "The object is a merge of the two ids",
+        "The object is duplicated in another pack"
+      ],
+      "answer": 0
+    },
+    {
+      "id": "why-delta",
+      "prompt": "Which objects are good candidates for deltas?",
+      "type": "choice",
+      "options": [
+        "Objects with similar content, like successive versions of one file",
+        "Only commit objects",
+        "Objects created on the same day",
+        "Objects smaller than 100 bytes"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    {
+      "label": "Count loose objects before packing",
+      "check": {
+        "type": "answer",
+        "question": "loose-before"
+      }
+    },
+    {
+      "label": "Pack the objects",
+      "check": {
+        "type": "shell",
+        "script": "ls .git/objects/pack/*.pack >/dev/null 2>&1"
+      }
+    },
+    {
+      "label": "Count loose objects after packing",
+      "check": {
+        "type": "answer",
+        "question": "loose-after"
+      }
+    },
+    {
+      "label": "Inspect the pack with git verify-pack",
+      "check": {
+        "type": "usedCommand",
+        "matches": "\\bgit verify-pack\\b"
+      }
+    },
+    {
+      "label": "Read a delta line",
+      "check": {
+        "type": "answer",
+        "question": "delta-line"
+      }
+    },
+    {
+      "label": "Say what deltas are good for",
+      "check": {
+        "type": "answer",
+        "question": "why-delta"
+      }
+    }
+  ]
+}

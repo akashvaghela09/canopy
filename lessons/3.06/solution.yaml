@@ -1,0 +1,9 @@
+commands: |
+  git log --oneline
+  git show --stat 3ad9
+  git show 3ad
+  git show --stat 3ad9479f3fc334b14ef8a64d72dd139100b8ee70
+answers:
+  full-length: 40
+  min-prefix: 4
+  v1-commit: 3ad9

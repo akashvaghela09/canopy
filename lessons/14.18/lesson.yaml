@@ -1,0 +1,17 @@
+id: "14.18"
+section: 14
+title: "Boss: repository forensics"
+kind: boss
+teaches: []
+requires: [section]
+flags: []
+repo: vault
+start: vault
+repos:
+  - { path: vault, label: vault (damaged) }
+  - { path: backup, label: backup (healthy clone) }
+panels: [inside-git]
+hints:
+  - "Start with `git fsck --full --lost-found` and deal with each line it prints."
+  - "A dangling tree is a snapshot that never got its commit. List it, then build the commit around it with commit-tree and point a branch at it."
+  - "The branch file for release names a ref that no longer exists. Point release at the commit tagged v1.0."

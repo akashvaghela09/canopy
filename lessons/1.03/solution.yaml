@@ -1,0 +1,6 @@
+commands: |
+  cd garden
+  git init
+  ls -a
+answers:
+  hidden-folder: ".git"

@@ -1,0 +1,97 @@
+{
+  "goals": [
+    {
+      "label": "core.excludesFile is set in the global config",
+      "check": {
+        "type": "config",
+        "key": "core.excludesFile",
+        "scope": "global"
+      }
+    },
+    {
+      "label": "Editor files are ignored in app, with no .gitignore added",
+      "check": {
+        "type": "all",
+        "repo": "app",
+        "checks": [
+          {
+            "type": "status",
+            "ignored": [
+              "notes.txt.swp",
+              ".idea/"
+            ]
+          },
+          {
+            "type": "pathAbsent",
+            "path": "app/.gitignore"
+          },
+          {
+            "type": "fileContent",
+            "path": ".git/info/exclude",
+            "notContains": ".swp"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Editor files are ignored in docs too, with no .gitignore added",
+      "check": {
+        "type": "all",
+        "repo": "docs",
+        "checks": [
+          {
+            "type": "status",
+            "ignored": [
+              "guide.md.swp",
+              ".idea/"
+            ]
+          },
+          {
+            "type": "pathAbsent",
+            "path": "docs/.gitignore"
+          },
+          {
+            "type": "fileContent",
+            "path": ".git/info/exclude",
+            "notContains": ".swp"
+          }
+        ]
+      }
+    },
+    {
+      "label": "app/scratch.md is ignored through .git/info/exclude and app has nothing untracked",
+      "check": {
+        "type": "all",
+        "repo": "app",
+        "checks": [
+          {
+            "type": "status",
+            "ignored": [
+              "scratch.md"
+            ]
+          },
+          {
+            "type": "status",
+            "untracked": [],
+            "exact": true
+          },
+          {
+            "type": "fileContent",
+            "path": ".git/info/exclude",
+            "contains": "scratch.md"
+          }
+        ]
+      }
+    },
+    {
+      "label": "docs/scratch.md is still untracked (visible)",
+      "check": {
+        "type": "status",
+        "repo": "docs",
+        "untracked": [
+          "scratch.md"
+        ]
+      }
+    }
+  ]
+}

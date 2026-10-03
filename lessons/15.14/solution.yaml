@@ -1,0 +1,9 @@
+commands: |
+  git log --oneline --graph --all
+  git merge header footer sidebar clash
+  git merge --abort
+  git merge header footer sidebar -m "Merge header, footer and sidebar"
+  git log --oneline --graph
+  git cat-file -p HEAD
+answers:
+  refused: 0

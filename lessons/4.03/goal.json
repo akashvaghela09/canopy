@@ -1,0 +1,13 @@
+{
+  "questions": [],
+  "goals": [
+    { "label": "Look at the old version of settings.conf first", "check": { "type": "usedCommand", "matches": "^git show\\b.*settings\\.conf" } },
+    { "label": "Restore settings.conf from the commit before HEAD", "check": { "type": "usedCommand", "matches": "^git restore\\b.*(--source[= ]|\\s-s ?\\S).*settings\\.conf" } },
+    { "label": "Commit the restored file", "check": { "type": "all", "checks": [
+        { "type": "commitCount", "range": "main", "equals": 4 },
+        { "type": "refAt", "ref": "HEAD~1", "target": "@mark:broken" },
+        { "type": "fileContent", "path": "settings.conf", "source": "HEAD", "lines": ["port = 8080", "timeout = 30", "retries = 3", "log_level = info"] }
+      ] } },
+    { "label": "Finish with a clean working tree", "check": { "type": "status", "clean": true } }
+  ]
+}

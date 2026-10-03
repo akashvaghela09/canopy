@@ -1,0 +1,17 @@
+commands: |
+  git init --object-format=sha256 sha-repo
+  cd sha-repo
+  echo hello > README.md
+  git add README.md
+  git commit -m "Add README"
+  git log -1 --format=%H
+  echo hello | git hash-object --stdin
+  git config extensions.objectformat
+  cd ../garden
+  echo hello | git hash-object --stdin
+  cd ..
+answers:
+  len: 64
+  blob256: "2cf8d83d9ee29543b34a87727421fdecb7e3f3a183d337639025de576db9ebb4"
+  interop: 0
+  hardened: 0

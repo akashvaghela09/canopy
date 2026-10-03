@@ -1,0 +1,13 @@
+id: "10.09"
+section: 10
+title: Dangling objects
+kind: practice
+teaches: [fsck-dangling]
+requires: [reflog-read, show, concept-refs-files]
+flags: []
+repo: notes
+start: notes
+hints:
+  - "`git fsck --lost-found` prints one \"dangling commit\" and one \"dangling blob\". `git show <id>` works on both."
+  - "The blob is the staged scratch file. Write it back: `git show <blob-id> > notes/scratch.md`. The same bytes also sit in .git/lost-found/other/."
+  - "The never-staged draft was only ever on disk. Git made no object for it, so there is nothing for fsck to find."

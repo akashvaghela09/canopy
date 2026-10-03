@@ -1,0 +1,16 @@
+{
+  "questions": [],
+  "goals": [
+    { "label": "The current branch is now called river-walk", "check": { "type": "all", "checks": [
+        { "type": "currentBranch", "name": "river-walk" },
+        { "type": "branchExists", "name": "new-stuff", "present": false },
+        { "type": "refAt", "ref": "river-walk", "target": "@mark:river" }
+      ] } },
+    { "label": "tmp is now called archive/lake-draft, on the same commit", "check": { "type": "all", "checks": [
+        { "type": "branchExists", "name": "archive/lake-draft" },
+        { "type": "branchExists", "name": "tmp", "present": false },
+        { "type": "refAt", "ref": "archive/lake-draft", "target": "@mark:lake" }
+      ] } },
+    { "label": "main is untouched", "check": { "type": "refAt", "ref": "main", "target": "@mark:gear" } }
+  ]
+}

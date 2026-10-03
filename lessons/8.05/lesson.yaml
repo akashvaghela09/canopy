@@ -1,0 +1,13 @@
+id: "8.05"
+section: 8
+title: Untracked and ignored files
+kind: practice
+teaches: [stash-untracked]
+requires: [stash-message-path, gitignore]
+flags: []
+repo: work
+start: work
+panels: [three-areas]
+hints:
+  - "A plain `git stash` leaves `notes/draft.md` behind because it is untracked. `git stash -u` takes it along."
+  - "After popping everything back: stage `config.toml`, then `git stash push --keep-index`. The staged change stays; the app.py edit is parked."

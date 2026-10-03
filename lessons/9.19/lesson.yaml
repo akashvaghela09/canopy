@@ -1,0 +1,13 @@
+id: "9.19"
+section: 9
+title: Stage part of a file
+kind: practice
+teaches: [add-patch]
+requires: [add, diff-staged]
+flags: []
+repo: report
+start: report
+panels: [three-areas]
+hints:
+  - "`git add -p report.py` shows four hunks one at a time. Answer `y` for the two rounding fixes and `n` for the two DEBUG prints."
+  - "Before committing, look at the staged diff: it should contain the two fixes and no DEBUG line."

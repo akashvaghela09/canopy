@@ -1,0 +1,9 @@
+commands: |
+  ls ../patches
+  git am -3 ../patches/*.patch
+  git status
+  cat config.txt
+  printf 'level = 2\nname = demo\ncolor = blue\n' > config.txt
+  git add config.txt
+  git am --continue
+  git log --format='%h %an %s'

@@ -1,0 +1,21 @@
+{
+  "questions": [
+    {
+      "id": "best-subject",
+      "prompt": "Which of these is the best subject line?",
+      "type": "choice",
+      "options": [
+        "fixed stuff",
+        "Increase request timeout to 30s",
+        "Increased the timeout because the payment API was slow and users complained about errors on the checkout page"
+      ],
+      "answer": 1
+    }
+  ],
+  "goals": [
+    { "label": "Commit the staged change with a short subject (50 characters or fewer), a blank line, and a body",
+      "check": { "type": "commitMessage", "rev": "HEAD", "matches": "^[^\\n]{1,50}\\n\\n\\S" } },
+    { "label": "Finish with a clean working tree", "check": { "type": "status", "clean": true } },
+    { "label": "Answer the question", "check": { "type": "answer", "question": "best-subject" } }
+  ]
+}

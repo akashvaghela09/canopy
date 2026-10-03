@@ -1,0 +1,8 @@
+commands: |
+  git log --oneline --graph --all
+  #action teammate-push
+  git fetch
+  git log --oneline --graph --all
+  git log --oneline main..origin/main
+answers:
+  incoming: 2

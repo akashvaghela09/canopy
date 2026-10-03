@@ -1,0 +1,13 @@
+id: "3.10"
+section: 3
+title: Diff options
+kind: practice
+teaches: [diff-options]
+requires: [diff-commits]
+flags: []
+repo: bakery
+start: bakery
+hints:
+  - "`--stat` lists the files with a count; a file missing from that list did not change."
+  - "Run the HEAD~5 to HEAD~3 comparison twice, once with `-w`. The file that disappears changed only in whitespace."
+  - "`git diff --name-status HEAD~7 HEAD~6` prints one letter per file: A added, M modified, D deleted, R renamed."

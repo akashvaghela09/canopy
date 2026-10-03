@@ -1,0 +1,65 @@
+{
+  "questions": [
+    {
+      "id": "why-left-out",
+      "prompt": "Why is TODO.md not in the commit?",
+      "type": "choice",
+      "options": [
+        "-a only includes files git already tracks, and TODO.md is new",
+        "Markdown files are ignored by default",
+        "-a only commits files that were already staged"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    {
+      "label": "Commit using the -a flag",
+      "check": {
+        "type": "usedCommand",
+        "matches": "git\\s+commit\\b.*\\s(-[a-zA-Z]*a[a-zA-Z]*|--all)(\\s|$)"
+      }
+    },
+    {
+      "label": "Make one new commit that changes app.py and README.md only",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "commitCount",
+            "range": "main",
+            "equals": 2
+          },
+          {
+            "type": "commitChanges",
+            "rev": "HEAD",
+            "paths": [
+              "README.md",
+              "app.py"
+            ],
+            "exact": true
+          }
+        ]
+      }
+    },
+    {
+      "label": "TODO.md is still untracked",
+      "check": {
+        "type": "status",
+        "untracked": [
+          "TODO.md"
+        ],
+        "staged": [],
+        "modified": [],
+        "exact": true
+      }
+    },
+    {
+      "label": "Answer the question",
+      "check": {
+        "type": "answer",
+        "question": "why-left-out"
+      }
+    }
+  ]
+}

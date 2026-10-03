@@ -1,0 +1,13 @@
+id: "1.07"
+section: 1
+title: "Boss: set up a project from scratch"
+kind: boss
+teaches: []
+requires: [term-navigate, term-files, init, config-identity, status]
+flags: []
+repo: bakery
+start: "."
+hints:
+  - "Make the folder and turn it into a repo before you set a local identity. The files can come before or after."
+  - "A local identity is set without `--global`, from inside the repo."
+  - "Do not stage or commit anything. The status should still list both files as untracked."

@@ -1,0 +1,13 @@
+id: "6.02"
+section: 6
+title: Three-way merge
+kind: practice
+teaches: [merge-three-way]
+requires: [merge-ff, concept-divergence, relative-refs]
+flags: []
+repo: cafe
+start: cafe
+hints:
+  - "Both branches have new commits, so git cannot fast-forward. It makes a merge commit and opens the editor for its message; save it as it is."
+  - "`HEAD^1` is the first parent (where main was), `HEAD^2` the second (the tip of the branch you merged). `git log -1 HEAD^2` shows it."
+  - "The merge base is the last commit before the two lanes split. Find it on the graph and use its id."

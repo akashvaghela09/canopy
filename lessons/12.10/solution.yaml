@@ -1,0 +1,9 @@
+commands: |
+  #action sam-force-push
+  git fetch
+  git log --oneline --graph main origin/main
+  git reflog show origin/main
+  git push --force-with-lease origin main
+  git -C ../origin.git config receive.denyNonFastForwards true
+answers:
+  who-may: 1

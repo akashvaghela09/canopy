@@ -1,0 +1,183 @@
+{
+  "questions": [],
+  "goals": [
+    {
+      "label": "nav is in main without a merge commit",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "isAncestor",
+            "ancestor": "@mark:nav-tip",
+            "descendant": "main"
+          },
+          {
+            "type": "fileInRev",
+            "path": "nav.html",
+            "rev": "main",
+            "present": true
+          },
+          {
+            "type": "commitCount",
+            "range": "main --merges",
+            "equals": 1
+          }
+        ]
+      }
+    },
+    {
+      "label": "search is merged with a merge commit and the tea line reads \"- Tea 2.20 (also iced)\"",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "isAncestor",
+            "ancestor": "@mark:search-tip",
+            "descendant": "main"
+          },
+          {
+            "type": "fileInRev",
+            "path": "search.js",
+            "rev": "main",
+            "present": true
+          },
+          {
+            "type": "fileContent",
+            "path": "menu.md",
+            "source": "main",
+            "contains": "- Tea 2.20 (also iced)"
+          },
+          {
+            "type": "fileContent",
+            "path": "menu.md",
+            "source": "main",
+            "notContains": "<<<<<<<"
+          },
+          {
+            "type": "fileContent",
+            "path": "menu.md",
+            "source": "main",
+            "notContains": ">>>>>>>"
+          },
+          {
+            "type": "not",
+            "check": {
+              "type": "fileContent",
+              "path": "menu.md",
+              "source": "main",
+              "matches": "(?m)^- Tea 2\\.00"
+            }
+          },
+          {
+            "type": "fileContent",
+            "path": "menu.md",
+            "source": "main",
+            "notContains": "======="
+          }
+        ]
+      }
+    },
+    {
+      "label": "analytics was squashed into one commit \"Add analytics\" on main",
+      "sticky": true,
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "currentBranch",
+            "name": "main"
+          },
+          {
+            "type": "commitParents",
+            "rev": "main",
+            "count": 1
+          },
+          {
+            "type": "commitMessage",
+            "rev": "main",
+            "matches": "(?i)^add analytics"
+          },
+          {
+            "type": "fileContent",
+            "path": "analytics.js",
+            "source": "main",
+            "contains": "track('page_view')"
+          },
+          {
+            "type": "not",
+            "check": {
+              "type": "isAncestor",
+              "ancestor": "@mark:analytics-tip",
+              "descendant": "main"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "label": "The analytics commit is off main again, and the branch is kept",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "fileInRev",
+            "path": "analytics.js",
+            "rev": "main",
+            "present": false
+          },
+          {
+            "type": "not",
+            "check": {
+              "type": "isAncestor",
+              "ancestor": "@mark:analytics-tip",
+              "descendant": "main"
+            }
+          },
+          {
+            "type": "refAt",
+            "ref": "analytics",
+            "target": "@mark:analytics-tip"
+          }
+        ]
+      }
+    },
+    {
+      "label": "nav and search are deleted",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "branchExists",
+            "name": "nav",
+            "present": false
+          },
+          {
+            "type": "branchExists",
+            "name": "search",
+            "present": false
+          }
+        ]
+      }
+    },
+    {
+      "label": "On main, nothing in progress, clean working tree",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "currentBranch",
+            "name": "main"
+          },
+          {
+            "type": "operation",
+            "value": null
+          },
+          {
+            "type": "status",
+            "clean": true
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+id: "13.11"
+section: 13
+title: Diff and merge tools
+kind: practice
+teaches: [difftool-mergetool]
+requires: [config-settings, conflict-resolve]
+flags: []
+repo: project
+start: project
+hints:
+  - "Four settings: `diff.tool canopy`, `difftool.canopy.cmd`, `merge.tool canopy`, `mergetool.canopy.cmd`. The cmd strings use `$LOCAL`, `$REMOTE`, `$BASE`, `$MERGED`; wrap them in single quotes so the shell leaves the `$` alone. A relative path such as `tools/canopy-merge` works, because git runs the tool from the top of the working tree."
+  - "`git difftool -y main feature` runs the diff tool without asking. After `git merge feature` reports a conflict, `git mergetool -y` runs the merge tool."
+  - "Set `mergetool.canopy.trustExitCode true` and `mergetool.keepBackup false`, then commit the merge."

@@ -1,0 +1,33 @@
+{
+  "goals": [
+    {
+      "label": "The server's pre-receive hook rejected a push",
+      "sticky": true,
+      "check": { "type": "usedCommand", "matches": "^git push\\b", "exitCode": 1 }
+    },
+    {
+      "label": "The wip commit was renamed and the branch pushed",
+      "check": { "type": "all", "checks": [
+        { "type": "fileContent", "repo": "origin.git", "source": "main", "path": "src/filter.js", "contains": "TODO: tests" },
+        { "type": "not", "check": { "type": "commitMessage", "repo": "origin.git", "rev": "main", "matches": "(?i)^wip" } },
+        { "type": "not", "check": { "type": "commitMessage", "repo": "origin.git", "rev": "main~1", "matches": "(?i)^wip" } }
+      ] }
+    },
+    {
+      "label": "A pre-push hook exists in your clone",
+      "check": { "type": "all", "checks": [
+        { "type": "pathExists", "path": "work/.git/hooks/pre-push" },
+        { "type": "fileContent", "path": ".git/hooks/pre-push", "contains": "wip" }
+      ] }
+    },
+    {
+      "label": "A post-merge hook wrote .merge-log when feature/colors was merged",
+      "check": { "type": "all", "checks": [
+        { "type": "pathExists", "path": "work/.git/hooks/post-merge" },
+        { "type": "commitParents", "rev": "main", "count": 2 },
+        { "type": "fileInRev", "rev": "main", "path": "src/colors.js", "present": true },
+        { "type": "fileContent", "path": ".merge-log", "contains": "merged" }
+      ] }
+    }
+  ]
+}

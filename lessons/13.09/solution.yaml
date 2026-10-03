@@ -1,0 +1,10 @@
+commands: |
+  printf '%s\n' '* text=auto' '*.sh text eol=lf' '*.png binary' '*.min.js -diff' 'docs/internal.md export-ignore' > .gitattributes
+  git check-attr -a notes.txt
+  git check-attr -a assets/logo.png
+  git add --renormalize .
+  git add .gitattributes
+  git status --short
+  git commit -m "Add .gitattributes and normalize line endings"
+answers:
+  nodiff: 0

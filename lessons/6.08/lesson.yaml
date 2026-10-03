@@ -1,0 +1,14 @@
+id: "6.08"
+section: 6
+title: Your first conflict
+kind: concept
+teaches: [conflict-read]
+requires: [merge-three-way, status, diff]
+flags: []
+repo: cafe
+start: cafe
+panels: [diff]
+hints:
+  - "Merge `new-title` into `main` the usual way. Git stops with CONFLICT instead of making a commit."
+  - "Check the status: index.html is listed under \"Unmerged paths\" as \"both modified\". Then read the file."
+  - "Between `<<<<<<< HEAD` and `=======` is your side (main). Between `=======` and `>>>>>>> new-title` is the other branch's side."

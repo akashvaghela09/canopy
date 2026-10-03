@@ -1,0 +1,13 @@
+id: "8.04"
+section: 8
+title: Name stashes and stash by path
+kind: practice
+teaches: [stash-message-path]
+requires: [stash-pop-apply]
+flags: []
+repo: work
+start: work
+panels: [three-areas]
+hints:
+  - "`git stash push -m \"export wip\" -- app.py` parks only app.py. README.md stays modified."
+  - "Check with `git stash list` (the message) and `git status` (only README.md modified)."

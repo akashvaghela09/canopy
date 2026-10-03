@@ -1,0 +1,102 @@
+{
+  "questions": [
+    {
+      "id": "light-type",
+      "prompt": "What does `git cat-file -t v0.1` print?",
+      "type": "choice",
+      "options": [
+        "commit",
+        "tag",
+        "blob",
+        "tree"
+      ],
+      "answer": 0
+    },
+    {
+      "id": "annot-type",
+      "prompt": "What does `git cat-file -t v1.0` print?",
+      "type": "choice",
+      "options": [
+        "tag",
+        "commit",
+        "blob",
+        "tree"
+      ],
+      "answer": 0
+    },
+    {
+      "id": "points-to",
+      "prompt": "Which commit does the v1.0 tag object point to? (paste the id from its object line)",
+      "type": "commit",
+      "answer": "@mark:merge"
+    },
+    {
+      "id": "message",
+      "prompt": "Where is the message \"First full season\" stored?",
+      "type": "choice",
+      "options": [
+        "In the tag object under .git/objects",
+        "In the file .git/refs/tags/v1.0",
+        "In the commit it tags",
+        "In .git/config"
+      ],
+      "answer": 0
+    },
+    {
+      "id": "ref-content",
+      "prompt": "The file .git/refs/tags/v1.0 contains the id of:",
+      "type": "choice",
+      "options": [
+        "the tag object",
+        "the tagged commit",
+        "the root tree of the tagged commit",
+        "the previous tag"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    {
+      "label": "Inspect the tags with git cat-file",
+      "check": {
+        "type": "usedCommand",
+        "matches": "\\bgit cat-file\\b.*\\bv(0\\.1|1\\.0)\\b"
+      }
+    },
+    {
+      "label": "Give the type behind v0.1",
+      "check": {
+        "type": "answer",
+        "question": "light-type"
+      }
+    },
+    {
+      "label": "Give the type behind v1.0",
+      "check": {
+        "type": "answer",
+        "question": "annot-type"
+      }
+    },
+    {
+      "label": "Find the commit the tag object names",
+      "check": {
+        "type": "answer",
+        "question": "points-to"
+      }
+    },
+    {
+      "label": "Say where the tag message lives",
+      "check": {
+        "type": "answer",
+        "question": "message"
+      }
+    },
+    {
+      "label": "Say what the ref file holds",
+      "check": {
+        "type": "answer",
+        "question": "ref-content"
+      }
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+commands: |
+  git clone origin.git work
+  cd work
+  git switch -c lake-update
+  echo "Dogs: allowed on a lead" >> trails/lake.md
+  git commit -am "Allow dogs on the lake trail"
+  git push -u origin lake-update
+  #action teammate-push
+  git switch main
+  git pull
+  git merge lake-update
+  git status
+  printf '# Lake trail\n\nDistance: 5 km\nClimb: 50 m\nBest in: summer\nParking: 20 spaces by the boathouse\nDogs: allowed on a lead\n' > trails/lake.md
+  git add trails/lake.md
+  git commit -m "Merge branch 'lake-update'"
+  git push
+  git tag -a v1.1 -m "Lake trail update"
+  git push origin v1.1
+  git push origin --delete lake-update
+  git branch -d lake-update
+  git status
+answers: {}

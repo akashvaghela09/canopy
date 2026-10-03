@@ -1,0 +1,13 @@
+id: "2.06"
+section: 2
+title: Skip the staging step
+kind: practice
+teaches: [commit-a]
+requires: [commit, add-patterns]
+flags: []
+repo: project
+start: project
+panels: [three-areas]
+hints:
+  - "You do not need to stage anything by hand this time. One flag on the commit does it."
+  - "`git commit -a -m \"Your message\"` stages every tracked change and commits."

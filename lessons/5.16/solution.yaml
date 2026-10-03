@@ -1,0 +1,9 @@
+commands: |
+  git tag
+  git show v1.0
+  git tag -d scratch
+  git tag -f -a v1.0 -m "Trail guide 1.0"
+  git tag
+  git show v1.0
+answers:
+  published: 0

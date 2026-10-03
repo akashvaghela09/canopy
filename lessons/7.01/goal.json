@@ -1,0 +1,35 @@
+{
+  "questions": [
+    {
+      "id": "commit-count",
+      "prompt": "How many commits did the clone bring over?",
+      "type": "number",
+      "answer": 3
+    },
+    {
+      "id": "why-bare",
+      "prompt": "The origin.git folder contains no README.md or trails folder. Why?",
+      "type": "choice",
+      "options": [
+        "It is a bare repository: it stores only the history, not a checked-out copy of the files",
+        "Cloning moved the files out of origin.git and into work",
+        "The files are hidden until someone pushes to it"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    { "label": "Clone origin.git into a folder called work", "check": { "type": "repoExists", "path": "work", "bare": false } },
+    { "label": "The clone has the full history of main", "check": { "type": "all", "checks": [
+        { "type": "refAt", "ref": "main", "target": "@mark:lake" },
+        { "type": "commitCount", "range": "main", "equals": 3 }
+      ] } },
+    { "label": "The clone knows origin.git as its remote named origin", "check": { "type": "remote", "name": "origin", "url": "origin.git", "present": true } },
+    { "label": "Look at the history inside the clone", "check": { "type": "all", "checks": [
+        { "type": "usedCommand", "matches": "^git log\\b" },
+        { "type": "cwd", "path": "work" }
+      ] } },
+    { "label": "Answer: how many commits", "check": { "type": "answer", "question": "commit-count" } },
+    { "label": "Answer: why origin.git has no files", "check": { "type": "answer", "question": "why-bare" } }
+  ]
+}

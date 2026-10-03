@@ -1,0 +1,13 @@
+id: "11.03"
+section: 11
+title: History of a function or lines
+kind: practice
+teaches: [log-line]
+requires: [log-path, blame]
+flags: []
+repo: pricer
+start: pricer
+hints:
+  - "`git log -L :total:pricer/cart.py` prints each commit that changed the total() function together with the function as it looked afterwards."
+  - "Four commits appear. Read their messages: the skeleton, rounding, discounts and empty carts. Commits that changed other parts of the file are not listed."
+  - "The first change after the function was created is \"Round totals to cents\"."

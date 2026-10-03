@@ -1,0 +1,16 @@
+id: "13.08"
+section: 13
+title: More hooks
+kind: practice
+teaches: [hooks-advanced]
+requires: [hooks-client, push, merge-three-way, amend-message]
+flags: []
+repo: work
+start: work
+repos:
+  - { path: work, label: Your clone }
+  - { path: origin.git, label: origin }
+hints:
+  - "Read `../origin.git/hooks/pre-receive` to see why the push was refused. Then change the message of your last commit to something real and push again."
+  - "The pre-push hook gets `local_ref local_sha remote_ref remote_sha` lines on stdin; the lesson text has a script that reuses the server's check."
+  - "post-merge runs after a merge finishes. A one-line script that appends to `.merge-log` is enough; merge `feature/colors` to see it fire."

@@ -1,0 +1,58 @@
+{
+  "questions": [
+    {
+      "id": "lost-commit",
+      "prompt": "Which commit was HEAD on just before the reset?",
+      "type": "commit",
+      "answer": "@mark:thursday"
+    },
+    {
+      "id": "entry",
+      "prompt": "What does the newest reflog line say happened?",
+      "type": "choice",
+      "options": [
+        "reset: moving to HEAD~2",
+        "commit: Add Thursday entry",
+        "checkout: moving from main to main",
+        "commit (initial): Start journal"
+      ],
+      "answer": 0
+    },
+    {
+      "id": "count",
+      "prompt": "How many commits did the reset take off main?",
+      "type": "number",
+      "answer": 2
+    }
+  ],
+  "goals": [
+    {
+      "label": "Read the reflog",
+      "check": {
+        "type": "usedCommand",
+        "matches": "^git\\s+(reflog\\b|log\\b.*\\s(-g|--walk-reflogs)\\b)"
+      }
+    },
+    {
+      "label": "Name the commit HEAD was on before the reset",
+      "check": {
+        "type": "answer",
+        "question": "lost-commit"
+      }
+    },
+    {
+      "label": "Say what the newest reflog entry records",
+      "check": {
+        "type": "answer",
+        "question": "entry"
+      }
+    },
+    {
+      "label": "Count the commits the reset removed",
+      "check": {
+        "type": "answer",
+        "question": "count"
+      }
+    }
+  ]
+}

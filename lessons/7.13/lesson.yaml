@@ -1,0 +1,16 @@
+id: "7.13"
+section: 7
+title: Delete a remote branch
+kind: practice
+teaches: [push-delete]
+requires: [push-branch, branch-delete, fetch]
+flags: []
+repo: work
+start: work
+repos:
+  - { path: work, label: Your clone }
+  - { path: origin.git, label: origin }
+  - { path: teammate, label: Teammate (Sam) }
+hints:
+  - "`git push origin --delete winter-closures` removes the branch on the remote. Delete your local `winter-closures` the usual way."
+  - "`origin/scratch` is stale: Sam deleted `scratch` on the remote. `git fetch --prune` (or `git branch -dr origin/scratch`) removes the leftover."

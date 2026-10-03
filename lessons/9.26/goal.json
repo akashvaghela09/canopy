@@ -1,0 +1,146 @@
+{
+  "questions": [
+    {
+      "id": "why-not-force",
+      "prompt": "Why is --force-with-lease preferred over --force?",
+      "type": "choice",
+      "options": [
+        "It refuses to overwrite the remote branch if it moved since you last fetched, so a teammate's new commit is not lost",
+        "It asks for confirmation before pushing",
+        "It only pushes commits that have been reviewed",
+        "It is faster because it skips the fetch"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    {
+      "label": "Replace the typo commit on origin with --force-with-lease",
+      "sticky": true,
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "usedCommand",
+            "matches": "\\bgit push\\b.*--force-with-lease",
+            "exitCode": 0
+          },
+          {
+            "type": "commitMessage",
+            "repo": "origin.git",
+            "rev": "login",
+            "equals": "Add login form"
+          }
+        ]
+      }
+    },
+    {
+      "label": "See the lease refuse a push after Sam's commit arrived",
+      "sticky": true,
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "usedCommand",
+            "matches": "\\bgit push\\b.*--force-with-lease",
+            "exitCode": 1,
+            "last": true
+          },
+          {
+            "type": "fileInRev",
+            "repo": "origin.git",
+            "rev": "login",
+            "path": "logout.html",
+            "present": true
+          },
+          {
+            "type": "fileInRev",
+            "rev": "login",
+            "path": "logout.html",
+            "present": false
+          }
+        ]
+      }
+    },
+    {
+      "label": "origin's login: your fixed commit, then Sam's, on top of the latest main; never a plain --force",
+      "check": {
+        "type": "all",
+        "repo": "origin.git",
+        "checks": [
+          {
+            "type": "isAncestor",
+            "ancestor": "@mark:m1",
+            "descendant": "login"
+          },
+          {
+            "type": "commitCount",
+            "range": "main..login",
+            "equals": 3
+          },
+          {
+            "type": "commitMessage",
+            "rev": "login~1",
+            "equals": "Add login form"
+          },
+          {
+            "type": "commitMessage",
+            "rev": "login",
+            "equals": "Add logout link"
+          },
+          {
+            "type": "fileInRev",
+            "path": "logout.html",
+            "rev": "login",
+            "present": true
+          },
+          {
+            "type": "fileInRev",
+            "path": "footer.html",
+            "rev": "login",
+            "present": true
+          },
+          {
+            "type": "not",
+            "check": {
+              "type": "usedCommand",
+              "matches": "\\bgit push\\b.*(\\s(-[a-zA-Z]*f[a-zA-Z]*|--force)(\\s|$)|\\s\\+[^\\s+])"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "label": "Your clone matches origin, clean working tree",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "refAt",
+            "ref": "login",
+            "target": "origin/login"
+          },
+          {
+            "type": "currentBranch",
+            "name": "login"
+          },
+          {
+            "type": "operation",
+            "value": null
+          },
+          {
+            "type": "status",
+            "clean": true
+          }
+        ]
+      }
+    },
+    {
+      "label": "Answer: why not --force",
+      "check": {
+        "type": "answer",
+        "question": "why-not-force"
+      }
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+commands: |
+  git status
+  git worktree add ../hotfix -b hotfix
+  cd ../hotfix
+  git status
+  printf 'def area(r):\n    return 3.14 * r * r\n' > lib.py
+  git commit -am "Fix area formula"
+  git worktree list
+  cd ../work
+  git status
+  git log --oneline --graph --all
+answers: {}

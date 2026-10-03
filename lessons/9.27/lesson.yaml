@@ -1,0 +1,17 @@
+id: "9.27"
+section: 9
+title: "Boss: prepare a branch for review"
+kind: boss
+teaches: []
+requires: [section]
+flags: []
+repo: work
+start: work
+repos:
+  - { path: work, label: "Your clone" }
+  - { path: origin.git, label: "origin" }
+  - { path: teammate, label: "Teammate (Sam)" }
+hints:
+  - "Fetch first and read both histories. Sam changed the README line that your last commit also changes, so expect one conflict during the rebase."
+  - "One interactive rebase onto origin/main can do most of it: reorder the tests behind the CSV commit, fold the label fix into the button commit, reword the typo, and stop with edit at the oversized commit to split it."
+  - "The branch is already on origin, so a normal push is rejected. Push with the lease, never with a plain --force."

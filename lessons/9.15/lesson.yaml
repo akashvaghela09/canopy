@@ -1,0 +1,12 @@
+id: "9.15"
+section: 9
+title: Reword
+kind: practice
+teaches: [rebase-i-reword]
+requires: [rebase-i-basics, amend-message]
+flags: []
+repo: parser
+start: parser
+hints:
+  - "The typo is three commits down, so amend cannot reach it. Start an interactive rebase over the last three commits."
+  - "Change `pick` to `reword` on the line for \"Add paser module\" and save. A second editor opens with the message; fix it to `Add parser module` and save."

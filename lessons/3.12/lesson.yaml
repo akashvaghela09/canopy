@@ -1,0 +1,13 @@
+id: "3.12"
+section: 3
+title: Name a commit by its nearest tag
+kind: practice
+teaches: [describe]
+requires: [log-graph, relative-refs]
+flags: []
+repo: bakery
+start: bakery
+hints:
+  - "Read the output from left to right: tag, dash, a number, dash, `g` plus a short id."
+  - "Check the number against the graph: count the commits between the tag and HEAD."
+  - "`git describe` for HEAD, `git describe v1.0` for the tag itself, `git describe HEAD~1` for one step back."

@@ -1,0 +1,10 @@
+commands: |
+  git log --oneline --graph --all
+  git rebase main
+  git status
+  printf '[server]\nport = 8080\nlimit = 20\nunit = "requests"\n' > config.toml
+  git add config.toml
+  git rebase --continue
+  git log --oneline --graph --all
+answers:
+  stopped-at: "@mark:f2"

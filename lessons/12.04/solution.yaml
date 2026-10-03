@@ -1,0 +1,14 @@
+commands: |
+  git log -p main..
+  git diff --stat main...
+  GIT_SEQUENCE_EDITOR="sed -i -e '1s/^pick/edit/' -e '2s/^pick/edit/'" git rebase -i main
+  sed -i "/DEBUG/d" src/reminders.js
+  git add src/reminders.js
+  git commit --amend --no-edit
+  git rebase --continue
+  git rm -q notes.tmp
+  git commit --amend --no-edit
+  git rebase --continue
+  git range-diff main origin/feature/reminders feature/reminders
+answers:
+  file-count: 4

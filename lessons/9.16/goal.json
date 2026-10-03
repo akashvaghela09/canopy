@@ -1,0 +1,22 @@
+{
+  "questions": [],
+  "goals": [
+    { "label": "Two commits on top of \"Add app skeleton\"", "check": { "type": "all", "checks": [
+        { "type": "commitCount", "range": "@mark:base..main", "equals": 2 },
+        { "type": "refAt", "ref": "main~2", "target": "@mark:base" }
+      ] } },
+    { "label": "First: \"Add login form\" with login.html and login.css", "check": { "type": "all", "checks": [
+        { "type": "commitMessage", "rev": "main~1", "equals": "Add login form" },
+        { "type": "commitChanges", "rev": "main~1", "paths": ["login.html", "login.css"], "exact": true },
+        { "type": "fileContent", "source": "main~1", "path": "login.html", "contains": "name=\"password\"" }
+      ] } },
+    { "label": "Second: \"Add password reset\" with reset.html and reset.css", "check": { "type": "all", "checks": [
+        { "type": "commitMessage", "rev": "main", "equals": "Add password reset" },
+        { "type": "commitChanges", "rev": "main", "paths": ["reset.html", "reset.css"], "exact": true }
+      ] } },
+    { "label": "Rebase finished, clean working tree", "check": { "type": "all", "checks": [
+        { "type": "operation", "value": null },
+        { "type": "status", "clean": true }
+      ] } }
+  ]
+}

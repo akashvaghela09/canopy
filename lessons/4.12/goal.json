@@ -1,0 +1,34 @@
+{
+  "questions": [],
+  "goals": [
+    { "label": "1: the commit contains notes.md only, with no extra commits", "check": { "type": "all", "checks": [
+        { "type": "commitCount", "repo": "wrong-file", "range": "main", "equals": 2 },
+        { "type": "refAt", "repo": "wrong-file", "ref": "HEAD~1", "target": "@mark:wf-base" },
+        { "type": "commitChanges", "repo": "wrong-file", "rev": "HEAD", "paths": ["notes.md"], "exact": true },
+        { "type": "fileInRev", "repo": "wrong-file", "path": "secret.env", "rev": "HEAD", "present": false }
+      ] } },
+    { "label": "1: secret.env is still on disk, untracked", "check": { "type": "all", "checks": [
+        { "type": "pathExists", "path": "wrong-file/secret.env" },
+        { "type": "status", "repo": "wrong-file", "untracked": ["secret.env"], "staged": [], "modified": [], "exact": true }
+      ] } },
+    { "label": "2: caching is undone by a new commit; the old commit stays", "check": { "type": "all", "checks": [
+        { "type": "commitCount", "repo": "shared", "range": "main", "equals": 4 },
+        { "type": "refAt", "repo": "shared", "ref": "HEAD~1", "target": "@mark:sh-disable" },
+        { "type": "fileContent", "repo": "shared", "path": "config.yml", "source": "HEAD", "contains": "cache: true" },
+        { "type": "status", "repo": "shared", "clean": true }
+      ] } },
+    { "label": "3: history untouched, no edits, no untracked files", "check": { "type": "all", "checks": [
+        { "type": "refAt", "repo": "scrap", "ref": "HEAD", "target": "@mark:sc-tip" },
+        { "type": "commitCount", "repo": "scrap", "range": "main", "equals": 2 },
+        { "type": "status", "repo": "scrap", "clean": true },
+        { "type": "pathAbsent", "path": "scrap/try.txt" },
+        { "type": "pathAbsent", "path": "scrap/out" },
+        { "type": "fileContent", "repo": "scrap", "path": "model.py", "source": "worktree", "notContains": "experiment" }
+      ] } },
+    { "label": "4: report.md is unstaged but still edited", "check": { "type": "all", "checks": [
+        { "type": "status", "repo": "too-early", "staged": [], "modified": ["report.md"], "untracked": [], "exact": true },
+        { "type": "fileContent", "repo": "too-early", "path": "report.md", "source": "worktree", "contains": "Q3 numbers" },
+        { "type": "refAt", "repo": "too-early", "ref": "HEAD", "target": "@mark:te-tip" }
+      ] } }
+  ]
+}

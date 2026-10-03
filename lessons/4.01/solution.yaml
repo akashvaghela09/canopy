@@ -1,0 +1,7 @@
+commands: |
+  git status
+  git diff
+  git restore notes.txt
+  git status
+  git diff
+answers: {}

@@ -1,0 +1,83 @@
+{
+  "questions": [
+    {
+      "id": "bug",
+      "prompt": "Which commit broke tally.sh (the first bad commit)?",
+      "type": "commit",
+      "answer": "@mark:bug"
+    },
+    {
+      "id": "head-state",
+      "prompt": "While a bisect is running, what is HEAD?",
+      "type": "choice",
+      "options": [
+        "Detached, pointing at the commit git wants you to test",
+        "Still on main; git only reads the commits",
+        "On a temporary branch called bisect"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    {
+      "label": "Start a bisect",
+      "check": {
+        "type": "usedCommand",
+        "matches": "^git(\\s+(--no-pager|-C\\s+\\S+|-c\\s+\\S+))*\\s+bisect start\\b"
+      }
+    },
+    {
+      "label": "Mark commits good or bad (or let bisect run do it)",
+      "check": {
+        "type": "usedCommand",
+        "matches": "^git(\\s+(--no-pager|-C\\s+\\S+|-c\\s+\\S+))*\\s+bisect (good|bad|run)\\b"
+      }
+    },
+    {
+      "label": "Let bisect narrow the search down to one commit",
+      "sticky": true,
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "refAt",
+            "ref": "refs/bisect/bad",
+            "target": "@mark:bug"
+          },
+          {
+            "type": "shell",
+            "script": "t=$(git rev-parse --git-path BISECT_TERMS); { read -r new; read -r old; } < \"$t\" 2>/dev/null || { new=bad; old=good; }; b=$(git rev-parse -q --verify \"refs/bisect/$new\") || exit 1; [ \"$(git rev-list --count \"$b\" --not $(git for-each-ref --format='%(objectname)' \"refs/bisect/$old-*\"))\" = 1 ]"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Identify the first bad commit",
+      "check": {
+        "type": "answer",
+        "question": "bug"
+      }
+    },
+    {
+      "label": "Know what HEAD is during a bisect",
+      "check": {
+        "type": "answer",
+        "question": "head-state"
+      }
+    },
+    {
+      "label": "Finish the search with git bisect reset (no bisect in progress)",
+      "check": {
+        "type": "operation",
+        "value": null
+      }
+    },
+    {
+      "label": "End on main",
+      "check": {
+        "type": "currentBranch",
+        "name": "main"
+      }
+    }
+  ]
+}

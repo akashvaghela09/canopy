@@ -1,0 +1,13 @@
+id: "4.06"
+section: 4
+title: What reset really does
+kind: concept
+teaches: [concept-reset]
+requires: [head, concept-three-areas, log-graph]
+flags: [guided]
+repo: recipes
+start: recipes
+panels: [three-areas]
+hints:
+  - "After the reset, draw the graph again and look where the `main` label is. Then look at the status."
+  - "The undone commit's change to soup.md is still in the file on disk. Git did not delete anything from your working tree."

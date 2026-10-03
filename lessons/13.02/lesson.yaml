@@ -1,0 +1,18 @@
+id: "13.02"
+section: 13
+title: Settings worth knowing
+kind: practice
+teaches: [config-settings]
+requires: [config-levels, branch-create, fetch, pull-rebase, push]
+flags: []
+minGit: "2.37"
+repo: work
+start: work
+repos:
+  - { path: work, label: Your clone }
+  - { path: origin.git, label: origin }
+  - { path: teammate, label: Teammate }
+hints:
+  - "Set each key with `git config <key> <value>` (in this repo, or add `--global`). The five keys are pull.rebase, fetch.prune, push.autoSetupRemote, rebase.autoStash and merge.conflictstyle."
+  - "After fetch.prune is on, a plain fetch removes origin/stale. After pull.rebase and rebase.autoStash are on, a plain pull rebases your commit even with README.md modified."
+  - "With push.autoSetupRemote on, `git push` from a new branch publishes it and sets tracking without -u."

@@ -1,0 +1,23 @@
+commands: |
+  bash tally.sh 2 3 5
+  git bisect start
+  git bisect bad
+  git bisect good v2.0
+  bash tests/sum.sh && echo good || echo bad
+  git bisect good
+  bash tests/sum.sh && echo good || echo bad
+  git bisect bad
+  bash tests/sum.sh && echo good || echo bad
+  git bisect bad
+  bash tests/sum.sh && echo good || echo bad
+  git bisect good
+  bash tests/sum.sh && echo good || echo bad
+  git bisect bad
+  bash tests/sum.sh && echo good || echo bad
+  git bisect good
+  git bisect log
+  git bisect reset
+  git status
+answers:
+  bug: "@mark:bug"
+  head-state: 0

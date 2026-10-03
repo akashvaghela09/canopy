@@ -1,0 +1,14 @@
+id: "4.01"
+section: 4
+title: Discard changes in a file
+kind: practice
+teaches: [restore]
+requires: [status, diff]
+flags: [destructive]
+minGit: "2.23"
+repo: notes
+start: notes
+panels: [three-areas]
+hints:
+  - "Check the status first: two files are modified. Only one of them should be reset."
+  - "`git restore notes.txt` replaces the file on disk with the version from the last commit. Leave todo.txt alone."

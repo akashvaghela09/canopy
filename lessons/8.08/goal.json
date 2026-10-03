@@ -1,0 +1,21 @@
+{
+  "questions": [],
+  "goals": [
+    { "label": "Add a second worktree at ../hotfix on a branch called hotfix", "check": { "type": "all", "checks": [
+        { "type": "worktreeCount", "equals": 2 },
+        { "type": "repoExists", "path": "hotfix", "bare": false },
+        { "type": "currentBranch", "repo": "hotfix", "name": "hotfix" }
+      ] } },
+    { "label": "Commit the lib.py fix on hotfix", "check": { "type": "all", "checks": [
+        { "type": "fileContent", "path": "lib.py", "source": "hotfix", "contains": "3.14 * r * r" },
+        { "type": "commitCount", "range": "main..hotfix", "min": 1 },
+        { "type": "status", "repo": "hotfix", "clean": true }
+      ] } },
+    { "label": "List the worktrees", "check": { "type": "usedCommand", "matches": "^git worktree list\\b" } },
+    { "label": "The feature edits in work are untouched, and main did not move", "check": { "type": "all", "checks": [
+        { "type": "fileContent", "path": "app.py", "contains": "def export" },
+        { "type": "refAt", "ref": "main", "target": "@mark:base" }
+      ] } },
+    { "label": "Finish back in the work folder", "check": { "type": "cwd", "path": "work" } }
+  ]
+}

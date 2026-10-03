@@ -1,0 +1,12 @@
+commands: |
+  git remote -v
+  git remote add upstream ../upstream.git
+  git fetch upstream
+  git log --oneline --graph --all
+  git log --oneline origin/main..upstream/main
+  git remote remove backup
+  git remote rename origin fork
+  git remote -v
+  git branch -vv
+answers:
+  ahead: 2

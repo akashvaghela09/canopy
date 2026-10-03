@@ -1,0 +1,24 @@
+{
+  "questions": [],
+  "goals": [
+    { "label": "Clone origin.git into work", "check": { "type": "repoExists", "path": "work", "bare": false } },
+    { "label": "Publish lake-update to origin with your Dogs line committed", "sticky": true, "check": { "type": "all", "checks": [
+        { "type": "branchExists", "repo": "origin.git", "name": "lake-update" },
+        { "type": "fileContent", "repo": "origin.git", "path": "trails/lake.md", "source": "lake-update", "contains": "Dogs: allowed on a lead" }
+      ] } },
+    { "label": "Receive Sam's change (press the action, then fetch or pull)", "sticky": true, "check": { "type": "fileContent", "path": "trails/lake.md", "source": "origin/main", "contains": "Parking" } },
+    { "label": "origin's main has both lines, with no conflict markers left", "check": { "type": "all", "checks": [
+        { "type": "fileContent", "repo": "origin.git", "path": "trails/lake.md", "source": "main", "contains": "Dogs: allowed on a lead" },
+        { "type": "fileContent", "repo": "origin.git", "path": "trails/lake.md", "source": "main", "contains": "Parking" },
+        { "type": "fileContent", "repo": "origin.git", "path": "trails/lake.md", "source": "main", "notContains": "<<<<<<<" },
+        { "type": "fileContent", "repo": "origin.git", "path": "trails/lake.md", "source": "main", "notContains": ">>>>>>>" }
+      ] } },
+    { "label": "Annotated tag v1.1 on origin, pointing at origin's main", "check": { "type": "tag", "repo": "origin.git", "name": "v1.1", "present": true, "annotated": true, "target": "main" } },
+    { "label": "lake-update is deleted on origin", "check": { "type": "branchExists", "repo": "origin.git", "name": "lake-update", "present": false } },
+    { "label": "On main, in sync with origin, working tree clean", "check": { "type": "all", "checks": [
+        { "type": "currentBranch", "name": "main" },
+        { "type": "refAt", "ref": "main", "target": "origin/main" },
+        { "type": "status", "clean": true }
+      ] } }
+  ]
+}

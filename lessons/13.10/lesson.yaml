@@ -1,0 +1,13 @@
+id: "13.10"
+section: 13
+title: rerere
+kind: practice
+teaches: [rerere]
+requires: [conflict-resolve, rebase-conflict, config-settings, merge-undo-reset]
+flags: []
+repo: project
+start: project
+hints:
+  - "Turn it on first: `git config rerere.enabled true`. Then merge `feature`, resolve `config.txt` to `timeout = 90`, stage it, run `git rerere status` and `git rerere diff`, and commit."
+  - "Undo the merge by moving main back one commit, discarding the merge. Then merge `feature` again and read the output."
+  - "The second time, rerere already resolved the file; you still stage it and commit."

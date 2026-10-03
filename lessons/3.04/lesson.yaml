@@ -1,0 +1,13 @@
+id: "3.04"
+section: 3
+title: History of one file
+kind: practice
+teaches: [log-path]
+requires: [log-filter]
+flags: []
+repo: bakery
+start: bakery
+hints:
+  - "Put the path after `--`. Count the lines of the one-line output, then add `--follow` and count again."
+  - "The extra commits that appear with `--follow` come from before the rename. The commit that renamed the file is the oldest one in the list *without* `--follow`."
+  - "`git log --oneline -- pages/menu.md` and `git log --oneline --follow -- pages/menu.md`."

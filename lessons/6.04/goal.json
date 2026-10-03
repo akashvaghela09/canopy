@@ -1,0 +1,27 @@
+{
+  "questions": [
+    {
+      "id": "why-no-ff",
+      "prompt": "What does a merge commit give you that a fast-forward does not?",
+      "type": "choice",
+      "options": [
+        "A record that these commits arrived together as one branch, and a single commit to undo them",
+        "A copy of the branch's commits, so the originals can be deleted",
+        "Faster merges, because git skips comparing files",
+        "Protection against merge conflicts"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    { "label": "Merge login into main with a merge commit", "check": { "type": "all", "checks": [
+        { "type": "currentBranch", "name": "main" },
+        { "type": "commitParents", "rev": "main", "count": 2 },
+        { "type": "refAt", "ref": "main^1", "target": "@mark:base" },
+        { "type": "refAt", "ref": "main^2", "target": "@mark:login2" }
+      ] } },
+    { "label": "login itself did not move", "check": { "type": "refAt", "ref": "login", "target": "@mark:login2" } },
+    { "label": "Answer: why force a merge commit", "check": { "type": "answer", "question": "why-no-ff" } },
+    { "label": "Finish with a clean working tree", "check": { "type": "status", "clean": true } }
+  ]
+}

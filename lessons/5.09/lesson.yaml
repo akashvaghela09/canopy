@@ -1,0 +1,13 @@
+id: "5.09"
+section: 5
+title: Merged or not
+kind: practice
+teaches: [branch-merged]
+requires: [log-range, diff-options]
+flags: []
+repo: garden
+start: garden
+hints:
+  - "`git branch --merged` and `--no-merged` judge every branch against the branch you are on, main."
+  - "`git merge-base main herbs` prints one commit id. Find it in the graph: it is the last commit both branches share."
+  - "`git diff --stat main...herbs` (three dots) shows only what herbs changed since it forked, not what main did meanwhile."

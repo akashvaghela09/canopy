@@ -1,0 +1,13 @@
+id: "13.04"
+section: 13
+title: Aliases
+kind: practice
+teaches: [aliases]
+requires: [config-levels, log-format]
+flags: []
+repo: garden
+start: garden
+hints:
+  - "An alias is a config key under `alias.`: `git config --global alias.lg \"log --oneline --graph --decorate --all\"`."
+  - "An alias that starts with `!` runs in the shell, so it can chain commands with `&&`. Use single quotes around it."
+  - "`git config --global alias.wip '!git add -A && git commit -m wip'`, then run `git wip` with the untracked file present."

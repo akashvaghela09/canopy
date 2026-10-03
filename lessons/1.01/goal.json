@@ -1,0 +1,52 @@
+{
+  "questions": [
+    {
+      "id": "hidden-file",
+      "prompt": "What is the name of the hidden file inside the notes folder?",
+      "type": "text",
+      "accept": [
+        ".ideas.txt",
+        "ideas.txt",
+        ".ideas"
+      ]
+    }
+  ],
+  "goals": [
+    {
+      "label": "Print the folder you are in",
+      "check": {
+        "type": "usedCommand",
+        "matches": "(^|[;&|]\\s*)pwd\\b"
+      }
+    },
+    {
+      "label": "Move into the notes folder",
+      "check": {
+        "type": "cwd",
+        "path": "notes"
+      },
+      "sticky": true
+    },
+    {
+      "label": "List files including hidden ones",
+      "check": {
+        "type": "usedCommand",
+        "matches": "(^|[;&|]\\s*)ls\\b[^;&|]*\\s(-\\w*[aA]\\w*|--all|--almost-all)(\\s|$|[;&|])"
+      }
+    },
+    {
+      "label": "Name the hidden file",
+      "check": {
+        "type": "answer",
+        "question": "hidden-file"
+      }
+    },
+    {
+      "label": "End up inside the photos folder",
+      "check": {
+        "type": "cwd",
+        "path": "photos"
+      }
+    }
+  ]
+}

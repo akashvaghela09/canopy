@@ -1,0 +1,19 @@
+id: "7.15"
+section: 7
+title: Push and fetch tags
+kind: practice
+teaches: [push-tags]
+requires: [push, tag-annotated, tag-manage]
+flags: []
+repo: work
+start: work
+repos:
+  - { path: work, label: Your clone }
+  - { path: origin.git, label: origin }
+  - { path: teammate, label: Teammate (Sam) }
+actions:
+  - { id: teammate-fetch, label: "Teammate fetches tags", script: actions/teammate-fetch.sh }
+hints:
+  - "Create an annotated tag `v1.0` on the current commit, then `git push origin v1.0`."
+  - "`git push origin --delete v1.0-rc` removes the wrong tag from the remote. Delete it locally too."
+  - "Press the lesson action so Sam fetches. Then check the Teammate repo in the graph: v1.0 is there."

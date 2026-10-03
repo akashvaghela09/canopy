@@ -1,0 +1,17 @@
+{
+  "questions": [],
+  "goals": [
+    { "label": "Create retry-limit from the stash, starting at the stash's base commit", "check": { "type": "all", "checks": [
+        { "type": "branchExists", "name": "retry-limit" },
+        { "type": "currentBranch", "name": "retry-limit" },
+        { "type": "isAncestor", "ancestor": "@mark:base", "descendant": "retry-limit" },
+        { "type": "not", "check": { "type": "isAncestor", "ancestor": "@mark:newer", "descendant": "retry-limit" } }
+      ] } },
+    { "label": "The stashed change is applied on that branch", "check": { "type": "any", "checks": [
+        { "type": "fileContent", "path": "app.py", "contains": "retries = 3" },
+        { "type": "fileContent", "path": "app.py", "source": "retry-limit", "contains": "retries = 3" }
+      ] } },
+    { "label": "The stash entry is gone", "check": { "type": "stash", "count": 0 } },
+    { "label": "main still points at the newer commit", "check": { "type": "refAt", "ref": "main", "target": "@mark:newer" } }
+  ]
+}

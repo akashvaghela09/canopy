@@ -1,0 +1,13 @@
+id: "6.07"
+section: 6
+title: Read merges in history
+kind: practice
+teaches: [log-merges]
+requires: [log-graph, merge-three-way, log-filter]
+flags: []
+repo: cafe
+start: cafe
+hints:
+  - "`git log --oneline --merges` lists only merge commits; the newest is first."
+  - "`--first-parent` follows main's own lane and skips the commits that arrived through merges."
+  - "Combine filters: `git log --oneline --no-merges --author=Sam` counts Sam's real commits without merge commits."

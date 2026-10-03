@@ -1,0 +1,13 @@
+id: "11.06"
+section: 11
+title: Bisect automatically
+kind: practice
+teaches: [bisect-run]
+requires: [bisect, term-files]
+flags: []
+repo: tally
+start: tally
+hints:
+  - "The test is one line: `[ \"$(bash fmt.sh 1205)\" = \"12.05\" ]`. Write it into a file, for example check-fmt.sh, and try `bash check-fmt.sh; echo $?` on main (1) and on v2.0."
+  - "`git bisect start HEAD v2.0` sets both ends at once. Then `git bisect run bash check-fmt.sh` does the rest."
+  - "Read the last lines of the output for \"is the first bad commit\", then `git bisect reset`."

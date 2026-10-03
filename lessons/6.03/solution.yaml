@@ -1,0 +1,6 @@
+commands: |
+  git log --oneline --graph --all
+  git merge -m "Merge search feature into main" search
+  git merge --no-edit theme
+  git log -2
+answers: {}

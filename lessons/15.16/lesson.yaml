@@ -1,0 +1,14 @@
+id: "15.16"
+section: 15
+title: Maintenance
+kind: practice
+teaches: [maintenance]
+requires: [gc, config-settings]
+flags: []
+minGit: "2.29"
+repo: history
+start: history
+hints:
+  - "`git maintenance run --task=commit-graph` writes .git/objects/info/commit-graphs/. `git commit-graph write --reachable` is the direct form."
+  - "`git maintenance run --task=loose-objects` packs loose objects but deletes them only on the next run: count-objects after each run."
+  - "Do not run `git maintenance start` here: it registers a scheduled job with your operating system."

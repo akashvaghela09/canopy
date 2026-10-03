@@ -1,0 +1,18 @@
+id: "12.12"
+section: 12
+title: Work from a fork
+kind: practice
+teaches: [fork-workflow]
+requires: [remote-manage, branch-sync]
+flags: []
+repo: work
+start: work
+repos:
+  - { path: work, label: Your clone }
+  - { path: fork.git, label: "origin (your fork)" }
+  - { path: upstream.git, label: upstream }
+  - { path: maintainer, label: Maintainer }
+hints:
+  - "Add a second remote named `upstream` whose URL is `../upstream.git`, then fetch from it."
+  - "Sync main: fast-forward your `main` to `upstream/main`, then push `main` to origin so the fork catches up."
+  - "Create `fix-typo` from the synced `main`, fix 'termnal' in README.md, commit, and push the branch to origin with tracking."

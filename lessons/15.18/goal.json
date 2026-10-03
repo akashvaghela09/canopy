@@ -1,0 +1,88 @@
+{
+  "questions": [],
+  "goals": [
+    {
+      "label": "The library is vendored at vendor/lib and committed on main",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "fileInRev",
+            "path": "vendor/lib/version.txt",
+            "rev": "main",
+            "present": true
+          },
+          {
+            "type": "fileContent",
+            "source": "main",
+            "path": "vendor/lib/version.txt",
+            "lines": [
+              "1.0"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "label": "Three patches in ../outbox apply cleanly to the colleague's main",
+      "check": {
+        "type": "shell",
+        "script": "set -- \"$LESSON_ROOT\"/outbox/*.patch; [ $# -eq 3 ] && git apply --check \"$@\"",
+        "repo": "colleague"
+      }
+    },
+    {
+      "label": "An annotated tag v2.0 on main that verifies with the release key",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "tag",
+            "name": "v2.0",
+            "present": true,
+            "annotated": true
+          },
+          {
+            "type": "refAt",
+            "ref": "v2.0^{commit}",
+            "target": "main"
+          },
+          {
+            "type": "shell",
+            "script": "fp=$(ssh-keygen -lf \"$LESSON_ROOT/keys/release-key.pub\" | cut -d' ' -f2); git verify-tag v2.0 2>&1 | grep -qF \"$fp\""
+          }
+        ]
+      }
+    },
+    {
+      "label": "../release-2.0.tar.gz holds the tagged tree under release-2.0/, library included, tests excluded",
+      "check": {
+        "type": "shell",
+        "script": "f=\"$LESSON_ROOT/release-2.0.tar.gz\"; [ -f \"$f\" ] && l=$(tar tzf \"$f\") && echo \"$l\" | grep -q '^release-2.0/src/lantern.py$' && echo \"$l\" | grep -q '^release-2.0/vendor/lib/version.txt$' && ! echo \"$l\" | grep -q '/tests/.'"
+      }
+    },
+    {
+      "label": "../app.bundle verifies and carries main and v2.0",
+      "check": {
+        "type": "shell",
+        "script": "f=\"$LESSON_ROOT/app.bundle\"; git bundle verify \"$f\" >/dev/null 2>&1 && git bundle list-heads \"$f\" | grep -q 'refs/heads/main$' && git bundle list-heads \"$f\" | grep -q 'refs/tags/v2.0$'"
+      }
+    },
+    {
+      "label": "Clean working tree on main",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "currentBranch",
+            "name": "main"
+          },
+          {
+            "type": "status",
+            "clean": true
+          }
+        ]
+      }
+    }
+  ]
+}

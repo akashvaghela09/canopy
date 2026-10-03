@@ -1,0 +1,13 @@
+id: "2.02"
+section: 2
+title: Commit what is staged
+kind: practice
+teaches: [commit]
+requires: [add, config-identity]
+flags: []
+repo: project
+start: project
+panels: [three-areas]
+hints:
+  - "Stage `intro.txt` first; a commit only saves what is staged."
+  - "`git commit -m \"Add the introduction\"` makes the commit with that message."

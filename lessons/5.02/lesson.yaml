@@ -1,0 +1,13 @@
+id: "5.02"
+section: 5
+title: Create a branch
+kind: practice
+teaches: [branch-create]
+requires: [branch-list, commit]
+flags: []
+repo: trail-guide
+start: trail-guide
+hints:
+  - "`git branch <name>` with nothing else puts the new branch on the commit HEAD is on. Add a commit name after it to start somewhere else."
+  - "\"Add lake loop trail\" is one commit below HEAD, so `HEAD~1` names it, and so does its id."
+  - "`git branch signage` then `git branch fix/lake-distance HEAD~1`. Afterwards list the branches, make a commit on main and list them again."

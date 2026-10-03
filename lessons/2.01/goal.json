@@ -1,0 +1,8 @@
+{
+  "questions": [],
+  "goals": [
+    { "label": "Stage intro.txt", "check": { "type": "status", "staged": ["intro.txt"] } },
+    { "label": "Leave chapter1.txt and notes.txt untracked, and do not commit",
+      "check": { "type": "status", "staged": ["intro.txt"], "untracked": ["chapter1.txt", "notes.txt"], "exact": true } }
+  ]
+}

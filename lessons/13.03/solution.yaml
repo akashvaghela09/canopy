@@ -1,0 +1,7 @@
+commands: |
+  git log --pretty=format:'%h %ad %an%d %s' --date=short
+  git log --oneline --graph --decorate --all
+  git log --pretty=format:'%h %ad %an%d %s' --date=short --author=Priya
+answers:
+  date: "2024-04-09"
+  tag-author: Priya Patel

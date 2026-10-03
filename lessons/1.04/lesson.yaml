@@ -1,0 +1,14 @@
+id: "1.04"
+section: 1
+title: Tell git who you are
+kind: practice
+teaches: [config-identity]
+requires: [init]
+flags: []
+identity: false
+repo: project
+start: project
+hints:
+  - "Set the global values first: `git config --global user.name \"Your Name\"` and the same for `user.email`."
+  - "Leaving out `--global` (or writing `--local`) stores the value in this repo only."
+  - "`git config --local user.email work@example.com`, then `git config --show-origin user.email` shows which file wins."

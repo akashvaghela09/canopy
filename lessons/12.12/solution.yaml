@@ -1,0 +1,11 @@
+commands: |
+  git remote add upstream ../upstream.git
+  git remote -v
+  git fetch upstream
+  git switch main
+  git merge --ff-only upstream/main
+  git push origin main
+  git switch -c fix-typo
+  sed -i 's/termnal/terminal/' README.md
+  git commit -am "Fix typo in README"
+  git push -u origin fix-typo

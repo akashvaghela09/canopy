@@ -1,0 +1,8 @@
+commands: |
+  git log --oneline --graph --all
+  git merge experiment
+  git status
+  git merge --abort
+  git status
+  git log --oneline -1
+answers: {}

@@ -1,0 +1,7 @@
+commands: |
+  git log --oneline --graph --all --decorate
+answers:
+  dark-mode-tip: 68810f6
+  merge-commit: 3ad9479
+  head-branch: 0
+  seasonal-count: 2

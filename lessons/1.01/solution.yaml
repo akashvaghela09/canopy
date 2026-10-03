@@ -1,0 +1,9 @@
+commands: |
+  pwd
+  ls
+  cd notes
+  ls -a
+  cd ..
+  cd photos
+answers:
+  hidden-file: ".ideas.txt"

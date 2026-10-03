@@ -1,0 +1,129 @@
+{
+  "questions": [
+    {
+      "id": "if-switched",
+      "prompt": "Suppose you had switched to main right after committing, without creating the ideas branch. What would have happened to your new commit?",
+      "type": "choice",
+      "options": [
+        "No branch would point at it; git warns and prints its id, the graph shows it gray, and only that id or the reflog (section 10) can find it again",
+        "Git would refuse to switch until you create a branch",
+        "The commit would be added on top of main",
+        "The commit would be deleted immediately and permanently"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    {
+      "label": "Visit \"Add ridge trail\" with HEAD detached",
+      "sticky": true,
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "currentBranch",
+            "name": null
+          },
+          {
+            "type": "refAt",
+            "ref": "HEAD",
+            "target": "@mark:ridge"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Commit ideas.md while detached",
+      "sticky": true,
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "currentBranch",
+            "name": null
+          },
+          {
+            "type": "isAncestor",
+            "ancestor": "@mark:ridge",
+            "descendant": "HEAD"
+          },
+          {
+            "type": "not",
+            "check": {
+              "type": "isAncestor",
+              "ancestor": "@mark:lake",
+              "descendant": "HEAD"
+            }
+          },
+          {
+            "type": "fileInRev",
+            "path": "ideas.md",
+            "rev": "HEAD",
+            "present": true
+          }
+        ]
+      }
+    },
+    {
+      "label": "The branch ideas holds that commit",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "branchExists",
+            "name": "ideas"
+          },
+          {
+            "type": "isAncestor",
+            "ancestor": "@mark:ridge",
+            "descendant": "ideas"
+          },
+          {
+            "type": "not",
+            "check": {
+              "type": "isAncestor",
+              "ancestor": "@mark:lake",
+              "descendant": "ideas"
+            }
+          },
+          {
+            "type": "commitCount",
+            "range": "@mark:ridge..ideas",
+            "min": 1
+          },
+          {
+            "type": "fileInRev",
+            "path": "ideas.md",
+            "rev": "ideas",
+            "present": true
+          }
+        ]
+      }
+    },
+    {
+      "label": "HEAD is attached to a branch again",
+      "check": {
+        "type": "not",
+        "check": {
+          "type": "currentBranch",
+          "name": null
+        }
+      }
+    },
+    {
+      "label": "main did not move",
+      "check": {
+        "type": "refAt",
+        "ref": "main",
+        "target": "@mark:gear"
+      }
+    },
+    {
+      "label": "Answer: what would have happened",
+      "check": {
+        "type": "answer",
+        "question": "if-switched"
+      }
+    }
+  ]
+}

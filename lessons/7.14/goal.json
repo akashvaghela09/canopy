@@ -1,0 +1,16 @@
+{
+  "questions": [
+    { "id": "ahead", "prompt": "How many commits does upstream/main have that origin/main does not?", "type": "number", "answer": 2 }
+  ],
+  "goals": [
+    { "label": "Add a remote called upstream pointing at upstream.git", "check": { "type": "remote", "name": "upstream", "url": "upstream.git", "present": true } },
+    { "label": "Fetch from upstream so upstream/main exists", "check": { "type": "fileContent", "path": "README.md", "source": "upstream/main", "contains": "Safety" } },
+    { "label": "Remove the dead backup remote", "check": { "type": "remote", "name": "backup", "present": false } },
+    { "label": "Rename origin to fork", "check": { "type": "all", "checks": [
+        { "type": "remote", "name": "fork", "url": "origin.git", "present": true },
+        { "type": "remote", "name": "origin", "present": false },
+        { "type": "upstream", "branch": "main", "upstream": "fork/main" }
+      ] } },
+    { "label": "Answer: how far ahead upstream is", "check": { "type": "answer", "question": "ahead" } }
+  ]
+}

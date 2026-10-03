@@ -1,0 +1,13 @@
+id: "4.09"
+section: 4
+title: Reset hard
+kind: practice
+teaches: [reset-hard]
+requires: [reset-mixed]
+flags: [destructive]
+repo: deploy
+start: deploy
+panels: [three-areas]
+hints:
+  - "Find \"Working version\" in the history. It is two commits below HEAD, so HEAD~2 names it, and so does its id."
+  - "`git reset --hard HEAD~2`. Afterwards the status is clean and deploy.sh is the working version again."

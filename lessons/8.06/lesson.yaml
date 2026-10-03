@@ -1,0 +1,13 @@
+id: "8.06"
+section: 8
+title: When a stash conflicts
+kind: practice
+teaches: [stash-conflict]
+requires: [stash-pop-apply, conflict-resolve]
+flags: []
+repo: work
+start: work
+panels: [three-areas]
+hints:
+  - "Pop, read the conflict markers in app.py, and edit the line to the wording the lesson asks for. Then stage the file."
+  - "Run `git stash list` after resolving: the entry is still there. Drop it yourself with `git stash drop`."

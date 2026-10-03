@@ -1,0 +1,13 @@
+commands: |
+  git clone --filter=blob:none "file://$PWD/origin.git" blobless
+  cd blobless
+  git log --oneline
+  git rev-list --objects --all --missing=print | grep -c '^?'
+  git show $(git rev-list --max-parents=0 HEAD)
+  git rev-list --objects --all --missing=print | grep -c '^?'
+  cd ..
+  git clone --filter=tree:0 "file://$PWD/origin.git" treeless
+  git -C blobless count-objects -v
+  git -C treeless count-objects -v
+answers:
+  missing: 7

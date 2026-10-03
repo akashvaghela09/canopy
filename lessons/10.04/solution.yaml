@@ -1,0 +1,12 @@
+commands: |
+  git pull
+  git log --oneline
+  cat .git/ORIG_HEAD
+  git reset --hard ORIG_HEAD
+  git log --oneline --all --graph
+  git merge experiment -m "Merge branch 'experiment'"
+  git log --oneline --graph
+  git reset --hard ORIG_HEAD
+  git log --oneline --all --graph
+  git status
+answers: {}

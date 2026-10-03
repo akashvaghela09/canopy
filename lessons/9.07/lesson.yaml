@@ -1,0 +1,14 @@
+id: "9.07"
+section: 9
+title: Cherry-pick conflicts
+kind: practice
+teaches: [cherry-pick-conflict]
+requires: [cherry-pick, conflict-resolve, merge-abort]
+flags: []
+repo: server
+start: server
+hints:
+  - "Each pick conflicts in `settings.conf`, because main changed the same lines. The status tells you the pick is paused."
+  - "For the timeout: edit the file so the line reads `timeout = 60`, keep the other two lines as main has them, stage it, then `git cherry-pick --continue`."
+  - "`git cherry-pick --skip` drops the paused pick and ends the operation; `git cherry-pick --abort` ends it and restores the state from before the command."
+  - "Picked all three as a range? `--abort` would also undo the timeout commit. Use `--quit`, then restore `settings.conf` from the last commit."

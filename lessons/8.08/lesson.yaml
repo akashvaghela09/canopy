@@ -1,0 +1,16 @@
+id: "8.08"
+section: 8
+title: Work in two places at once
+kind: practice
+teaches: [worktree-add]
+requires: [branch-create, switch, term-navigate]
+flags: []
+minGit: "2.23"
+repo: work
+start: work
+repos:
+  - { path: work, label: Main worktree (work) }
+  - { path: hotfix, label: Second worktree (hotfix) }
+hints:
+  - "`git worktree add ../hotfix -b hotfix` creates the folder next to `work` with a new branch checked out in it."
+  - "Move into `../hotfix`, fix `lib.py` so area multiplies by r twice, commit, run `git worktree list`, then come back to `work`."

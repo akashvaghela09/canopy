@@ -1,0 +1,23 @@
+{
+  "questions": [
+    {
+      "id": "hours-lines",
+      "prompt": "How many lines did the commit \"Add opening hours to index\" add to index.html?",
+      "type": "number",
+      "answer": 2
+    },
+    {
+      "id": "croissant-price",
+      "prompt": "What was the price of the croissant in menu.md at tag v0.1? (Enter the number.)",
+      "type": "text",
+      "accept": ["3.50", "3.5", "$3.50", "3,50"]
+    }
+  ],
+  "goals": [
+    { "label": "Show a commit", "check": { "type": "usedCommand", "matches": "^git show\\b" } },
+    { "label": "Show a commit's summary with --stat", "check": { "type": "usedCommand", "matches": "^git show\\b.*--stat" } },
+    { "label": "Print menu.md as it was at v0.1", "check": { "type": "usedCommand", "matches": "^git show\\b.*(v0\\.1|35f7[0-9a-f]*)(\\^\\{\\})?:(\\./)?menu\\.md" } },
+    { "label": "Answer: lines added to index.html", "check": { "type": "answer", "question": "hours-lines" } },
+    { "label": "Answer: croissant price at v0.1", "check": { "type": "answer", "question": "croissant-price" } }
+  ]
+}

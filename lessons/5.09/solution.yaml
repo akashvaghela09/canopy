@@ -1,0 +1,11 @@
+commands: |
+  git branch --merged
+  git branch --no-merged
+  git merge-base main herbs
+  git log --oneline --graph --all
+  git diff --stat main...herbs
+  git diff --stat main..herbs
+answers:
+  merged: [0, 1]
+  merge-base: "@mark:watering"
+  three-dot-files: 0

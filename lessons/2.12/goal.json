@@ -1,0 +1,81 @@
+{
+  "questions": [],
+  "goals": [
+    {
+      "label": "Rename notes.txt to journal.txt with git mv",
+      "check": {
+        "type": "usedCommand",
+        "matches": "git\\s+mv\\b"
+      }
+    },
+    {
+      "label": "Rename draft.md to chapter1.md without git mv (plain mv or the files panel)",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "fileContent",
+            "source": "index",
+            "path": "chapter1.md",
+            "contains": "dark and stormy"
+          },
+          {
+            "type": "not",
+            "check": {
+              "type": "usedCommand",
+              "matches": "git\\s+mv\\b.*\\bdraft\\.md\\b",
+              "exitCode": 0
+            }
+          }
+        ]
+      }
+    },
+    {
+      "label": "The latest commit has journal.txt (same content) and no notes.txt",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "fileContent",
+            "source": "HEAD",
+            "path": "journal.txt",
+            "contains": "Monday: plan the chapters"
+          },
+          {
+            "type": "fileInRev",
+            "path": "notes.txt",
+            "rev": "HEAD",
+            "present": false
+          }
+        ]
+      }
+    },
+    {
+      "label": "The latest commit has chapter1.md (same content) and no draft.md",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "fileContent",
+            "source": "HEAD",
+            "path": "chapter1.md",
+            "contains": "dark and stormy"
+          },
+          {
+            "type": "fileInRev",
+            "path": "draft.md",
+            "rev": "HEAD",
+            "present": false
+          }
+        ]
+      }
+    },
+    {
+      "label": "Finish with a clean working tree",
+      "check": {
+        "type": "status",
+        "clean": true
+      }
+    }
+  ]
+}

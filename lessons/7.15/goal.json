@@ -1,0 +1,10 @@
+{
+  "questions": [],
+  "goals": [
+    { "label": "Create an annotated tag v1.0 on the current commit", "check": { "type": "tag", "name": "v1.0", "present": true, "annotated": true, "target": "@mark:lake" } },
+    { "label": "v1.0 is on origin", "check": { "type": "tag", "repo": "origin.git", "name": "v1.0", "present": true, "annotated": true, "target": "@mark:lake" } },
+    { "label": "v1.0-rc is removed from origin", "check": { "type": "tag", "repo": "origin.git", "name": "v1.0-rc", "present": false } },
+    { "label": "v1.0-rc is removed locally", "check": { "type": "tag", "name": "v1.0-rc", "present": false } },
+    { "label": "Sam fetches and receives v1.0 (use the lesson action)", "check": { "type": "tag", "repo": "teammate", "name": "v1.0", "present": true, "annotated": true, "target": "@mark:lake" } }
+  ]
+}

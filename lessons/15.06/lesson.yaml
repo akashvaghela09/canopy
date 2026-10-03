@@ -1,0 +1,19 @@
+id: "15.06"
+section: 15
+title: Submodule or subtree
+kind: practice
+teaches: [vendoring-decision]
+requires: [submodule-work, subtree]
+flags: []
+tools: [git-subtree]
+repo: app
+start: app
+repos:
+  - { path: app, label: app (your project) }
+  - { path: icons.git, label: icons }
+  - { path: utils.git, label: utils }
+  - { path: fonts.git, label: fonts }
+hints:
+  - "Exact pin, never edited here, history kept separate: submodule. Files must be there after a plain clone, or you will patch them locally: subtree."
+  - "icons: `git submodule add ../icons.git icons`. utils and fonts: `git subtree add --prefix=vendor/<name> ../<name>.git main --squash`."
+  - "Commit the submodule addition; subtree add commits by itself."

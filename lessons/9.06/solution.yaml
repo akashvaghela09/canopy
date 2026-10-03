@@ -1,0 +1,6 @@
+commands: |
+  git log --oneline main..drafts
+  git cherry-pick drafts~4..drafts~1
+  git log --oneline
+answers:
+  range-meaning: 0

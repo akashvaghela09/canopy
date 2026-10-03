@@ -1,0 +1,10 @@
+commands: |
+  git ls-tree HEAD
+  git ls-tree 8ebbc49
+  git cat-file -p 323741b
+  git ls-tree -r HEAD
+answers:
+  entries: 3
+  docs-tree: "8ebbc492e94f13950f2818e6d9d975f69f9e6ed6"
+  guide-blob: "323741b661fc6fe51f13f13b77feaa8275bdd299"
+  mode: 0

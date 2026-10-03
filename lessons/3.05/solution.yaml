@@ -1,0 +1,8 @@
+commands: |
+  git log --oneline
+  git show --stat b88fc47
+  git show b88fc47
+  git show v0.1:menu.md
+answers:
+  hours-lines: 2
+  croissant-price: "3.50"

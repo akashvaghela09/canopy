@@ -1,0 +1,42 @@
+{
+  "goals": [
+    {
+      "label": "origin's main has all three of your changes",
+      "check": { "type": "all", "repo": "origin.git", "checks": [
+        { "type": "fileContent", "source": "main", "path": "LICENSE", "contains": "MIT License" },
+        { "type": "fileContent", "source": "main", "path": "docs/usage.md", "contains": "lantern add" },
+        { "type": "fileContent", "source": "main", "path": ".editorconfig", "contains": "indent_size = 2" }
+      ] }
+    },
+    {
+      "label": "origin's main has both of Sam's changes",
+      "check": { "type": "all", "repo": "origin.git", "checks": [
+        { "type": "fileContent", "source": "main", "path": "CHANGELOG.md", "contains": "count notes" },
+        { "type": "fileInRev", "rev": "main", "path": "src/count.js", "present": true }
+      ] }
+    },
+    {
+      "label": "Exactly five new commits: one per task, one per push from Sam",
+      "check": { "type": "commitCount", "repo": "origin.git", "range": "@mark:base..main", "equals": 5 }
+    },
+    {
+      "label": "main stayed a straight line (no merge commits)",
+      "check": { "type": "all", "repo": "origin.git", "checks": [
+        { "type": "commitParents", "rev": "main", "count": 1 },
+        { "type": "commitParents", "rev": "main~1", "count": 1 },
+        { "type": "commitParents", "rev": "main~2", "count": 1 },
+        { "type": "commitParents", "rev": "main~3", "count": 1 },
+        { "type": "commitParents", "rev": "main~4", "count": 1 }
+      ] }
+    },
+    {
+      "label": "Your clone is in sync: main matches origin/main, no task branches left",
+      "check": { "type": "all", "checks": [
+        { "type": "refAt", "ref": "main", "target": "origin/main" },
+        { "type": "fileInRev", "rev": "main", "path": ".editorconfig", "present": true },
+        { "type": "status", "clean": true },
+        { "type": "commitCount", "range": "--branches --not main", "equals": 0 }
+      ] }
+    }
+  ]
+}

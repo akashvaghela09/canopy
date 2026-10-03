@@ -1,0 +1,12 @@
+id: "9.14"
+section: 9
+title: Interactive rebase basics
+kind: practice
+teaches: [rebase-i-basics]
+requires: [rebase, relative-refs]
+flags: []
+repo: notes
+start: notes
+hints:
+  - "The todo list has one `pick` line per commit, oldest at the top. Saving it unchanged replays the commits as they are."
+  - "For the second run, type `break` on a line of its own above the first pick, save, and the rebase stops before doing anything. Then `git rebase --abort`."

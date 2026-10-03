@@ -1,0 +1,116 @@
+{
+  "questions": [
+    {
+      "id": "ours-text",
+      "prompt": "Which heading sits between <<<<<<< HEAD and =======?",
+      "type": "choice",
+      "options": [
+        "<h1>Hilltop Cafe and Bakery</h1>",
+        "<h1>The Hilltop</h1>",
+        "<h1>Hilltop Cafe</h1>"
+      ],
+      "answer": 0
+    },
+    {
+      "id": "head-side",
+      "prompt": "Which branch does the side labelled HEAD come from?",
+      "type": "choice",
+      "options": [
+        "main, the branch you were on when you started the merge",
+        "new-title, the branch being merged in",
+        "Neither: it is the merge base"
+      ],
+      "answer": 0
+    },
+    {
+      "id": "status-word",
+      "prompt": "How does git status describe index.html right now?",
+      "type": "choice",
+      "options": [
+        "both modified",
+        "modified",
+        "renamed",
+        "deleted by them"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    {
+      "label": "Start the merge of new-title and hit the conflict",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "operation",
+            "value": "merge"
+          },
+          {
+            "type": "status",
+            "conflicted": [
+              "index.html"
+            ]
+          }
+        ]
+      },
+      "sticky": true
+    },
+    {
+      "label": "Check the status during the conflict",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "usedCommand",
+            "matches": "^git status\\b",
+            "last": true
+          },
+          {
+            "type": "operation",
+            "value": "merge"
+          }
+        ]
+      },
+      "sticky": true
+    },
+    {
+      "label": "Look at the diff during the conflict",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "usedCommand",
+            "matches": "^git diff\\b",
+            "last": true
+          },
+          {
+            "type": "operation",
+            "value": "merge"
+          }
+        ]
+      },
+      "sticky": true
+    },
+    {
+      "label": "Answer: the text on the HEAD side",
+      "check": {
+        "type": "answer",
+        "question": "ours-text"
+      }
+    },
+    {
+      "label": "Answer: which branch HEAD is",
+      "check": {
+        "type": "answer",
+        "question": "head-side"
+      }
+    },
+    {
+      "label": "Answer: the status wording",
+      "check": {
+        "type": "answer",
+        "question": "status-word"
+      }
+    }
+  ]
+}

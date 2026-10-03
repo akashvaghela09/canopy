@@ -1,0 +1,12 @@
+id: "9.18"
+section: 9
+title: Edit a commit mid-history
+kind: practice
+teaches: [rebase-i-edit]
+requires: [rebase-i-basics, amend-content]
+flags: []
+repo: tool
+start: tool
+hints:
+  - "Start an interactive rebase over the last three commits and change `pick` to `edit` on the \"Add README\" line."
+  - "While stopped: append the Usage section to README.md, stage it, amend the commit without changing its message, then `git rebase --continue`."

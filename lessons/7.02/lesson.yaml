@@ -1,0 +1,17 @@
+id: "7.02"
+section: 7
+title: Look at the remote
+kind: practice
+teaches: [remote-inspect]
+requires: [clone]
+flags: []
+repo: work
+start: work
+repos:
+  - { path: work, label: Your clone }
+  - { path: origin.git, label: origin }
+  - { path: teammate, label: Teammate (Sam) }
+hints:
+  - "`git remote -v` shows the URL. `git branch -r` shows the remote branches your clone knows about."
+  - "`git ls-remote origin` asks the remote itself, so it can list branches your clone has not heard of yet."
+  - "Compare the output of `git branch -r` with `git ls-remote origin`: one branch is only in the second list."

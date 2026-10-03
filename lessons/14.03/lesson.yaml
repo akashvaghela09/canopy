@@ -1,0 +1,14 @@
+id: "14.03"
+section: 14
+title: Blobs and cat-file
+kind: practice
+teaches: [cat-file]
+requires: [hash-object, show]
+flags: []
+repo: garden
+start: garden
+panels: [inside-git]
+hints:
+  - "`-t` prints the type, `-s` the size in bytes, `-p` the content, pretty-printed."
+  - "A short prefix is enough, as long as it is unique: `git cat-file -t 0d4542a`."
+  - "The size of a blob is the size of the file content in bytes, so `-s` on the README blob gives the same number as `wc -c README.md`."

@@ -1,0 +1,13 @@
+id: "10.13"
+section: 10
+title: "Boss: disaster drill"
+kind: boss
+teaches: []
+requires: [section]
+flags: []
+repo: shop-api
+start: shop-api
+hints:
+  - "Start with `git reflog` and `git reflog show feature/api-v2`; three of the four problems are visible there. The stash is not: use `git fsck --unreachable`."
+  - "main: reset to the entry before \"reset: moving to HEAD~3\". feature/login: `git branch feature/login <id of 'Add password reset'>`. feature/api-v2: reset it to `feature/api-v2@{1}`."
+  - "The stash: find the commit whose message starts with \"On main: wip: cart totals\" and apply it (or `git stash store` it) so cart.py has `def total` again. Bring the stash back last: a hard reset afterwards would wipe it from the working tree again."

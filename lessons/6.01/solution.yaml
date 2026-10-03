@@ -1,0 +1,9 @@
+commands: |
+  git log --oneline main..add-soup
+  git switch main
+  git branch --no-merged
+  git merge add-soup
+  git log --oneline --graph --all
+answers:
+  ahead-count: 2
+  new-commits: 0

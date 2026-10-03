@@ -1,0 +1,38 @@
+{
+  "questions": [
+    {
+      "id": "only-herbs",
+      "prompt": "How many commits are on herbs but not on main?",
+      "type": "number",
+      "answer": 2
+    },
+    {
+      "id": "only-main",
+      "prompt": "How many commits are on main but not on herbs?",
+      "type": "number",
+      "answer": 4
+    },
+    {
+      "id": "oldest-main-only",
+      "prompt": "Which is the oldest commit that is on main but not on herbs?",
+      "type": "commit",
+      "answer": "@mark:compost"
+    },
+    {
+      "id": "arrow",
+      "prompt": "In `git log --left-right main...herbs`, which marker do the herbs-only commits get?",
+      "type": "choice",
+      "options": [">", "<", "*", "+"],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    { "label": "List commits only on herbs (main..herbs)", "check": { "type": "usedCommand", "matches": "^git log\\b.*\\bmain\\.\\.herbs\\b" } },
+    { "label": "List commits only on main (herbs..main)", "check": { "type": "usedCommand", "matches": "^git log\\b.*\\bherbs\\.\\.main\\b" } },
+    { "label": "Use the three-dot form with --left-right", "check": { "type": "usedCommand", "matches": "^git log\\b.*--left-right.*\\.\\.\\.|^git log\\b.*\\.\\.\\..*--left-right" } },
+    { "label": "Answer: commits only on herbs", "check": { "type": "answer", "question": "only-herbs" } },
+    { "label": "Answer: commits only on main", "check": { "type": "answer", "question": "only-main" } },
+    { "label": "Answer: the oldest main-only commit", "check": { "type": "answer", "question": "oldest-main-only" } },
+    { "label": "Answer: the marker for herbs-only commits", "check": { "type": "answer", "question": "arrow" } }
+  ]
+}

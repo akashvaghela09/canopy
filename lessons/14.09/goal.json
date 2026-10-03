@@ -1,0 +1,98 @@
+{
+  "questions": [
+    {
+      "id": "symref",
+      "prompt": "What does `git symbolic-ref HEAD` print?",
+      "type": "text",
+      "accept": [
+        "refs/heads/main"
+      ]
+    },
+    {
+      "id": "packed",
+      "prompt": "After `git pack-refs --all`, where is the herbs branch recorded?",
+      "type": "choice",
+      "options": [
+        "In .git/packed-refs; the loose file under refs/heads was removed",
+        "In .git/refs/heads/herbs as before; packed-refs is only a backup",
+        "In .git/objects, as a new object",
+        "Nowhere; packing deletes branches"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    {
+      "label": "Read what HEAD names",
+      "check": {
+        "type": "answer",
+        "question": "symref"
+      }
+    },
+    {
+      "label": "Create experiment at HEAD~2 with update-ref",
+      "sticky": true,
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "usedCommand",
+            "matches": "\\bgit update-ref\\b.*\\srefs/heads/experiment(\\s|$)",
+            "last": true
+          },
+          {
+            "type": "refAt",
+            "ref": "experiment",
+            "target": "@mark:mint"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Move experiment to the tip of herbs",
+      "check": {
+        "type": "refAt",
+        "ref": "experiment",
+        "target": "@mark:herbs-tip"
+      }
+    },
+    {
+      "label": "Delete old-idea with update-ref -d",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "branchExists",
+            "name": "old-idea",
+            "present": false
+          },
+          {
+            "type": "usedCommand",
+            "matches": "\\bgit update-ref\\b.*(-d|--delete)\\b.*old-idea"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Pack the refs",
+      "check": {
+        "type": "pathExists",
+        "path": "garden/.git/packed-refs"
+      }
+    },
+    {
+      "label": "Say where a packed ref lives",
+      "check": {
+        "type": "answer",
+        "question": "packed"
+      }
+    },
+    {
+      "label": "Stay on main",
+      "check": {
+        "type": "currentBranch",
+        "name": "main"
+      }
+    }
+  ]
+}

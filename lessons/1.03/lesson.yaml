@@ -1,0 +1,14 @@
+id: "1.03"
+section: 1
+title: What is a repository
+kind: practice
+teaches: [init, concept-repo]
+requires: [term-navigate, term-files]
+flags: []
+repo: garden
+start: "."
+panels: [inside-git]
+hints:
+  - "First move into the `garden` folder. `git init` works on the folder you are in."
+  - "The new folder is hidden, so a plain listing will not show it. List hidden items too."
+  - "`cd garden`, then `git init`, then `ls -a`."

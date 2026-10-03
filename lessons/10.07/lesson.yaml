@@ -1,0 +1,13 @@
+id: "10.07"
+section: 10
+title: Recover detached-HEAD commits
+kind: practice
+teaches: [recover-detached]
+requires: [detached-head, reflog-read, switch-create]
+flags: []
+repo: game
+start: game
+hints:
+  - "The reflog shows the two experiment commits and then \"checkout: moving from <id> to main\". The <id> in that line is the last experiment commit."
+  - "Give that commit a branch: `git branch physics-experiment <id>`, or create and switch to a branch starting there in one step."
+  - "Draw the graph with all refs: the two experiment commits should hang off \"Add jumping\" under their new branch name."

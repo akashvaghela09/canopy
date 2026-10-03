@@ -1,0 +1,9 @@
+commands: |
+  git log --oneline v1.0..topic/rounding-v1
+  git log --oneline main..topic/rounding
+  git range-diff v1.0..topic/rounding-v1 main..topic/rounding
+answers:
+  dropped: 0
+  changed: 0
+  what-changed: 0
+  same: 0

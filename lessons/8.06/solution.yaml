@@ -1,0 +1,12 @@
+commands: |
+  git log --oneline
+  git stash show -p
+  git stash pop
+  git status
+  printf 'def greet():\n    return '\''Hello there, gardener!'\''\n\ndef plan(beds):\n    return [b for b in beds if b.sunny]\n' > app.py
+  git add app.py
+  git stash list
+  git stash drop
+  git stash list
+answers:
+  entry-fate: 0

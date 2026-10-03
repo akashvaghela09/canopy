@@ -1,0 +1,87 @@
+{
+  "questions": [],
+  "goals": [
+    {
+      "label": "Finish the merge of tagline with a merge commit on main",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "currentBranch",
+            "name": "main"
+          },
+          {
+            "type": "operation",
+            "value": null
+          },
+          {
+            "type": "commitParents",
+            "rev": "main",
+            "count": 2
+          },
+          {
+            "type": "refAt",
+            "ref": "main^1",
+            "target": "@mark:main-tip"
+          },
+          {
+            "type": "refAt",
+            "ref": "main^2",
+            "target": "@mark:tagline-tip"
+          }
+        ]
+      }
+    },
+    {
+      "label": "tagline.txt reads \"Fresh bread and pastries every morning\"",
+      "check": {
+        "type": "fileContent",
+        "path": "tagline.txt",
+        "source": "main",
+        "matches": "\\A\\s*Fresh bread and pastries every morning\\.?\\s*\\z"
+      }
+    },
+    {
+      "label": "No conflict markers were committed",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "fileContent",
+            "path": "tagline.txt",
+            "source": "main",
+            "notContains": "<<<<<<<"
+          },
+          {
+            "type": "fileContent",
+            "path": "tagline.txt",
+            "source": "main",
+            "notContains": "======="
+          },
+          {
+            "type": "fileContent",
+            "path": "tagline.txt",
+            "source": "main",
+            "notContains": ">>>>>>>"
+          }
+        ]
+      }
+    },
+    {
+      "label": "The pastry list from the branch came along",
+      "check": {
+        "type": "fileInRev",
+        "path": "pastries.md",
+        "rev": "main",
+        "present": true
+      }
+    },
+    {
+      "label": "Finish with a clean working tree",
+      "check": {
+        "type": "status",
+        "clean": true
+      }
+    }
+  ]
+}

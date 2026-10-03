@@ -1,0 +1,15 @@
+- { id: 1, slug: orientation, title: Orientation, level: beginner, summary: "Terminal basics, what a repo and a commit are, and your first look at git." }
+- { id: 2, slug: core-loop, title: The core loop, level: beginner, summary: "Stage, commit, diff and log: the everyday rhythm of git." }
+- { id: 3, slug: looking-around, title: Looking around, level: beginner, summary: "Read history, inspect commits and name them with HEAD, ~ and ^." }
+- { id: 4, slug: basic-undo, title: Basic undo, level: beginner, summary: "Restore, revert, reset and clean: take back changes safely." }
+- { id: 5, slug: branching, title: Branching, level: core, summary: "Branches, switching, detached HEAD and tags." }
+- { id: 6, slug: merging, title: Merging, level: core, summary: "Fast-forward and three-way merges, squash merges and conflicts." }
+- { id: 7, slug: remotes, title: Remotes, level: core, summary: "Clone, fetch, pull and push with a shared origin and a teammate." }
+- { id: 8, slug: stash-worktrees, title: Stashing and worktrees, level: core, summary: "Park unfinished work and work in two places at once." }
+- { id: 9, slug: rewriting-history, title: Rewriting history, level: intermediate, summary: "Amend, cherry-pick, rebase and interactive rebase." }
+- { id: 10, slug: recovery, title: Recovery, level: intermediate, summary: "Reflog, ORIG_HEAD and getting back what seemed lost." }
+- { id: 11, slug: detective-work, title: Detective work, level: intermediate, summary: "Bisect, pickaxe search, blame and range-diff." }
+- { id: 12, slug: workflows, title: Workflows, level: intermediate, summary: "Feature branches, trunk-based, Gitflow, releases and force-push safety." }
+- { id: 13, slug: config-productivity, title: Configuration and productivity, level: advanced, summary: "Config levels, aliases, hooks, attributes and partial clones." }
+- { id: 14, slug: internals, title: Internals, level: advanced, summary: "Objects, the index, refs and the DAG under the hood." }
+- { id: 15, slug: specialist-tools, title: Specialist tools, level: advanced, summary: "Submodules, patches, bundles, signing and merge strategies." }

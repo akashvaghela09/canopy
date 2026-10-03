@@ -1,0 +1,17 @@
+commands: |
+  git diff --check
+  sed -i 's/[ \t]*$//' README.md
+  git diff --check
+  git commit -am "Document the search command"
+  git switch wide
+  git merge main
+  git status
+  git checkout --ours src/cli.js
+  sed -i "s/usage: lantern add <text> | list')/usage: lantern add <text> | list   (notes live in notes.json)')/" src/cli.js
+  git add src/cli.js
+  git commit -m "Merge main into wide"
+  git switch narrow
+  git merge main -m "Merge main into narrow"
+answers:
+  why-conflict: 0
+  habits: [0, 1, 2]

@@ -1,0 +1,12 @@
+commands: |
+  git reflog
+  git show --stat HEAD@{1}
+  old=$(git rev-parse HEAD@{1})
+  git config gc.reflogExpireUnreachable now
+  git gc --prune=now
+  git reflog
+  git show $old
+answers:
+  default-reachable: 0
+  default-unreachable: 0
+  what-deletes: 0

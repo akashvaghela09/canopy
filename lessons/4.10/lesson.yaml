@@ -1,0 +1,13 @@
+id: "4.10"
+section: 4
+title: Reset one file
+kind: practice
+teaches: [reset-path]
+requires: [reset-mixed, restore-staged]
+flags: []
+repo: handbook
+start: handbook
+panels: [three-areas]
+hints:
+  - "Both files are staged. Name the one to unstage after `git reset`."
+  - "`git reset notes-private.md`. Then check the status and compare where main is in the graph."

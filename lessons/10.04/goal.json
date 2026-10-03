@@ -1,0 +1,122 @@
+{
+  "questions": [],
+  "goals": [
+    {
+      "label": "Pull Sam's commits (main fast-forwards to origin/main)",
+      "check": {
+        "type": "refAt",
+        "ref": "main",
+        "target": "@mark:pushed"
+      },
+      "sticky": true
+    },
+    {
+      "label": "Use reset --hard ORIG_HEAD for an undo",
+      "check": {
+        "type": "usedCommand",
+        "matches": "^git reset\\b.*\\bORIG_HEAD\\b"
+      }
+    },
+    {
+      "label": "Undo the pull (main back on \"Add logging\", Sam's commits only on origin/main)",
+      "sticky": true,
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "currentBranch",
+            "name": "main"
+          },
+          {
+            "type": "refAt",
+            "ref": "main",
+            "target": "@mark:before"
+          },
+          {
+            "type": "refAt",
+            "ref": "ORIG_HEAD",
+            "target": "@mark:pushed"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Merge experiment into main (a merge commit)",
+      "sticky": true,
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "currentBranch",
+            "name": "main"
+          },
+          {
+            "type": "commitParents",
+            "rev": "HEAD",
+            "count": 2
+          },
+          {
+            "type": "isAncestor",
+            "ancestor": "@mark:exp-tip",
+            "descendant": "HEAD"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Undo the merge",
+      "sticky": true,
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "currentBranch",
+            "name": "main"
+          },
+          {
+            "type": "refAt",
+            "ref": "main",
+            "target": "@mark:before"
+          },
+          {
+            "type": "commitParents",
+            "rev": "ORIG_HEAD",
+            "count": 2
+          }
+        ]
+      }
+    },
+    {
+      "label": "main ends back on \"Add logging\"",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "refAt",
+            "ref": "main",
+            "target": "@mark:before"
+          },
+          {
+            "type": "currentBranch",
+            "name": "main"
+          }
+        ]
+      }
+    },
+    {
+      "label": "experiment is untouched",
+      "check": {
+        "type": "refAt",
+        "ref": "experiment",
+        "target": "@mark:exp-tip"
+      }
+    },
+    {
+      "label": "Clean working tree",
+      "check": {
+        "type": "status",
+        "clean": true
+      }
+    }
+  ]
+}

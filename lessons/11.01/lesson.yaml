@@ -1,0 +1,12 @@
+id: "11.01"
+section: 11
+title: Search history for text
+kind: practice
+teaches: [log-pickaxe-s]
+requires: [log-filter, log-path, show]
+flags: []
+repo: pricer
+start: pricer
+hints:
+  - "`git log --oneline -S legacy_total` lists two commits: the one that added the function and the one that removed it."
+  - "Add `-p` to the same command to see each commit's diff; the added one shows `+def legacy_total`, the removed one `-def legacy_total`."

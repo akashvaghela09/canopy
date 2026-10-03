@@ -1,0 +1,13 @@
+{
+  "questions": [
+    { "id": "ahead", "prompt": "How many commits is main ahead of origin/main?", "type": "number", "answer": 2 },
+    { "id": "behind", "prompt": "How many commits is main behind origin/main?", "type": "number", "answer": 1 }
+  ],
+  "goals": [
+    { "label": "Read the ahead/behind counts", "check": { "type": "usedCommand", "matches": "^git (branch\\b.*-vv|status\\b.*(-sb|-bs|-s -b|-b -s|--short --branch|--branch --short))" } },
+    { "label": "List your unpushed commits with @{u}..", "check": { "type": "usedCommand", "matches": "^git log\\b.*@\\{(u|upstream)\\}\\.\\." } },
+    { "label": "Answer: ahead count", "check": { "type": "answer", "question": "ahead" } },
+    { "label": "Answer: behind count", "check": { "type": "answer", "question": "behind" } },
+    { "label": "signage tracks origin/signage", "check": { "type": "upstream", "branch": "signage", "upstream": "origin/signage" } }
+  ]
+}

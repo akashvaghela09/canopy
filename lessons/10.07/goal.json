@@ -1,0 +1,46 @@
+{
+  "questions": [],
+  "goals": [
+    {
+      "label": "Find the experiment in the reflog",
+      "check": {
+        "type": "usedCommand",
+        "matches": "^git\\s+(reflog\\b|log\\b.*\\s(-g|--walk-reflogs)\\b)"
+      }
+    },
+    {
+      "label": "\"Tune jump height\" is on a branch again",
+      "check": {
+        "type": "any",
+        "checks": [
+          {
+            "type": "reachable",
+            "rev": "@mark:exp-tip"
+          },
+          {
+            "type": "shell",
+            "script": "s=$(git log --branches --format=%s) && grep -qx 'Tune jump height' <<<\"$s\" && grep -qx 'Experiment with gravity' <<<\"$s\""
+          }
+        ]
+      }
+    },
+    {
+      "label": "main is untouched",
+      "check": {
+        "type": "refAt",
+        "ref": "main",
+        "target": "@mark:main-tip"
+      }
+    },
+    {
+      "label": "You finish on a branch, not detached",
+      "check": {
+        "type": "not",
+        "check": {
+          "type": "currentBranch",
+          "name": null
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,74 @@
+{
+  "questions": [],
+  "goals": [
+    {
+      "label": "old-draft.txt is deleted from disk and gone from the latest commit",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "pathAbsent",
+            "path": "project/old-draft.txt"
+          },
+          {
+            "type": "fileInRev",
+            "path": "old-draft.txt",
+            "rev": "HEAD",
+            "present": false
+          }
+        ]
+      }
+    },
+    {
+      "label": "secrets.env is untracked but still on disk",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "pathExists",
+            "path": "project/secrets.env"
+          },
+          {
+            "type": "fileInRev",
+            "path": "secrets.env",
+            "rev": "HEAD",
+            "present": false
+          },
+          {
+            "type": "any",
+            "checks": [
+              {
+                "type": "status",
+                "untracked": [
+                  "secrets.env"
+                ]
+              },
+              {
+                "type": "status",
+                "ignored": [
+                  "secrets.env"
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "label": "Use git rm --cached",
+      "check": {
+        "type": "usedCommand",
+        "matches": "git\\s+rm\\b.*\\s--cached(\\s|$)"
+      }
+    },
+    {
+      "label": "Everything is committed (nothing staged, nothing modified)",
+      "check": {
+        "type": "status",
+        "staged": [],
+        "modified": [],
+        "exact": true
+      }
+    }
+  ]
+}

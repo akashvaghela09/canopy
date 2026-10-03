@@ -1,0 +1,27 @@
+{
+  "questions": [
+    {
+      "id": "staged-shows",
+      "prompt": "Before you stage again: which change does git diff --staged show?",
+      "type": "choice",
+      "options": ["2 eggs becomes 3 eggs", "The salt line is added", "Both changes"],
+      "answer": 0
+    },
+    {
+      "id": "after-restage",
+      "prompt": "After you stage the file again: what does git diff --staged show?",
+      "type": "choice",
+      "options": ["Nothing", "Only the eggs change", "Both changes"],
+      "answer": 2
+    }
+  ],
+  "goals": [
+    { "label": "Run git diff --staged", "check": { "type": "usedCommand", "matches": "git\\s+diff\\b.*\\s--(staged|cached)(\\s|$)" } },
+    { "label": "Answer: what the staged diff shows", "check": { "type": "answer", "question": "staged-shows" } },
+    { "label": "Answer: after staging again", "check": { "type": "answer", "question": "after-restage" } },
+    { "label": "Stage the newest version of recipe.txt (the one with salt)",
+      "check": { "type": "fileContent", "source": "index", "path": "recipe.txt", "contains": "a pinch of salt" } },
+    { "label": "Nothing left unstaged",
+      "check": { "type": "status", "staged": ["recipe.txt"], "modified": [], "exact": true } }
+  ]
+}

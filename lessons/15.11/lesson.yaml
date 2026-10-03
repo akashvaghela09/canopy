@@ -1,0 +1,16 @@
+id: "15.11"
+section: 15
+title: Notes
+kind: practice
+teaches: [notes]
+requires: [show, push]
+flags: []
+repo: work
+start: work
+repos:
+  - { path: work, label: work (your clone) }
+  - { path: origin.git, label: origin }
+hints:
+  - "`git notes add -m 'Reviewed: looks good' HEAD~1` attaches a note to the login commit; the commit id does not change."
+  - "`git notes append -m 'Approved for release' HEAD~1` adds a second paragraph. `git log` shows notes under each commit."
+  - "Notes live in the ref refs/notes/commits. Push that ref explicitly: `git push origin refs/notes/commits`."

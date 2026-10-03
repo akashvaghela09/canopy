@@ -1,0 +1,26 @@
+{
+  "questions": [
+    {
+      "id": "why-refused",
+      "prompt": "Why did git refuse to merge redesign with --ff-only?",
+      "type": "choice",
+      "options": [
+        "main has a commit that redesign does not, so bringing redesign in would need a merge commit",
+        "redesign has a conflict with main in index.html",
+        "redesign has more than one commit, and --ff-only accepts only one",
+        "redesign was created by a different author"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    { "label": "Try a fast-forward-only merge of redesign and read the refusal", "check": { "type": "usedCommand", "matches": "^git merge\\b.*(--ff-only\\b.*\\bredesign\\b|\\bredesign\\b.*--ff-only\\b)", "exitCode": 128 } },
+    { "label": "redesign is still not merged into main", "check": { "type": "not", "check": { "type": "isAncestor", "ancestor": "@mark:redesign-tip", "descendant": "main" } } },
+    { "label": "Fast-forward main to hotfix", "check": { "type": "all", "checks": [
+        { "type": "currentBranch", "name": "main" },
+        { "type": "refAt", "ref": "main", "target": "@mark:hotfix-tip" }
+      ] } },
+    { "label": "Answer: why the first merge was refused", "check": { "type": "answer", "question": "why-refused" } },
+    { "label": "Finish with a clean working tree", "check": { "type": "status", "clean": true } }
+  ]
+}

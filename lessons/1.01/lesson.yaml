@@ -1,0 +1,13 @@
+id: "1.01"
+section: 1
+title: Meet the terminal
+kind: practice
+teaches: [term-navigate]
+requires: []
+flags: []
+repo: null
+start: "."
+hints:
+  - "`pwd` prints where you are. `ls` lists what is here."
+  - "Hidden names start with a dot. `ls -a` shows them too."
+  - "`cd ..` goes up one level. From inside `notes`, run `cd ..` and then `cd photos`."

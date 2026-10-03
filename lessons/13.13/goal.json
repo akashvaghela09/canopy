@@ -1,0 +1,65 @@
+{
+  "goals": [
+    {
+      "label": "Clone with --depth 1 over file:// into shallow (one commit)",
+      "sticky": true,
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "usedCommand",
+            "matches": "^git clone\\b(.*--depth[= ]1\\b.*file://|.*file://.*--depth[= ]1\\b)"
+          },
+          {
+            "type": "commitCount",
+            "range": "HEAD",
+            "equals": 1
+          },
+          {
+            "type": "pathExists",
+            "path": "shallow/.git/shallow"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Deepen by three commits (four in total)",
+      "sticky": true,
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "usedCommand",
+            "matches": "^git fetch\\b.*(--deepen[= ]3|--depth[= ]4)\\b"
+          },
+          {
+            "type": "commitCount",
+            "range": "HEAD",
+            "equals": 4
+          }
+        ]
+      }
+    },
+    {
+      "label": "Unshallow: all twelve commits, no shallow marker",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "usedCommand",
+            "matches": "^git (fetch|pull)\\b.*--unshallow"
+          },
+          {
+            "type": "commitCount",
+            "range": "HEAD",
+            "equals": 12
+          },
+          {
+            "type": "pathAbsent",
+            "path": "shallow/.git/shallow"
+          }
+        ]
+      }
+    }
+  ]
+}

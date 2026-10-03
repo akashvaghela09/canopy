@@ -1,0 +1,37 @@
+{
+  "questions": [
+    {
+      "id": "plain-rebase",
+      "prompt": "What would a plain `git rebase main` have done with the merge commit?",
+      "type": "choice",
+      "options": [
+        "Left it out and replayed the individual commits in one straight line",
+        "Kept it exactly as it is, same id",
+        "Refused to run because the branch contains a merge",
+        "Turned it into a squash commit"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    { "label": "editor is rebased onto main and still contains one merge commit", "check": { "type": "all", "checks": [
+        { "type": "isAncestor", "ancestor": "main", "descendant": "editor" },
+        { "type": "refAt", "ref": "main", "target": "@mark:main-tip" },
+        { "type": "commitCount", "range": "--merges main..editor", "equals": 1 },
+        { "type": "commitCount", "range": "--no-merges main..editor", "equals": 4 },
+        { "type": "commitParents", "rev": "editor~1", "count": 2 },
+        { "type": "commitMessage", "rev": "editor", "equals": "Add editor tests" }
+      ] } },
+    { "label": "The commits are copies with new ids", "check": { "type": "all", "checks": [
+        { "type": "refNotAt", "ref": "editor", "target": "@mark:e3" },
+        { "type": "refNotAt", "ref": "editor~1", "target": "@mark:merge" },
+        { "type": "fileInRev", "path": "undo.js", "rev": "editor", "present": true }
+      ] } },
+    { "label": "Finish on editor, nothing in progress, clean working tree", "check": { "type": "all", "checks": [
+        { "type": "currentBranch", "name": "editor" },
+        { "type": "operation", "value": null },
+        { "type": "status", "clean": true }
+      ] } },
+    { "label": "Answer: what a plain rebase does with a merge", "check": { "type": "answer", "question": "plain-rebase" } }
+  ]
+}

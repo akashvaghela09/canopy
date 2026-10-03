@@ -1,0 +1,20 @@
+commands: |
+  echo "Water: none on the trail" >> trails/ridge.md
+  git commit -am "Add water note to ridge trail"
+  #action teammate-push
+  git fetch
+  git status -sb
+  git log --oneline main..origin/main
+  git pull
+  git push
+  printf '# Meadow trail\n\nDistance: 2 km\n' > trails/meadow.md
+  git add trails/meadow.md
+  git commit -m "Add meadow trail"
+  #action teammate-push
+  git fetch
+  git status -sb
+  git log --oneline main..origin/main
+  git merge origin/main
+  git push
+  git status -sb
+answers: {}

@@ -1,0 +1,23 @@
+commands: |
+  bash tally.sh -2 5; echo $?
+  git bisect start --term-old=broken --term-new=fixed
+  git bisect fixed
+  git bisect broken v2.0
+  bash tally.sh -2 5; echo $?
+  git bisect fixed
+  bash tally.sh -2 5; echo $?
+  git bisect broken
+  bash tally.sh -2 5; echo $?
+  git bisect broken
+  bash tally.sh -2 5; echo $?
+  git bisect skip
+  bash tally.sh -2 5; echo $?
+  git bisect broken
+  bash tally.sh -2 5; echo $?
+  git bisect broken
+  bash tally.sh -2 5; echo $?
+  git bisect broken
+  git bisect reset
+answers:
+  neg-fix: "@mark:neg-fix"
+  why-skip: 0

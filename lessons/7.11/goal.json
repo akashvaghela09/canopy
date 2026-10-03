@@ -1,0 +1,17 @@
+{
+  "questions": [],
+  "goals": [
+    { "label": "Fetch so your clone knows origin/signage", "check": { "type": "refAt", "ref": "origin/signage", "target": "@mark:signage-tip" } },
+    { "label": "Create a local signage branch that tracks origin/signage", "check": { "type": "all", "checks": [
+        { "type": "branchExists", "name": "signage" },
+        { "type": "upstream", "branch": "signage", "upstream": "origin/signage" },
+        { "type": "isAncestor", "ancestor": "@mark:signage-tip", "descendant": "signage" }
+      ] } },
+    { "label": "Be on signage", "check": { "type": "currentBranch", "name": "signage" } },
+    { "label": "Commit a change to trails/signage.md on signage", "check": { "type": "all", "checks": [
+        { "type": "commitCount", "range": "@mark:signage-tip..signage", "min": 1 },
+        { "type": "commitChanges", "rev": "signage", "paths": ["trails/signage.md"], "exact": false },
+        { "type": "status", "clean": true }
+      ] } }
+  ]
+}

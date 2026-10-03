@@ -1,0 +1,13 @@
+id: "6.10"
+section: 6
+title: Abort a merge
+kind: practice
+teaches: [merge-abort]
+requires: [conflict-read]
+flags: []
+repo: cafe
+start: cafe
+hints:
+  - "Merge `experiment` into `main` first; it conflicts in menu.md."
+  - "`git merge --abort` throws the attempt away: files, staging area and HEAD go back to how they were before the merge started."
+  - "After the abort, the status is clean and main is still on \"Switch to sourdough toast\"."

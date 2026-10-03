@@ -1,0 +1,14 @@
+id: "2.03"
+section: 2
+title: Staged vs changed-after-staging
+kind: concept
+teaches: [concept-three-areas]
+requires: [add, commit, status]
+flags: []
+repo: project
+start: project
+panels: [three-areas]
+hints:
+  - "The status can list the same file twice: once under staged changes and once under changes not staged."
+  - "Staging copies the file as it is at that moment. To stage the newer version, stage the file again."
+  - "Stage `todo.txt` once more, then commit it with a message."

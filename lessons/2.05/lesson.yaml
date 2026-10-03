@@ -1,0 +1,13 @@
+id: "2.05"
+section: 2
+title: Write a good commit message
+kind: practice
+teaches: [commit-message]
+requires: [commit]
+flags: []
+repo: project
+start: project
+hints:
+  - "Keep the subject to 50 characters or fewer and start it with a verb: Increase, Fix, Add."
+  - "Use `-m` twice: the first is the subject, the second is the body."
+  - "`git commit -m \"Increase request timeout to 30s\" -m \"The payment API often takes 15 to 20 seconds.\"`"

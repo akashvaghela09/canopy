@@ -1,0 +1,14 @@
+id: "8.01"
+section: 8
+title: Park your work
+kind: practice
+teaches: [stash-push]
+requires: [concept-switch-dirty, status]
+flags: []
+minGit: "2.23"
+repo: work
+start: work
+panels: [three-areas]
+hints:
+  - "Try the switch first and read why git refuses. Then `git stash`, check the status, and switch again."
+  - "After looking around on `release-notes`, switch back to `main`. Leave the stash where it is; the next lessons use it."

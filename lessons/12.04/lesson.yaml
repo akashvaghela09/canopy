@@ -1,0 +1,16 @@
+id: "12.04"
+section: 12
+title: Review your own work first
+kind: practice
+teaches: [self-review]
+requires: [log-range, diff-options, range-diff]
+flags: []
+repo: work
+start: work
+repos:
+  - { path: work, label: Your clone }
+  - { path: origin.git, label: origin }
+hints:
+  - "`git log -p main..` shows every commit on the branch with its patch. `git diff --stat main...` shows which files the branch touches in total."
+  - "Look for a leftover debug print in `src/reminders.js` and a file that should never have been committed."
+  - "Fix them any way you like (new commits, amend, or an interactive rebase), then run `git range-diff main origin/feature/reminders feature/reminders` to compare the old and new branch."

@@ -1,0 +1,17 @@
+id: "13.14"
+section: 13
+title: Partial clones
+kind: practice
+teaches: [partial-clone]
+requires: [shallow-clone]
+flags: []
+repo: blobless
+start: "."
+repos:
+  - { path: blobless, label: Blobless clone }
+  - { path: treeless, label: Treeless clone }
+  - { path: origin.git, label: origin }
+hints:
+  - "`git clone --filter=blob:none \"file://$PWD/origin.git\" blobless`, then inside it count missing objects with `git rev-list --objects --all --missing=print | grep -c '^?'`."
+  - "Show the first commit with `git show $(git rev-list --max-parents=0 HEAD)`; git fetches the blobs it needs. Count again."
+  - "A treeless clone is `--filter=tree:0`; make one named `treeless` next to the first."

@@ -1,0 +1,9 @@
+{
+  "questions": [],
+  "goals": [
+    { "label": "The debug settings are back in config.toml", "check": { "type": "fileContent", "path": "config.toml", "contains": "debug = true" } },
+    { "label": "The greeting change is back in app.py", "check": { "type": "fileContent", "path": "app.py", "contains": "Hello, gardener!" } },
+    { "label": "Only the debug stash remains in the list", "check": { "type": "stash", "count": 1, "messageContains": "debug" } },
+    { "label": "Nothing was committed", "check": { "type": "refAt", "ref": "main", "target": "@mark:base" } }
+  ]
+}

@@ -1,0 +1,8 @@
+commands: |
+  git blame pages/menu.md
+  git blame -L 4,4 pages/menu.md
+  git show 8357bc7
+answers:
+  who: 0
+  which: 8357bc7
+  scope: 0

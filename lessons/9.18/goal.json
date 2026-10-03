@@ -1,0 +1,27 @@
+{
+  "questions": [],
+  "goals": [
+    { "label": "The rebase stops at \"Add README\"", "sticky": true, "check": { "type": "all", "checks": [
+        { "type": "operation", "value": "rebase" },
+        { "type": "commitMessage", "rev": "HEAD", "equals": "Add README" }
+      ] } },
+    { "label": "\"Add README\" (third from the top) now contains the Usage section", "check": { "type": "all", "checks": [
+        { "type": "commitMessage", "rev": "main~2", "equals": "Add README" },
+        { "type": "fileContent", "source": "main~2", "path": "README.md", "contains": "## Usage" },
+        { "type": "fileContent", "source": "main~2", "path": "README.md", "contains": "tool <file>" },
+        { "type": "refAt", "ref": "main~3", "target": "@mark:base" }
+      ] } },
+    { "label": "The two later commits were rebuilt on top of it", "check": { "type": "all", "checks": [
+        { "type": "commitCount", "range": "main", "equals": 4 },
+        { "type": "commitMessage", "rev": "main~1", "equals": "Add install script" },
+        { "type": "commitMessage", "rev": "main", "equals": "Add tests" },
+        { "type": "refNotAt", "ref": "main", "target": "@mark:c4" },
+        { "type": "fileContent", "source": "main", "path": "README.md", "contains": "## Usage" }
+      ] } },
+    { "label": "Rebase finished, on main, clean working tree", "check": { "type": "all", "checks": [
+        { "type": "operation", "value": null },
+        { "type": "currentBranch", "name": "main" },
+        { "type": "status", "clean": true }
+      ] } }
+  ]
+}

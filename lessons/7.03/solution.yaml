@@ -1,0 +1,8 @@
+commands: |
+  git log --oneline --graph --all
+  git switch origin/main
+  git status
+answers:
+  why-differ: 0
+  switch-result: 0
+  what-moves-it: 0

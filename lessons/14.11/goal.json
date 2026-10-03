@@ -1,0 +1,97 @@
+{
+  "questions": [
+    {
+      "id": "count-main",
+      "prompt": "How many commits are reachable from main?",
+      "type": "number",
+      "answer": 8
+    },
+    {
+      "id": "count-wip",
+      "prompt": "How many commits does `main..wip` contain?",
+      "type": "number",
+      "answer": 2
+    },
+    {
+      "id": "count-all",
+      "prompt": "How many commits are reachable from all refs together?",
+      "type": "number",
+      "answer": 10
+    },
+    {
+      "id": "merge-commit",
+      "prompt": "Which commit has two parents? (paste its id)",
+      "type": "commit",
+      "answer": "@mark:merge"
+    },
+    {
+      "id": "ancestry",
+      "prompt": "How many commits does `--ancestry-path 2728b4f..main` contain?",
+      "type": "number",
+      "answer": 3
+    },
+    {
+      "id": "topo",
+      "prompt": "What does --topo-order guarantee?",
+      "type": "choice",
+      "options": [
+        "No parent is printed before all of its children have been printed",
+        "Commits are printed oldest first",
+        "Commits are printed in alphabetical order of message",
+        "Only merge commits are printed"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    {
+      "label": "Count or list commits with git rev-list",
+      "check": {
+        "type": "usedCommand",
+        "matches": "\\bgit rev-list\\b"
+      }
+    },
+    {
+      "label": "Count main",
+      "check": {
+        "type": "answer",
+        "question": "count-main"
+      }
+    },
+    {
+      "label": "Count main..wip",
+      "check": {
+        "type": "answer",
+        "question": "count-wip"
+      }
+    },
+    {
+      "label": "Count everything",
+      "check": {
+        "type": "answer",
+        "question": "count-all"
+      }
+    },
+    {
+      "label": "Find the merge from the parent listing",
+      "check": {
+        "type": "answer",
+        "question": "merge-commit"
+      }
+    },
+    {
+      "label": "Count the ancestry path",
+      "check": {
+        "type": "answer",
+        "question": "ancestry"
+      }
+    },
+    {
+      "label": "Say what --topo-order guarantees",
+      "check": {
+        "type": "answer",
+        "question": "topo"
+      }
+    }
+  ]
+}

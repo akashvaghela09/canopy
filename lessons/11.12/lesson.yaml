@@ -1,0 +1,13 @@
+id: "11.12"
+section: 11
+title: Find a deleted or renamed file
+kind: practice
+teaches: [log-diff-filter]
+requires: [log-path]
+flags: []
+repo: pricer
+start: pricer
+hints:
+  - "`git log --diff-filter=D --summary` lists only commits that deleted files, with a \"delete mode\" line for each."
+  - "`git log --oneline -- docs/usage.md` stops where the file got its current name. Add `--follow` to continue into its old name."
+  - "`git log --diff-filter=R --summary` shows the rename itself, old name and new name."

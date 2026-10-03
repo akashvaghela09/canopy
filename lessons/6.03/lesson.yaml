@@ -1,0 +1,13 @@
+id: "6.03"
+section: 6
+title: Merge commit messages
+kind: practice
+teaches: [merge-message]
+requires: [merge-three-way, commit-message]
+flags: []
+repo: cafe
+start: cafe
+hints:
+  - "`-m` works on merge the same way it works on commit: the text you give becomes the merge commit's message."
+  - "`--no-edit` keeps git's prepared message (\"Merge branch 'theme'\") without opening the editor."
+  - "`git merge -m \"Merge search feature into main\" search`, then `git merge --no-edit theme`."

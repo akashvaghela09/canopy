@@ -1,0 +1,11 @@
+commands: |
+  git reflog
+  git fsck --lost-found
+  ls .git/lost-found/commit .git/lost-found/other
+  git show $(ls .git/lost-found/commit)
+  git show $(ls .git/lost-found/other)
+  git show $(ls .git/lost-found/other) > notes/scratch.md
+  cat notes/scratch.md
+answers:
+  dangling-commit: "@mark:lost-commit"
+  never-staged: 0

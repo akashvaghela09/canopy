@@ -1,0 +1,7 @@
+commands: |
+  git log --oneline
+  git revert --no-commit HEAD~2..HEAD
+  git status
+  git commit -m "Remove ads and popup"
+  git log --oneline
+answers: {}

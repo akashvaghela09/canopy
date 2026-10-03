@@ -1,0 +1,10 @@
+commands: |
+  git status
+  git stash push -u -m "csv export wip"
+  git status
+  printf 'def area(r):\n    return 3.14 * r * r\n' > lib.py
+  git commit -am "Fix area formula"
+  git stash pop
+  git status
+  git show --stat HEAD
+answers: {}

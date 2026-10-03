@@ -1,0 +1,7 @@
+commands: |
+  git log --oneline
+  git reset --soft HEAD~2
+  git status
+  git commit -m "Add login form"
+  git log --oneline
+answers: {}

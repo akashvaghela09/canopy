@@ -1,0 +1,13 @@
+id: "5.14"
+section: 5
+title: Lightweight tags
+kind: practice
+teaches: [tag-lightweight]
+requires: [head, show, describe, relative-refs]
+flags: []
+repo: trail-guide
+start: trail-guide
+hints:
+  - "`git tag <name>` with nothing else tags the commit HEAD is on. Add a commit name after it to tag something older."
+  - "\"Add ridge trail\" is two commits below HEAD. Quote the pattern when listing: `git tag -l 'v*'`."
+  - "`git tag v0.2`, `git tag v0.1 HEAD~2`, `git tag -l 'v*'`, `git show v0.1`, `git describe --tags`."

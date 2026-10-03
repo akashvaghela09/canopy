@@ -1,0 +1,10 @@
+commands: |
+  git tag
+  git ls-remote --tags origin
+  git tag -a v1.0 -m "First public release"
+  git push origin v1.0
+  git ls-remote --tags origin
+  git push origin --delete v1.0-rc
+  git tag -d v1.0-rc
+  #action teammate-fetch
+answers: {}

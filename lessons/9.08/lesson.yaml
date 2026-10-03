@@ -1,0 +1,12 @@
+id: "9.08"
+section: 9
+title: Cherry-pick a merge commit
+kind: practice
+teaches: [cherry-pick-merge]
+requires: [cherry-pick, revert-merge]
+flags: [optional]
+repo: app
+start: app
+hints:
+  - "A merge commit has two parents, so git does not know which side's changes you mean. `-m 1` says: measure the change against the first parent."
+  - "On `release`, run `git cherry-pick -m 1 <merge-commit>`. The merge commit is the tip of `main`."

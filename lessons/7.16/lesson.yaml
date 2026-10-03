@@ -1,0 +1,19 @@
+id: "7.16"
+section: 7
+title: The sync routine
+kind: practice
+teaches: [sync-cycle]
+requires: [pull, push, push-rejected, status-short]
+flags: []
+repo: work
+start: work
+repos:
+  - { path: work, label: Your clone }
+  - { path: origin.git, label: origin }
+  - { path: teammate, label: Teammate (Sam) }
+actions:
+  - { id: teammate-push, label: "Teammate pushes", script: actions/teammate-push.sh }
+hints:
+  - "Each round: commit, press the action, fetch, read `git status -sb` and `git log main..origin/main`, integrate (pull or merge origin/main), push."
+  - "The action pushes a different commit each time you press it (twice in total). You need two rounds."
+  - "If a push is rejected, that is business as usual: integrate first, then push again."

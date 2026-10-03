@@ -1,0 +1,13 @@
+commands: |
+  git log --oneline --graph --all
+  git merge nav
+  git merge search
+  printf '# Menu\n\n- Coffee 2.50\n- Tea 2.20 (also iced)\n- Toast 3.00\n' > menu.md
+  git add menu.md
+  git commit --no-edit
+  git merge --squash analytics
+  git commit -m "Add analytics"
+  git reset --hard HEAD~1
+  git branch -d nav search
+  git log --oneline --graph --all
+answers: {}

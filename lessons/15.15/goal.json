@@ -1,0 +1,95 @@
+{
+  "questions": [
+    {
+      "id": "patience",
+      "prompt": "What do `-X patience` and `-X histogram` change?",
+      "type": "choice",
+      "options": [
+        "The diff algorithm used to match lines, which can give cleaner merges when blocks moved or lines repeat",
+        "How long git waits before giving up on a merge",
+        "Which side wins in a conflict",
+        "Whether renames are detected"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    {
+      "label": "Lower the rename threshold for the merge",
+      "check": {
+        "type": "usedCommand",
+        "matches": "\\bgit merge\\b.*(find-renames|rename-threshold)"
+      }
+    },
+    {
+      "label": "fix is merged into main",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "commitParents",
+            "rev": "main",
+            "count": 2
+          },
+          {
+            "type": "isAncestor",
+            "ancestor": "@mark:fix",
+            "descendant": "main"
+          }
+        ]
+      }
+    },
+    {
+      "label": "The fix landed inside lib/helpers.py",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "fileContent",
+            "source": "main",
+            "path": "lib/helpers.py",
+            "contains": "return a - b"
+          },
+          {
+            "type": "fileContent",
+            "source": "main",
+            "path": "lib/helpers.py",
+            "contains": "def clamp"
+          }
+        ]
+      }
+    },
+    {
+      "label": "util.py did not come back",
+      "check": {
+        "type": "fileInRev",
+        "path": "util.py",
+        "rev": "main",
+        "present": false
+      }
+    },
+    {
+      "label": "No merge in progress, clean tree",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "operation",
+            "value": null
+          },
+          {
+            "type": "status",
+            "clean": true
+          }
+        ]
+      }
+    },
+    {
+      "label": "Say what the diff-algorithm options change",
+      "check": {
+        "type": "answer",
+        "question": "patience"
+      }
+    }
+  ]
+}

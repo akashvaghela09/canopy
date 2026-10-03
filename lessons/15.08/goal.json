@@ -1,0 +1,79 @@
+{
+  "questions": [],
+  "goals": [
+    {
+      "label": "All three patches are commits on top of your local one",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "commitCount",
+            "range": "@mark:local..HEAD",
+            "equals": 3
+          },
+          {
+            "type": "commitMessage",
+            "rev": "HEAD",
+            "contains": "Add docs page"
+          },
+          {
+            "type": "commitMessage",
+            "rev": "HEAD~1",
+            "contains": "Raise level to 2"
+          },
+          {
+            "type": "commitMessage",
+            "rev": "HEAD~2",
+            "contains": "Add color option"
+          }
+        ]
+      }
+    },
+    {
+      "label": "The patches keep their original author",
+      "check": {
+        "type": "commitAuthor",
+        "rev": "HEAD",
+        "name": "Sam Chen"
+      }
+    },
+    {
+      "label": "config.txt ends with upstream's level and your file intact",
+      "check": {
+        "type": "fileContent",
+        "source": "HEAD",
+        "path": "config.txt",
+        "lines": [
+          "level = 2",
+          "name = demo",
+          "color = blue"
+        ]
+      }
+    },
+    {
+      "label": "docs.md arrived",
+      "check": {
+        "type": "fileInRev",
+        "path": "docs.md",
+        "rev": "HEAD",
+        "present": true
+      }
+    },
+    {
+      "label": "No am in progress and a clean tree",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "status",
+            "clean": true
+          },
+          {
+            "type": "operation",
+            "value": null
+          }
+        ]
+      }
+    }
+  ]
+}

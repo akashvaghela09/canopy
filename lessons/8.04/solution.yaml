@@ -1,0 +1,7 @@
+commands: |
+  git status
+  git stash push -m "export wip" -- app.py
+  git status
+  git stash list
+  git stash show
+answers: {}

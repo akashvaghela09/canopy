@@ -1,0 +1,11 @@
+commands: |
+  git clone big.git mono
+  cd mono
+  git sparse-checkout init --cone
+  git sparse-checkout set api
+  ls
+  git sparse-checkout list
+  git switch feature/api-v2
+  ls api
+  git sparse-checkout set api docs
+  ls

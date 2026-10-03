@@ -1,0 +1,13 @@
+id: "5.06"
+section: 5
+title: checkout, the older command
+kind: practice
+teaches: [checkout]
+requires: [switch, restore]
+flags: [destructive, guided]
+repo: trail-guide
+start: trail-guide
+hints:
+  - "Read the table in the lesson text: each checkout form has a switch or restore twin. Use the checkout form here."
+  - "For the file step, put the extra line in gear.md first, then take it back with `git checkout -- gear.md`."
+  - "`git checkout winter`, `git checkout -b winter-gear`, edit gear.md, `git checkout -- gear.md`."

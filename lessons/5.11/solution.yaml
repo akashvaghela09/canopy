@@ -1,0 +1,9 @@
+commands: |
+  git branch --merged
+  git branch --no-merged
+  git branch -d pests
+  git branch -d experiment
+  git branch -D experiment
+  git log --oneline --graph --all
+answers:
+  what-happened: 0

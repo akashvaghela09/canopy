@@ -1,0 +1,49 @@
+{
+  "questions": [
+    {
+      "id": "current",
+      "prompt": "Which branch is HEAD on right now?",
+      "type": "text",
+      "accept": ["main"]
+    },
+    {
+      "id": "weekend-tip",
+      "prompt": "Which commit does the branch weekend-walks point to?",
+      "type": "commit",
+      "answer": "@mark:lake"
+    },
+    {
+      "id": "what-is-branch",
+      "prompt": "What does a branch label point to?",
+      "type": "choice",
+      "options": [
+        "One commit, its tip; the rest of its history is found by following parents",
+        "A copy of every file in the project",
+        "A list of all the commits that belong to it",
+        "A folder inside .git that holds its own files"
+      ],
+      "answer": 0
+    },
+    {
+      "id": "on-commit",
+      "prompt": "You are on main and make a commit. What moves?",
+      "type": "choice",
+      "options": [
+        "main moves to the new commit and HEAD follows; the old commit stays where it is",
+        "HEAD moves to the new commit, but main stays on the old one",
+        "Both main and weekend-walks move to the new commit",
+        "Nothing moves; the new commit is stored next to the branch"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    { "label": "Draw the graph with all branches", "check": { "type": "usedCommand", "matches": "^git log\\b.*(--graph.*(--all|--branches)|(--all|--branches).*--graph)" } },
+    { "label": "List the branches with their tips (-v)", "check": { "type": "usedCommand", "matches": "^git branch\\b.*(-v|--verbose)" } },
+    { "label": "Print the current branch name with --show-current", "check": { "type": "usedCommand", "matches": "^git branch\\b.*--show-current" } },
+    { "label": "Answer: the current branch", "check": { "type": "answer", "question": "current" } },
+    { "label": "Answer: the tip of weekend-walks", "check": { "type": "answer", "question": "weekend-tip" } },
+    { "label": "Answer: what a branch points to", "check": { "type": "answer", "question": "what-is-branch" } },
+    { "label": "Answer: what moves on a commit", "check": { "type": "answer", "question": "on-commit" } }
+  ]
+}

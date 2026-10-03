@@ -1,0 +1,7 @@
+commands: |
+  git log --oneline
+  git revert HEAD~1
+  git log --oneline
+  git status
+  cat index.html
+answers: {}

@@ -1,0 +1,117 @@
+{
+  "questions": [
+    {
+      "id": "head-file",
+      "prompt": "What does the file .git/HEAD contain right now?",
+      "type": "text",
+      "accept": [
+        "ref: refs/heads/main",
+        "refs/heads/main"
+      ]
+    },
+    {
+      "id": "objects",
+      "prompt": "Where does git store the content of every file, folder and commit?",
+      "type": "choice",
+      "options": [
+        "objects/",
+        "refs/",
+        "index",
+        "logs/"
+      ],
+      "answer": 0
+    },
+    {
+      "id": "index",
+      "prompt": "Which entry is the staging area?",
+      "type": "choice",
+      "options": [
+        "index",
+        "HEAD",
+        "config",
+        "hooks/"
+      ],
+      "answer": 0
+    },
+    {
+      "id": "new-branch",
+      "prompt": "Creating a branch called test would add which file?",
+      "type": "choice",
+      "options": [
+        ".git/refs/heads/test",
+        ".git/objects/test",
+        ".git/branches/test",
+        ".git/HEAD/test"
+      ],
+      "answer": 0
+    },
+    {
+      "id": "hooks",
+      "prompt": "What is hooks/ for?",
+      "type": "choice",
+      "options": [
+        "Scripts git runs at certain moments, such as before a commit",
+        "Backups of old commits",
+        "The list of ignored files",
+        "Settings for this repository"
+      ],
+      "answer": 0
+    },
+    {
+      "id": "config",
+      "prompt": "The settings in .git/config apply to:",
+      "type": "choice",
+      "options": [
+        "this repository only",
+        "every repository of this user",
+        "every repository on this computer",
+        "only the current branch"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    {
+      "label": "Say what HEAD contains",
+      "check": {
+        "type": "answer",
+        "question": "head-file"
+      }
+    },
+    {
+      "label": "Find where content is stored",
+      "check": {
+        "type": "answer",
+        "question": "objects"
+      }
+    },
+    {
+      "label": "Find the staging area",
+      "check": {
+        "type": "answer",
+        "question": "index"
+      }
+    },
+    {
+      "label": "Say where a new branch would be written",
+      "check": {
+        "type": "answer",
+        "question": "new-branch"
+      }
+    },
+    {
+      "label": "Say what hooks/ is for",
+      "check": {
+        "type": "answer",
+        "question": "hooks"
+      }
+    },
+    {
+      "label": "Say what config applies to",
+      "check": {
+        "type": "answer",
+        "question": "config"
+      }
+    }
+  ]
+}

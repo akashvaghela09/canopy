@@ -1,0 +1,177 @@
+{
+  "questions": [],
+  "goals": [
+    {
+      "label": "The rebase stops at the big commit",
+      "sticky": true,
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "operation",
+            "value": "rebase"
+          },
+          {
+            "type": "commitMessage",
+            "rev": "HEAD",
+            "equals": "Add search box and fix footer year"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Three commits on top of \"Add index page\"; the last is still \"Add about page\"",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "commitCount",
+            "range": "@mark:base..main",
+            "equals": 3
+          },
+          {
+            "type": "refAt",
+            "ref": "main~3",
+            "target": "@mark:base"
+          },
+          {
+            "type": "commitMessage",
+            "rev": "main",
+            "equals": "Add about page"
+          },
+          {
+            "type": "commitChanges",
+            "rev": "main",
+            "paths": [
+              "about.html"
+            ],
+            "exact": true
+          }
+        ]
+      }
+    },
+    {
+      "label": "\"Add search box\" and \"Fix footer year\" are separate commits, each with only its own change",
+      "check": {
+        "type": "any",
+        "checks": [
+          {
+            "type": "all",
+            "checks": [
+              {
+                "type": "commitMessage",
+                "rev": "main~2",
+                "equals": "Add search box"
+              },
+              {
+                "type": "fileContent",
+                "source": "main~2",
+                "path": "index.html",
+                "contains": "type=\"search\""
+              },
+              {
+                "type": "fileContent",
+                "source": "main~2",
+                "path": "index.html",
+                "contains": "Studio, 2023"
+              },
+              {
+                "type": "commitMessage",
+                "rev": "main~1",
+                "equals": "Fix footer year"
+              },
+              {
+                "type": "commitChanges",
+                "rev": "main~1",
+                "paths": [
+                  "index.html"
+                ],
+                "exact": true
+              }
+            ]
+          },
+          {
+            "type": "all",
+            "checks": [
+              {
+                "type": "commitMessage",
+                "rev": "main~2",
+                "equals": "Fix footer year"
+              },
+              {
+                "type": "fileContent",
+                "source": "main~2",
+                "path": "index.html",
+                "contains": "Studio, 2024"
+              },
+              {
+                "type": "fileContent",
+                "source": "main~2",
+                "path": "index.html",
+                "notContains": "type=\"search\""
+              },
+              {
+                "type": "commitMessage",
+                "rev": "main~1",
+                "equals": "Add search box"
+              },
+              {
+                "type": "commitChanges",
+                "rev": "main~1",
+                "paths": [
+                  "index.html"
+                ],
+                "exact": true
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "label": "Together they equal the original: the final index.html has both changes",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "fileContent",
+            "source": "main~1",
+            "path": "index.html",
+            "contains": "type=\"search\""
+          },
+          {
+            "type": "fileContent",
+            "source": "main~1",
+            "path": "index.html",
+            "contains": "Studio, 2024"
+          },
+          {
+            "type": "refNotAt",
+            "ref": "main",
+            "target": "@mark:c3"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Rebase finished, on main, clean working tree",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "operation",
+            "value": null
+          },
+          {
+            "type": "currentBranch",
+            "name": "main"
+          },
+          {
+            "type": "status",
+            "clean": true
+          }
+        ]
+      }
+    }
+  ]
+}

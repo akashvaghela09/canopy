@@ -1,0 +1,18 @@
+id: "7.07"
+section: 7
+title: Push
+kind: practice
+teaches: [push]
+requires: [commit, remote-inspect, pull]
+flags: []
+repo: work
+start: work
+repos:
+  - { path: work, label: Your clone }
+  - { path: origin.git, label: origin }
+  - { path: teammate, label: Teammate (Sam) }
+actions:
+  - { id: teammate-pull, label: "Teammate pulls", script: actions/teammate-pull.sh }
+hints:
+  - "Commit first. Then `git push` sends main to origin."
+  - "After pushing, press the lesson action so Sam's clone pulls. Switch the graph to the Teammate repo to see your commit arrive."

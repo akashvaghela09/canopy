@@ -1,0 +1,13 @@
+commands: |
+  git pull
+  git log --oneline --graph --all
+  echo "Maps are in the clubhouse hallway." >> README.md
+  git add README.md
+  git commit -m "Mention the paper maps"
+  #action teammate-push
+  git pull
+  git log --oneline --graph --all
+  git pull --no-rebase
+  git log --oneline --graph --all
+answers:
+  pull-is: 0

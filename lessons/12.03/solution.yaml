@@ -1,0 +1,10 @@
+commands: |
+  git fetch
+  git log --oneline main..origin/main
+  git switch tags-ui
+  git rebase origin/main
+  git push --force-with-lease
+  git switch export-pdf
+  git pull
+  git merge origin/main -m "Merge origin/main into export-pdf"
+  git push

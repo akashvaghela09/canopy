@@ -1,0 +1,13 @@
+commands: |
+  git pull --ff-only
+  git log --oneline --graph --all
+  echo "Maps are in the clubhouse hallway." >> README.md
+  git add README.md
+  git commit -m "Mention the paper maps"
+  #action teammate-push
+  git pull --ff-only
+  git log --oneline main..origin/main
+  git merge origin/main
+  git log --oneline --graph --all
+answers:
+  after-refusal: 0

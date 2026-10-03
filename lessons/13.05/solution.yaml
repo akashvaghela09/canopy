@@ -1,0 +1,10 @@
+commands: |
+  printf '%s\n' '*.swp' '.idea/' > ignore-everywhere
+  git config --global core.excludesFile "$PWD/ignore-everywhere"
+  cd app
+  git status --short
+  echo "scratch.md" >> .git/info/exclude
+  git status --short --ignored
+  cd ../docs
+  git status --short
+  cd ..

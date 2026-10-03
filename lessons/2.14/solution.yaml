@@ -1,0 +1,16 @@
+commands: |
+  git status
+  echo 'build/' > .gitignore
+  echo '*.log' >> .gitignore
+  git add .gitignore
+  git commit -m "Ignore build output and logs"
+  git mv helpers.py utils.py
+  git commit -m "Rename helpers to utils"
+  git rm old_notes.txt
+  git commit -m "Remove stale meeting notes"
+  echo "items = []" > cart.py
+  git add cart.py
+  git commit -m "Add an empty shopping cart" -m "The cart starts as a plain list. Checkout logic comes next."
+  git log
+  git status
+answers: {}

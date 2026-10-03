@@ -1,0 +1,10 @@
+commands: |
+  git show HEAD
+  echo "Now with a newsletter." >> README.md
+  git add README.md
+  git commit -m "Mention the newsletter in README"
+  git log -1
+  git log --oneline --graph --all --decorate
+answers:
+  head-before: 9536875
+  head-meaning: 0

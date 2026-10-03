@@ -1,0 +1,13 @@
+id: "6.04"
+section: 6
+title: Force a merge commit
+kind: practice
+teaches: [merge-no-ff]
+requires: [merge-ff, merge-message]
+flags: []
+repo: cafe
+start: cafe
+hints:
+  - "`login` is strictly ahead of `main`, so a plain merge would fast-forward. `--no-ff` tells git to make a merge commit anyway."
+  - "The editor opens for the message, or skip it the way you learned in the last lesson."
+  - "`git merge --no-ff login`. Afterwards HEAD has two parents and `main` is one commit above `login`."

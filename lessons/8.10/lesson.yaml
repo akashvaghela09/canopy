@@ -1,0 +1,15 @@
+id: "8.10"
+section: 8
+title: "Boss: urgent hotfix"
+kind: boss
+teaches: []
+requires: [stash-push, stash-inspect, stash-pop-apply, stash-message-path, stash-untracked, stash-conflict, stash-branch, worktree-add, worktree-manage, add, commit, merge-ff]
+flags: []
+minGit: "2.23"
+repo: work
+start: work
+repos:
+  - { path: work, label: Main worktree (work) }
+hints:
+  - "Two routes: stash the feature work (with -u, there is a new file), fix and commit on main, pop. Or add a worktree for a hotfix branch, commit there, then merge it into main from work."
+  - "Check before you finish: `git show --stat HEAD` should list only lib.py, and `git status` should still show your feature edits."

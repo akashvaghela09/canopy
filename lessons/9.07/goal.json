@@ -1,0 +1,142 @@
+{
+  "questions": [],
+  "goals": [
+    {
+      "label": "The timeout pick stops on its conflict",
+      "sticky": true,
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "operation",
+            "value": "cherry-pick"
+          },
+          {
+            "type": "status",
+            "conflicted": [
+              "settings.conf"
+            ]
+          },
+          {
+            "type": "refAt",
+            "ref": "CHERRY_PICK_HEAD",
+            "target": "@mark:f1"
+          }
+        ]
+      }
+    },
+    {
+      "label": "\"Raise timeout to 60\" is on main, resolved: timeout 60, retries 4, log warn",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "commitMessage",
+            "rev": "main",
+            "equals": "Raise timeout to 60"
+          },
+          {
+            "type": "refAt",
+            "ref": "main~1",
+            "target": "@mark:main-tip"
+          },
+          {
+            "type": "fileContent",
+            "source": "main",
+            "path": "settings.conf",
+            "lines": [
+              "timeout = 60",
+              "retries = 4",
+              "log = warn"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "label": "The retries pick stops on its conflict",
+      "sticky": true,
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "operation",
+            "value": "cherry-pick"
+          },
+          {
+            "type": "refAt",
+            "ref": "CHERRY_PICK_HEAD",
+            "target": "@mark:f2"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Pick \"Raise retries to 5\" and skip it with --skip",
+      "check": {
+        "type": "any",
+        "checks": [
+          {
+            "type": "usedCommand",
+            "matches": "\\bgit cherry-pick\\b.*--skip"
+          },
+          {
+            "type": "usedCommand",
+            "matches": "\\bgit cherry-pick\\b.*--skip",
+            "exitCode": 1
+          }
+        ]
+      }
+    },
+    {
+      "label": "The debug-logging pick stops on its conflict",
+      "sticky": true,
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "operation",
+            "value": "cherry-pick"
+          },
+          {
+            "type": "refAt",
+            "ref": "CHERRY_PICK_HEAD",
+            "target": "@mark:f3"
+          }
+        ]
+      }
+    },
+    {
+      "label": "End the debug-logging pick with --abort (or --quit, if you picked the three as a range)",
+      "check": {
+        "type": "usedCommand",
+        "matches": "\\bgit cherry-pick\\b.*--(abort|quit)"
+      }
+    },
+    {
+      "label": "Finish with one new commit on main, nothing in progress, clean tree",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "commitCount",
+            "range": "@mark:main-tip..main",
+            "equals": 1
+          },
+          {
+            "type": "operation",
+            "value": null
+          },
+          {
+            "type": "currentBranch",
+            "name": "main"
+          },
+          {
+            "type": "status",
+            "clean": true
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "questions": [],
+  "goals": [
+    {
+      "label": "main is back on the original \"Add webhooks\" commit",
+      "check": {
+        "type": "refAt",
+        "ref": "main",
+        "target": "@mark:main-tip"
+      }
+    },
+    {
+      "label": "feature/login exists at the original \"Add password reset\" commit",
+      "check": {
+        "type": "refAt",
+        "ref": "feature/login",
+        "target": "@mark:login-tip"
+      }
+    },
+    {
+      "label": "feature/api-v2 is back on its original commits (original ids)",
+      "check": {
+        "type": "refAt",
+        "ref": "feature/api-v2",
+        "target": "@mark:api-orig"
+      }
+    },
+    {
+      "label": "experiment is untouched",
+      "check": {
+        "type": "refAt",
+        "ref": "experiment",
+        "target": "@mark:experiment-tip"
+      }
+    },
+    {
+      "label": "The cart-totals work is back (in cart.py or in the stash list)",
+      "check": {
+        "type": "any",
+        "checks": [
+          {
+            "type": "fileContent",
+            "path": "cart.py",
+            "contains": "def total"
+          },
+          {
+            "type": "fileContent",
+            "source": "stash@{0}",
+            "path": "cart.py",
+            "contains": "def total"
+          }
+        ]
+      }
+    },
+    {
+      "label": "No operation left in progress",
+      "check": {
+        "type": "operation",
+        "value": null
+      }
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+commands: |
+  git ls-files -s
+  git ls-tree -r HEAD
+  git add notes.txt
+  git ls-files -s
+  git cat-file -p 629c02b
+  git update-index --add extra.txt
+  git ls-files -s
+answers:
+  count-start: 4
+  notes-blob: "629c02b910a119e4023544ddf695ae85e98ffd04"
+  what-add-does: 0

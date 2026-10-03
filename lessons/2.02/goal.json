@@ -1,0 +1,35 @@
+{
+  "questions": [],
+  "goals": [
+    {
+      "label": "Make one new commit on main",
+      "check": {
+        "type": "commitCount",
+        "range": "main",
+        "equals": 2
+      }
+    },
+    {
+      "label": "The new commit adds intro.txt and changes nothing else",
+      "check": {
+        "type": "commitChanges",
+        "rev": "HEAD",
+        "paths": [
+          "intro.txt"
+        ],
+        "exact": true
+      }
+    },
+    {
+      "label": "chapter1.txt is still untracked",
+      "check": {
+        "type": "status",
+        "untracked": [
+          "chapter1.txt"
+        ],
+        "staged": [],
+        "exact": true
+      }
+    }
+  ]
+}

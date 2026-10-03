@@ -1,0 +1,10 @@
+commands: |
+  git switch -c hotfix/1.0.1 v1.0.0
+  sed -i 's/notes.slice(0, LIMIT)/notes.slice(-LIMIT)/' src/store.js
+  git commit -am "Keep the most recent notes when trimming"
+  echo "1.0.1" > VERSION
+  git commit -am "Bump version to 1.0.1"
+  git tag -a v1.0.1 -m "Lantern 1.0.1"
+  git switch main
+  git cherry-pick hotfix/1.0.1~1
+  git show --stat v1.0.1

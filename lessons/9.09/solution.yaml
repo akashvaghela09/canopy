@@ -1,0 +1,7 @@
+commands: |
+  git log --oneline main..search
+  git log --oneline --graph --all
+  git rebase main
+  git log --oneline --graph --all
+answers:
+  new-ids: 3

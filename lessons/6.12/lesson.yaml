@@ -1,0 +1,13 @@
+id: "6.12"
+section: 6
+title: Inspect a merge in progress
+kind: practice
+teaches: [merge-state]
+requires: [conflict-resolve, concept-refs-files]
+flags: []
+repo: cafe
+start: cafe
+hints:
+  - "`git diff --name-only --diff-filter=U` prints one line per unresolved file; `git ls-files -u` prints every stage of each one."
+  - "`cat .git/MERGE_HEAD` prints the id of the commit being merged in, the tip of `search`."
+  - "`git log --merge --oneline` lists the commits, on both sides, that touched the conflicted files. Resolve both files any way you like, then commit."

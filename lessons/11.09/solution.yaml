@@ -1,0 +1,9 @@
+commands: |
+  git shortlog -sn
+  git shortlog -sne main
+  git shortlog -sn --since=2024-03-10 main
+  git shortlog -sn v1.0..v1.1
+answers:
+  top: 0
+  sam-count: 7
+  top-since: 0

@@ -1,0 +1,11 @@
+commands: |
+  git checkout winter
+  git checkout -b winter-gear
+  echo "- spikes" >> gear.md
+  git status
+  git checkout -- gear.md
+  git status
+answers:
+  map-file: 0
+  map-b: 0
+  why-split: 0

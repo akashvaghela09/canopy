@@ -1,0 +1,5 @@
+commands: |
+  git log --oneline --graph --all
+  git rebase --update-refs main
+  git log --oneline --graph --all
+answers: {}

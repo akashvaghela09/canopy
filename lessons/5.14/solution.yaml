@@ -1,0 +1,11 @@
+commands: |
+  git tag v0.2
+  git tag v0.1 HEAD~2
+  git tag
+  git tag -l 'v*'
+  git show v0.1
+  git describe
+  git describe --tags
+answers:
+  describe-tags: v0.2
+  why-fail: 0

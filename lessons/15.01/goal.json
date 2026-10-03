@@ -1,0 +1,83 @@
+{
+  "questions": [
+    {
+      "id": "pinned",
+      "prompt": "Which commit of lib is pinned by the gitlink? (paste the id from `git submodule status`)",
+      "type": "commit",
+      "answer": "@mark:lib-tip",
+      "repo": "lib.git"
+    },
+    {
+      "id": "what-recorded",
+      "prompt": "What does the outer project's commit record about lib?",
+      "type": "choice",
+      "options": [
+        "One exact commit id of the library, plus its URL in .gitmodules",
+        "A copy of all the library's files",
+        "The name of the library's main branch, so it always follows the latest",
+        "Nothing; submodules live only in .git/config"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    {
+      "label": ".gitmodules maps the path lib to the library",
+      "check": {
+        "type": "fileContent",
+        "path": ".gitmodules",
+        "contains": "path = lib"
+      }
+    },
+    {
+      "label": "The index holds a gitlink entry for lib",
+      "check": {
+        "type": "shell",
+        "script": "git ls-files -s lib | grep -q '^160000 '"
+      }
+    },
+    {
+      "label": "The library's files are checked out under lib/",
+      "check": {
+        "type": "pathExists",
+        "path": "app/lib/version.txt"
+      }
+    },
+    {
+      "label": "Commit .gitmodules and the lib entry",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "fileContent",
+            "source": "HEAD",
+            "path": ".gitmodules",
+            "contains": "path = lib"
+          },
+          {
+            "type": "shell",
+            "script": "git ls-tree HEAD lib | grep -q '^160000 '"
+          },
+          {
+            "type": "status",
+            "clean": true
+          }
+        ]
+      }
+    },
+    {
+      "label": "Report the pinned commit",
+      "check": {
+        "type": "answer",
+        "question": "pinned"
+      }
+    },
+    {
+      "label": "Say what the project records",
+      "check": {
+        "type": "answer",
+        "question": "what-recorded"
+      }
+    }
+  ]
+}

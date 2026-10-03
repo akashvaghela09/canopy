@@ -1,0 +1,12 @@
+commands: |
+  git blame pricer/discounts.py
+  git blame -w pricer/discounts.py
+  git blame --ignore-rev $(git log --format=%H --grep 'Reformat discounts table') pricer/discounts.py
+  git log --format=%H --grep 'Reformat discounts table' > .git-blame-ignore-revs
+  git blame --ignore-revs-file .git-blame-ignore-revs pricer/discounts.py
+  git blame pricer/format.py
+  git blame -C pricer/format.py
+answers:
+  who-summer: 0
+  summer-commit: "@mark:summer-add"
+  who-format: 0

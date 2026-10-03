@@ -1,0 +1,147 @@
+{
+  "questions": [
+    {
+      "id": "who-changed-hours",
+      "prompt": "Which branch changed the hours line?",
+      "type": "choice",
+      "options": [
+        "main",
+        "rename",
+        "Both branches",
+        "Neither; it is unchanged since the base"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    {
+      "label": "Re-create the markers with the base section",
+      "check": {
+        "type": "usedCommand",
+        "matches": "^git (checkout|restore)\\b.*(--conflict[= ]z?diff3\\b.*config\\.ini|config\\.ini.*--conflict[= ]z?diff3\\b)"
+      }
+    },
+    {
+      "label": "Set merge.conflictstyle to diff3 for this repo",
+      "check": {
+        "type": "any",
+        "checks": [
+          {
+            "type": "config",
+            "key": "merge.conflictstyle",
+            "value": "diff3",
+            "scope": "local"
+          },
+          {
+            "type": "config",
+            "key": "merge.conflictstyle",
+            "value": "zdiff3",
+            "scope": "local"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Answer: who changed the hours",
+      "check": {
+        "type": "answer",
+        "question": "who-changed-hours"
+      }
+    },
+    {
+      "label": "config.ini keeps both changes: the new name and the new hours",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "fileContent",
+            "path": "config.ini",
+            "source": "main",
+            "contains": "name = Hilltop Cafe and Bakery"
+          },
+          {
+            "type": "fileContent",
+            "path": "config.ini",
+            "source": "main",
+            "contains": "hours = 7-15"
+          },
+          {
+            "type": "fileContent",
+            "path": "config.ini",
+            "source": "main",
+            "notContains": "hours = 7-14"
+          },
+          {
+            "type": "fileContent",
+            "path": "config.ini",
+            "source": "main",
+            "notContains": "<<<<<<<"
+          },
+          {
+            "type": "fileContent",
+            "path": "config.ini",
+            "source": "main",
+            "notContains": "|||||||"
+          },
+          {
+            "type": "fileContent",
+            "path": "config.ini",
+            "source": "main",
+            "notContains": ">>>>>>>"
+          },
+          {
+            "type": "not",
+            "check": {
+              "type": "fileContent",
+              "path": "config.ini",
+              "source": "main",
+              "matches": "(?m)^name = Hilltop Cafe\\s*$"
+            }
+          },
+          {
+            "type": "fileContent",
+            "path": "config.ini",
+            "source": "main",
+            "contains": "currency = EUR"
+          },
+          {
+            "type": "fileContent",
+            "path": "config.ini",
+            "source": "main",
+            "notContains": "======="
+          }
+        ]
+      }
+    },
+    {
+      "label": "The merge is committed on main",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "currentBranch",
+            "name": "main"
+          },
+          {
+            "type": "operation",
+            "value": null
+          },
+          {
+            "type": "commitParents",
+            "rev": "main",
+            "count": 2
+          },
+          {
+            "type": "refAt",
+            "ref": "main^2",
+            "target": "@mark:rename-tip"
+          },
+          {
+            "type": "status",
+            "clean": true
+          }
+        ]
+      }
+    }
+  ]
+}

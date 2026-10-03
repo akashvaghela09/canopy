@@ -1,0 +1,54 @@
+{
+  "questions": [
+    {
+      "id": "merge-count",
+      "prompt": "After both integrations, how many merge commits does merge-way's main have?",
+      "type": "number",
+      "answer": 1
+    },
+    {
+      "id": "never-rebase",
+      "prompt": "When is rebasing the wrong choice?",
+      "type": "choice",
+      "options": [
+        "When the commits are already on a shared branch that other people have fetched",
+        "When the branch has more than one commit",
+        "When main has moved on since the branch started",
+        "When you want a linear history"
+      ],
+      "answer": 0
+    },
+    {
+      "id": "why-ff",
+      "prompt": "Why was the merge in rebase-way a fast-forward?",
+      "type": "choice",
+      "options": [
+        "After the rebase, feature contained main's tip, so main only had to move its label forward",
+        "Because feature had only two commits",
+        "Because git always fast-forwards after a rebase",
+        "Because the rebase deleted main's own commit"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    { "label": "merge-way: main has a merge commit joining both lines", "check": { "type": "all", "repo": "merge-way", "checks": [
+        { "type": "commitParents", "rev": "main", "count": 2 },
+        { "type": "refAt", "ref": "main^1", "target": "@mark:m-main" },
+        { "type": "refAt", "ref": "main^2", "target": "@mark:m-feat" },
+        { "type": "status", "clean": true }
+      ] } },
+    { "label": "rebase-way: a straight line of five commits, main fast-forwarded to feature", "check": { "type": "all", "repo": "rebase-way", "checks": [
+        { "type": "refAt", "ref": "main", "target": "feature" },
+        { "type": "commitCount", "range": "main", "equals": 5 },
+        { "type": "commitCount", "range": "--merges main", "equals": 0 },
+        { "type": "isAncestor", "ancestor": "@mark:r-main", "descendant": "main" },
+        { "type": "refNotAt", "ref": "feature", "target": "@mark:r-feat" },
+        { "type": "commitMessage", "rev": "main", "equals": "Add login tests" },
+        { "type": "status", "clean": true }
+      ] } },
+    { "label": "Answer: merge commits in merge-way", "check": { "type": "answer", "question": "merge-count" } },
+    { "label": "Answer: when not to rebase", "check": { "type": "answer", "question": "never-rebase" } },
+    { "label": "Answer: why the fast-forward", "check": { "type": "answer", "question": "why-ff" } }
+  ]
+}

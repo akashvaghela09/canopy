@@ -1,0 +1,7 @@
+commands: |
+  git fsck --full
+  git ls-tree -r HEAD
+  cp ../backup/.git/objects/9b/740284d38fa24876bc3cf62049202085020142 .git/objects/9b/
+  git fsck --full
+answers:
+  which-file: data.csv

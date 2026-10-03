@@ -1,0 +1,14 @@
+commands: |
+  git fsck --unreachable
+  git count-objects -v
+  git gc
+  git count-objects -v
+  git fsck --unreachable
+  git gc --prune=now
+  git count-objects -v
+  git fsck --unreachable
+answers:
+  why-kept: 0
+  in-pack-after-gc: 15
+  in-pack-after-prune: 9
+  aggressive: 0

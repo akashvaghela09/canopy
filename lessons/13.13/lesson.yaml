@@ -1,0 +1,16 @@
+id: "13.13"
+section: 13
+title: Shallow clones
+kind: practice
+teaches: [shallow-clone]
+requires: [clone, fetch]
+flags: []
+repo: shallow
+start: "."
+repos:
+  - { path: shallow, label: Your shallow clone }
+  - { path: origin.git, label: origin }
+hints:
+  - "`git clone --depth 1 \"file://$PWD/origin.git\" shallow` (the `file://` form matters: a plain path ignores --depth)."
+  - "Inside the clone, count with `git rev-list --count HEAD`. Then `git fetch --deepen 3` and count again."
+  - "`git fetch --unshallow` fetches everything that is missing and removes the shallow marker."

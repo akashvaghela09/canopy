@@ -1,0 +1,30 @@
+{
+  "questions": [
+    {
+      "id": "why-rejected",
+      "prompt": "Why did git reject the first push?",
+      "type": "choice",
+      "options": [
+        "The remote's main had a commit your main did not; accepting the push would have dropped it",
+        "You do not have permission to push to origin",
+        "Your commit message was too short",
+        "The remote only accepts pushes from Sam's clone"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    { "label": "Commit trails/meadow.md on main", "check": { "type": "fileInRev", "path": "trails/meadow.md", "rev": "main", "present": true } },
+    { "label": "See the push get rejected", "check": { "type": "usedCommand", "matches": "^git push\\b", "exitCode": 1 } },
+    { "label": "origin's main contains both Sam's commit and yours", "check": { "type": "all", "checks": [
+        { "type": "isAncestor", "repo": "origin.git", "ancestor": "@mark:river", "descendant": "main" },
+        { "type": "fileInRev", "repo": "origin.git", "path": "trails/meadow.md", "rev": "main", "present": true }
+      ] } },
+    { "label": "No force was used", "check": { "type": "not", "check": { "type": "usedCommand", "matches": "^git push\\b.*(--force|-f\\b|\\+main)" } } },
+    { "label": "main and origin/main agree, working tree clean", "check": { "type": "all", "checks": [
+        { "type": "refAt", "ref": "main", "target": "origin/main" },
+        { "type": "status", "clean": true }
+      ] } },
+    { "label": "Answer: why the push was rejected", "check": { "type": "answer", "question": "why-rejected" } }
+  ]
+}

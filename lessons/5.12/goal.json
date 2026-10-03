@@ -1,0 +1,115 @@
+{
+  "questions": [
+    {
+      "id": "head-content",
+      "prompt": "What is in .git/HEAD while you are on main?",
+      "type": "choice",
+      "options": [
+        "The line \"ref: refs/heads/main\", pointing at the branch file",
+        "The id of the current commit",
+        "A copy of the current commit's files",
+        "The word \"main\" on its own"
+      ],
+      "answer": 0
+    },
+    {
+      "id": "main-before",
+      "prompt": "Before your commit, which commit id was in .git/refs/heads/main?",
+      "type": "commit",
+      "answer": "@mark:gear"
+    },
+    {
+      "id": "after-branch",
+      "prompt": "What changed in .git when you created the branch notes?",
+      "type": "choice",
+      "options": [
+        "A new file .git/refs/heads/notes appeared, holding the same id as main",
+        ".git/HEAD changed to point at notes",
+        "A folder .git/notes was created with a copy of the project",
+        "Nothing changed until the first commit on notes"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    {
+      "label": "Read .git/HEAD",
+      "check": {
+        "type": "usedCommand",
+        "matches": "^(cat|less|more|head)\\b.*\\.git/HEAD\\b"
+      }
+    },
+    {
+      "label": "Read a branch file under .git/refs/heads",
+      "check": {
+        "type": "usedCommand",
+        "matches": "^(cat|less|more|head)\\b.*\\.git/refs/heads/\\S+"
+      }
+    },
+    {
+      "label": "The branch notes exists at the old tip of main",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "branchExists",
+            "name": "notes"
+          },
+          {
+            "type": "refAt",
+            "ref": "notes",
+            "target": "@mark:gear"
+          }
+        ]
+      }
+    },
+    {
+      "label": "A new commit on main, so its file changed",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "currentBranch",
+            "name": "main"
+          },
+          {
+            "type": "commitCount",
+            "range": "main",
+            "min": 5
+          },
+          {
+            "type": "isAncestor",
+            "ancestor": "@mark:gear",
+            "descendant": "main"
+          },
+          {
+            "type": "refNotAt",
+            "ref": "main",
+            "target": "@mark:gear"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Answer: what .git/HEAD holds",
+      "check": {
+        "type": "answer",
+        "question": "head-content"
+      }
+    },
+    {
+      "label": "Answer: the id in the main file before the commit",
+      "check": {
+        "type": "answer",
+        "question": "main-before"
+      }
+    },
+    {
+      "label": "Answer: what creating a branch changed",
+      "check": {
+        "type": "answer",
+        "question": "after-branch"
+      }
+    }
+  ]
+}

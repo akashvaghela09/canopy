@@ -1,0 +1,88 @@
+{
+  "questions": [
+    {
+      "id": "q-icons",
+      "prompt": "icons: which tool, and why?",
+      "type": "choice",
+      "options": [
+        "Submodule: exact pin, never edited here, history kept separate",
+        "Subtree: the icons must be editable locally",
+        "Either; there is no difference for icons"
+      ],
+      "answer": 0
+    },
+    {
+      "id": "q-utils",
+      "prompt": "utils: which tool, and why?",
+      "type": "choice",
+      "options": [
+        "Subtree: files in a plain clone, local patches, fixes pushed back with subtree push",
+        "Submodule: the helper library must be pinned exactly",
+        "Neither; copy the files by hand and never update them"
+      ],
+      "answer": 0
+    },
+    {
+      "id": "q-fonts",
+      "prompt": "fonts: which tool, and why?",
+      "type": "choice",
+      "options": [
+        "Subtree: the files must be present in every plain clone and nobody edits them, so there is no pointer to maintain",
+        "Submodule: fonts rarely change, so a pin is best",
+        "Submodule: binary files cannot go in a subtree"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    {
+      "label": "icons is a submodule (gitlink at icons)",
+      "check": {
+        "type": "shell",
+        "script": "git ls-tree HEAD icons | grep -q '^160000 ' && grep -q 'path = icons' .gitmodules"
+      }
+    },
+    {
+      "label": "utils is a subtree (regular files under vendor/utils)",
+      "check": {
+        "type": "shell",
+        "script": "git ls-tree -r HEAD vendor/utils | grep -q '^100644 blob .*version.txt' && ! git ls-tree HEAD vendor/utils | grep -q '^160000 ' && git log --format=%B HEAD | grep -q '^git-subtree-dir: vendor/utils$'"
+      }
+    },
+    {
+      "label": "fonts is a subtree (regular files under vendor/fonts)",
+      "check": {
+        "type": "shell",
+        "script": "git ls-tree -r HEAD vendor/fonts | grep -q '^100644 blob .*version.txt' && ! git ls-tree HEAD vendor/fonts | grep -q '^160000 ' && git log --format=%B HEAD | grep -q '^git-subtree-dir: vendor/fonts$'"
+      }
+    },
+    {
+      "label": "Everything is committed",
+      "check": {
+        "type": "status",
+        "clean": true
+      }
+    },
+    {
+      "label": "Justify the choice for icons",
+      "check": {
+        "type": "answer",
+        "question": "q-icons"
+      }
+    },
+    {
+      "label": "Justify the choice for utils",
+      "check": {
+        "type": "answer",
+        "question": "q-utils"
+      }
+    },
+    {
+      "label": "Justify the choice for fonts",
+      "check": {
+        "type": "answer",
+        "question": "q-fonts"
+      }
+    }
+  ]
+}

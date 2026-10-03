@@ -1,0 +1,117 @@
+{
+  "questions": [],
+  "goals": [
+    {
+      "label": "Merge search with the message \"Merge search feature into main\"",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "isAncestor",
+            "ancestor": "@mark:search-tip",
+            "descendant": "main"
+          },
+          {
+            "type": "any",
+            "checks": [
+              {
+                "type": "all",
+                "checks": [
+                  {
+                    "type": "commitParents",
+                    "rev": "main",
+                    "count": 2
+                  },
+                  {
+                    "type": "commitMessage",
+                    "rev": "main",
+                    "matches": "(?i)^Merge search feature into main"
+                  }
+                ]
+              },
+              {
+                "type": "all",
+                "checks": [
+                  {
+                    "type": "commitParents",
+                    "rev": "main~1",
+                    "count": 2
+                  },
+                  {
+                    "type": "commitMessage",
+                    "rev": "main~1",
+                    "matches": "(?i)^Merge search feature into main"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "label": "Merge theme and keep git's prepared message",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "isAncestor",
+            "ancestor": "@mark:theme-tip",
+            "descendant": "main"
+          },
+          {
+            "type": "any",
+            "checks": [
+              {
+                "type": "all",
+                "checks": [
+                  {
+                    "type": "commitParents",
+                    "rev": "main",
+                    "count": 2
+                  },
+                  {
+                    "type": "commitMessage",
+                    "rev": "main",
+                    "matches": "^Merge branch 'theme'"
+                  }
+                ]
+              },
+              {
+                "type": "all",
+                "checks": [
+                  {
+                    "type": "commitParents",
+                    "rev": "main~1",
+                    "count": 2
+                  },
+                  {
+                    "type": "commitMessage",
+                    "rev": "main~1",
+                    "matches": "^Merge branch 'theme'"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "label": "Stay on main with a clean working tree",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "currentBranch",
+            "name": "main"
+          },
+          {
+            "type": "status",
+            "clean": true
+          }
+        ]
+      }
+    }
+  ]
+}

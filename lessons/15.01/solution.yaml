@@ -1,0 +1,10 @@
+commands: |
+  git submodule add ../lib.git lib
+  cat .gitmodules
+  git submodule status
+  git ls-files -s lib
+  git status
+  git commit -m "Add lib as a submodule"
+answers:
+  pinned: "@mark:lib-tip"
+  what-recorded: 0

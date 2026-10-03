@@ -1,0 +1,79 @@
+{
+  "questions": [
+    {
+      "id": "type-tree",
+      "prompt": "What type of object is 0d4542a?",
+      "type": "choice",
+      "options": [
+        "tree",
+        "blob",
+        "commit",
+        "tag"
+      ],
+      "answer": 0
+    },
+    {
+      "id": "type-commit",
+      "prompt": "What type of object is 5ce004c?",
+      "type": "choice",
+      "options": [
+        "commit",
+        "blob",
+        "tree",
+        "tag"
+      ],
+      "answer": 0
+    },
+    {
+      "id": "size",
+      "prompt": "How many bytes is the blob ec5cadf?",
+      "type": "number",
+      "answer": 77
+    },
+    {
+      "id": "third-line",
+      "prompt": "What is the third line of the content of blob 7aec562?",
+      "type": "text",
+      "accept": [
+        "mint"
+      ]
+    }
+  ],
+  "goals": [
+    {
+      "label": "Read objects with git cat-file",
+      "check": {
+        "type": "usedCommand",
+        "matches": "\\bgit cat-file\\b"
+      }
+    },
+    {
+      "label": "Name the type of the first object",
+      "check": {
+        "type": "answer",
+        "question": "type-tree"
+      }
+    },
+    {
+      "label": "Name the type of the second object",
+      "check": {
+        "type": "answer",
+        "question": "type-commit"
+      }
+    },
+    {
+      "label": "Report the size of the README blob",
+      "check": {
+        "type": "answer",
+        "question": "size"
+      }
+    },
+    {
+      "label": "Read the third line of the plants blob",
+      "check": {
+        "type": "answer",
+        "question": "third-line"
+      }
+    }
+  ]
+}

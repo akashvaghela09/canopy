@@ -1,0 +1,9 @@
+commands: |
+  git show v0.1
+  git tag -a v1.0 -m "Trail guide 1.0"
+  git show v1.0
+  git tag
+  git describe
+answers:
+  show-diff: 0
+  describe-now: v1.0

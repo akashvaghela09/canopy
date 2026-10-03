@@ -1,0 +1,13 @@
+commands: |
+  git fetch
+  git log --oneline --graph --all
+  git merge origin/main
+  echo "Maps are in the clubhouse hallway." >> README.md
+  git add README.md
+  git commit -m "Mention the paper maps"
+  #action teammate-push
+  git fetch
+  git log --oneline --graph --all
+  git merge origin/main
+  git log --oneline --graph --all
+answers: {}

@@ -1,0 +1,111 @@
+{
+  "goals": [
+    {
+      "label": "big.git is cloned into mono with sparse checkout enabled",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "repoExists",
+            "path": "mono",
+            "bare": false
+          },
+          {
+            "type": "config",
+            "key": "core.sparseCheckout",
+            "value": "true"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Only api/ was checked out at first",
+      "sticky": true,
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "pathExists",
+            "path": "mono/api/server.js"
+          },
+          {
+            "type": "pathAbsent",
+            "path": "mono/web"
+          },
+          {
+            "type": "pathAbsent",
+            "path": "mono/mobile"
+          },
+          {
+            "type": "pathAbsent",
+            "path": "mono/docs"
+          }
+        ]
+      }
+    },
+    {
+      "label": "List the selection",
+      "check": {
+        "type": "usedCommand",
+        "matches": "^git sparse-checkout list\\b"
+      }
+    },
+    {
+      "label": "On feature/api-v2, api/v2.md is present and the selection still holds",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "currentBranch",
+            "name": "feature/api-v2"
+          },
+          {
+            "type": "pathExists",
+            "path": "mono/api/v2.md"
+          },
+          {
+            "type": "pathAbsent",
+            "path": "mono/web"
+          },
+          {
+            "type": "pathAbsent",
+            "path": "mono/mobile"
+          }
+        ]
+      },
+      "sticky": true
+    },
+    {
+      "label": "The selection is api and docs; root files stay",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "pathExists",
+            "path": "mono/docs/guide.md"
+          },
+          {
+            "type": "pathExists",
+            "path": "mono/api/routes.js"
+          },
+          {
+            "type": "pathExists",
+            "path": "mono/README.md"
+          },
+          {
+            "type": "pathAbsent",
+            "path": "mono/web"
+          },
+          {
+            "type": "pathAbsent",
+            "path": "mono/mobile"
+          },
+          {
+            "type": "status",
+            "clean": true
+          }
+        ]
+      }
+    }
+  ]
+}

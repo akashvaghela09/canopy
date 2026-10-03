@@ -1,0 +1,19 @@
+{
+  "questions": [],
+  "goals": [
+    { "label": "Read the status before resetting", "sticky": true, "check": { "type": "all", "checks": [
+        { "type": "usedCommand", "matches": "^git status\\b" },
+        { "type": "refAt", "ref": "HEAD", "target": "@mark:exp2" }
+      ] } },
+    { "label": "Use a hard reset", "check": { "type": "usedCommand", "matches": "^git reset\\b.*--hard" } },
+    { "label": "main is back on \"Working version\"", "check": { "type": "all", "checks": [
+        { "type": "refAt", "ref": "HEAD", "target": "@mark:good" },
+        { "type": "currentBranch", "name": "main" }
+      ] } },
+    { "label": "The experiment commits are off the branch", "check": { "type": "not", "check": { "type": "reachable", "rev": "@mark:exp2" } } },
+    { "label": "Staging area and files match that commit", "check": { "type": "all", "checks": [
+        { "type": "status", "clean": true },
+        { "type": "fileContent", "path": "deploy.sh", "source": "worktree", "lines": ["#!/bin/sh", "set -e", "rsync -a build/ server:/srv/app/", "ssh server systemctl restart app"] }
+      ] } }
+  ]
+}

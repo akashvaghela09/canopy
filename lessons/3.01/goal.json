@@ -1,0 +1,22 @@
+{
+  "questions": [
+    {
+      "id": "commit-count",
+      "prompt": "How many commits does `git log --oneline` list?",
+      "type": "number",
+      "answer": 15
+    },
+    {
+      "id": "oldest-of-three",
+      "prompt": "Show only the three newest commits. Which commit is the oldest of those three? (Enter its short id.)",
+      "type": "commit",
+      "answer": "@mark:prices"
+    }
+  ],
+  "goals": [
+    { "label": "Print the history one line per commit", "check": { "type": "usedCommand", "matches": "^git log\\b.*--oneline" } },
+    { "label": "Limit the log to the three newest commits", "check": { "type": "usedCommand", "matches": "^git log\\b.*(-n ?3|-3|--max-count[= ]3)\\b" } },
+    { "label": "Answer: how many commits", "check": { "type": "answer", "question": "commit-count" } },
+    { "label": "Answer: the oldest of the newest three", "check": { "type": "answer", "question": "oldest-of-three" } }
+  ]
+}

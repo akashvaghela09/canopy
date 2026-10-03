@@ -1,0 +1,14 @@
+id: "14.01"
+section: 14
+title: A tour of .git
+kind: concept
+teaches: [concept-git-dir]
+requires: [concept-refs-files, concept-repo, concept-staging-area]
+flags: []
+repo: garden
+start: garden
+panels: [inside-git]
+hints:
+  - "`ls .git` lists the top level. `ls .git/refs` and `ls .git/objects` go one level down."
+  - "`HEAD` is a one-line text file. Print it and read what it says."
+  - "The staging area is the binary file `index`. The objects folder holds every file, folder and commit by id."

@@ -1,0 +1,12 @@
+id: "9.11"
+section: 9
+title: Rebase conflicts
+kind: practice
+teaches: [rebase-conflict]
+requires: [rebase, conflict-resolve, cherry-pick-conflict]
+flags: []
+repo: api
+start: api
+hints:
+  - "The first commit replays cleanly; git stops at the second, \"Lower default limit and add unit\". The status names the commit and the conflicted file."
+  - "Make `config.toml` read: `[server]`, `port = 8080`, `limit = 20`, `unit = \"requests\"`. Stage it, then `git rebase --continue`, which finishes the commit with a clean message."

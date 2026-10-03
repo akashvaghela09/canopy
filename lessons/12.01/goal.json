@@ -1,0 +1,42 @@
+{
+  "goals": [
+    {
+      "label": "Publish feature/search to origin",
+      "sticky": true,
+      "check": { "type": "branchExists", "repo": "origin.git", "name": "feature/search" }
+    },
+    {
+      "label": "src/search.js defines a search function and is on main",
+      "check": { "type": "fileContent", "source": "main", "path": "src/search.js", "contains": "search(" }
+    },
+    {
+      "label": "main was merged with a merge commit (two parents)",
+      "check": { "type": "commitParents", "rev": "main", "count": 2 }
+    },
+    {
+      "label": "origin's main has the merge",
+      "check": { "type": "all", "checks": [
+        { "type": "refAt", "ref": "origin/main", "target": "main" },
+        { "type": "fileInRev", "repo": "origin.git", "rev": "main", "path": "src/search.js", "present": true }
+      ] }
+    },
+    {
+      "label": "feature/search is deleted locally",
+      "check": { "type": "all", "checks": [
+        { "type": "branchExists", "name": "feature/search", "present": false },
+        { "type": "fileInRev", "rev": "main", "path": "src/search.js", "present": true }
+      ] }
+    },
+    {
+      "label": "feature/search is deleted on origin",
+      "check": { "type": "all", "checks": [
+        { "type": "branchExists", "repo": "origin.git", "name": "feature/search", "present": false },
+        { "type": "fileInRev", "repo": "origin.git", "rev": "main", "path": "src/search.js", "present": true }
+      ] }
+    },
+    { "label": "Finish on main with a clean working tree", "check": { "type": "all", "checks": [
+      { "type": "currentBranch", "name": "main" },
+      { "type": "status", "clean": true }
+    ] } }
+  ]
+}

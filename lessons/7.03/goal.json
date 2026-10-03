@@ -1,0 +1,48 @@
+{
+  "questions": [
+    {
+      "id": "why-differ",
+      "prompt": "main and origin/main point to different commits. Which explanation fits?",
+      "type": "choice",
+      "options": [
+        "You committed on main, and a teammate's commit was fetched into origin/main; neither moved the other",
+        "origin/main is always one commit behind main by design",
+        "A clone gets a random older commit as origin/main"
+      ],
+      "answer": 0
+    },
+    {
+      "id": "switch-result",
+      "prompt": "What happened when you ran `git switch origin/main`?",
+      "type": "choice",
+      "options": [
+        "Git refused: a remote-tracking branch cannot be checked out as a branch to work on",
+        "Git moved main to the same commit as origin/main",
+        "Git created a new local branch called origin/main"
+      ],
+      "answer": 0
+    },
+    {
+      "id": "what-moves-it",
+      "prompt": "Which of these moves origin/main in your clone?",
+      "type": "choice",
+      "options": [
+        "Fetching from the remote (and pushing your own work to it)",
+        "Making a commit on main",
+        "Running git log or git status"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    { "label": "Draw the graph with all branches", "check": { "type": "usedCommand", "matches": "^git log\\b.*--all\\b" } },
+    { "label": "Try to switch to origin/main and read the refusal", "check": { "type": "usedCommand", "matches": "^git switch (--)?origin/main\\b", "exitCode": 128 } },
+    { "label": "main is still where it was", "check": { "type": "all", "checks": [
+        { "type": "refAt", "ref": "main", "target": "@mark:mine" },
+        { "type": "currentBranch", "name": "main" }
+      ] } },
+    { "label": "Answer: why they differ", "check": { "type": "answer", "question": "why-differ" } },
+    { "label": "Answer: what switch did", "check": { "type": "answer", "question": "switch-result" } },
+    { "label": "Answer: what moves origin/main", "check": { "type": "answer", "question": "what-moves-it" } }
+  ]
+}

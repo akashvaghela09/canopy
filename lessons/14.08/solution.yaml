@@ -1,0 +1,14 @@
+commands: |
+  git rev-parse HEAD main herbs wip~1 'v1.0^{}'
+  git rev-parse --abbrev-ref HEAD
+  git rev-parse --git-dir
+  cd docs
+  git rev-parse --show-toplevel
+  git rev-parse --show-prefix
+  cd ..
+answers:
+  wip1: "ff62c7d48507d1edfa910b33e11f38a68f422096"
+  abbrev: main
+  gitdir: ".git"
+  prefix: "docs/"
+  toplevel: 0

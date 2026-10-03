@@ -1,0 +1,10 @@
+commands: |
+  git status
+  git switch release-notes
+  git stash
+  git status
+  git switch release-notes
+  cat README.md
+  git switch main
+answers:
+  where: 0

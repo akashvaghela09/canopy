@@ -1,0 +1,12 @@
+commands: |
+  git reflog show main
+  git show --stat main@{3}
+  git show --stat 'main@{2024-03-10}'
+  git show --stat 'main@{2024-03-13T12:00}'
+  git reflog show HEAD
+  git show --stat HEAD@{3}
+answers:
+  three-moves: "@mark:d"
+  by-date: "@mark:c"
+  by-date-2: "@mark:d"
+  head-vs-main: 0

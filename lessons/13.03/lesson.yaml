@@ -1,0 +1,13 @@
+id: "13.03"
+section: 13
+title: Pretty logs
+kind: practice
+teaches: [log-format]
+requires: [log-oneline, log-filter]
+flags: []
+repo: garden
+start: garden
+hints:
+  - "Start from `git log --pretty=format:'%h %s'` and add placeholders: `%ad` for the author date, `%an` for the author name, `%d` for branch and tag names."
+  - "`--date=short` turns the date into YYYY-MM-DD. `--date=relative` and `--date=iso` are other options."
+  - "For the shape of history, `git log --oneline --graph --decorate --all` shows every branch with its labels."

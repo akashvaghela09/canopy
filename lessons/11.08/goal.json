@@ -1,0 +1,89 @@
+{
+  "questions": [
+    {
+      "id": "dropped",
+      "prompt": "Which commit from topic/rounding-v1 is missing from topic/rounding?",
+      "type": "choice",
+      "options": [
+        "Note rounding in docs",
+        "Round half up in format_price",
+        "Add rounding tests",
+        "Move format_price to format.py"
+      ],
+      "answer": 0
+    },
+    {
+      "id": "changed",
+      "prompt": "Which commit changed its content between the two versions?",
+      "type": "choice",
+      "options": [
+        "Add rounding tests",
+        "Round half up in format_price",
+        "Note rounding in docs",
+        "None of them"
+      ],
+      "answer": 0
+    },
+    {
+      "id": "what-changed",
+      "prompt": "What was added in the new version of that commit?",
+      "type": "choice",
+      "options": [
+        "A second test, test_rounds_down",
+        "A docs paragraph about rounding",
+        "A call to round() in format_price",
+        "Nothing; only the commit id changed"
+      ],
+      "answer": 0
+    },
+    {
+      "id": "same",
+      "prompt": "Which commit is identical in both versions apart from its id?",
+      "type": "choice",
+      "options": [
+        "Round half up in format_price",
+        "Add rounding tests",
+        "Note rounding in docs",
+        "Bump version to 1.2.0-dev"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    {
+      "label": "Compare the two series with range-diff",
+      "check": {
+        "type": "usedCommand",
+        "matches": "^git(\\s+(--no-pager|-C\\s+\\S+|-c\\s+\\S+))*\\s+range-diff\\b"
+      }
+    },
+    {
+      "label": "Spot the dropped commit",
+      "check": {
+        "type": "answer",
+        "question": "dropped"
+      }
+    },
+    {
+      "label": "Spot the changed commit",
+      "check": {
+        "type": "answer",
+        "question": "changed"
+      }
+    },
+    {
+      "label": "Say what changed in it",
+      "check": {
+        "type": "answer",
+        "question": "what-changed"
+      }
+    },
+    {
+      "label": "Spot the unchanged commit",
+      "check": {
+        "type": "answer",
+        "question": "same"
+      }
+    }
+  ]
+}

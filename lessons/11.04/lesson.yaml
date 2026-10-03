@@ -1,0 +1,14 @@
+id: "11.04"
+section: 11
+title: Blame, properly
+kind: practice
+teaches: [blame-options]
+requires: [blame, diff-options]
+flags: []
+minGit: "2.23"
+repo: pricer
+start: pricer
+hints:
+  - "Plain `git blame pricer/discounts.py` credits most lines to Jordan's \"Reformat discounts table\". Add `-w` to ignore whitespace changes and the real authors appear."
+  - "Copy the id of the reformat commit from the plain blame and run `git blame --ignore-rev <id> pricer/discounts.py`. For the file, use the full id (`git rev-parse <short id>` prints it): `git rev-parse <short id> > .git-blame-ignore-revs`."
+  - "`git blame -C pricer/format.py` notices the lines were moved from cart.py and credits their original author."

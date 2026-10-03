@@ -1,0 +1,9 @@
+commands: |
+  git reflog
+  git show --stat HEAD@{1}
+  git diff HEAD@{1} HEAD
+  git restore --source=HEAD@{1} docs/export.md
+  git add docs/export.md
+  git commit -m "Restore export docs lost in amend"
+  git status
+answers: {}

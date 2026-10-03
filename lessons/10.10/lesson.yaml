@@ -1,0 +1,13 @@
+id: "10.10"
+section: 10
+title: Recover a dropped stash
+kind: practice
+teaches: [recover-stash]
+requires: [stash-pop-apply, fsck-dangling]
+flags: []
+repo: ui
+start: ui
+hints:
+  - "`git fsck --unreachable | grep commit` lists a few commits. Show each one with `git show -s <id>`; the stash has the message \"On main: wip: dark mode\"."
+  - "Ignore the one that starts with \"index on main\": that is the stash's saved staging area, not the stash itself."
+  - "`git stash apply <id>` works with a commit id, not only with stash@{n}. Afterwards styles.css and app.py carry the dark-mode changes."

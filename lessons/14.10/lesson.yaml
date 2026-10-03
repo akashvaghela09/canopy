@@ -1,0 +1,14 @@
+id: "14.10"
+section: 14
+title: Build a commit by hand
+kind: practice
+teaches: [plumbing-commit]
+requires: [hash-object, index-file, commit-object, refs-plumbing]
+flags: []
+repo: garden
+start: garden
+panels: [inside-git]
+hints:
+  - "Order: write the blob, put it in the index, write the tree, write the commit, move the branch."
+  - "`git update-index --add --cacheinfo 100644,<blob-id>,hello.txt` records a blob in the index without reading the working tree."
+  - "`git commit-tree <tree-id> -p HEAD -m 'Add hello'` prints the new commit id; `git update-ref refs/heads/main <id>` makes it the tip."

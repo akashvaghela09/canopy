@@ -1,0 +1,93 @@
+{
+  "questions": [],
+  "goals": [
+    {
+      "label": "main has a new commit on top of the old tip",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "refNotAt",
+            "ref": "main",
+            "target": "@mark:tip"
+          },
+          {
+            "type": "isAncestor",
+            "ancestor": "@mark:tip",
+            "descendant": "main"
+          },
+          {
+            "type": "commitParents",
+            "rev": "main",
+            "count": 1
+          },
+          {
+            "type": "refAt",
+            "ref": "main~1",
+            "target": "@mark:tip"
+          }
+        ]
+      }
+    },
+    {
+      "label": "The new commit contains hello.txt with the right text",
+      "check": {
+        "type": "fileContent",
+        "source": "main",
+        "path": "hello.txt",
+        "contains": "hello from plumbing"
+      }
+    },
+    {
+      "label": "The old files are still in the tree",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "fileInRev",
+            "path": "README.md",
+            "rev": "main",
+            "present": true
+          },
+          {
+            "type": "fileInRev",
+            "path": "docs/guide.md",
+            "rev": "main",
+            "present": true
+          }
+        ]
+      }
+    },
+    {
+      "label": "Write the tree with git write-tree",
+      "check": {
+        "type": "usedCommand",
+        "matches": "\\bgit write-tree\\b"
+      }
+    },
+    {
+      "label": "Write the commit with git commit-tree",
+      "check": {
+        "type": "usedCommand",
+        "matches": "\\bgit commit-tree\\b"
+      }
+    },
+    {
+      "label": "Do not use git add or git commit",
+      "check": {
+        "type": "not",
+        "check": {
+          "type": "usedCommand",
+          "matches": "\\bgit (add|stage|commit)( |$)"
+        }
+      }
+    },
+    {
+      "label": "Stay on main",
+      "check": {
+        "type": "currentBranch",
+        "name": "main"
+      }
+    }
+  ]
+}

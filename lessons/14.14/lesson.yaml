@@ -1,0 +1,14 @@
+id: "14.14"
+section: 14
+title: Garbage collection
+kind: practice
+teaches: [gc]
+requires: [packfiles, reflog-expiry]
+flags: [destructive]
+repo: sketch
+start: sketch
+panels: [inside-git]
+hints:
+  - "List what nothing points to first (the unreachable listing you learned with fsck), then `git count-objects -v`."
+  - "After a plain `git gc`, count again: the unreachable objects are still there (in a cruft pack on git 2.41 and later, loose before that). Git keeps them for two weeks by default."
+  - "`git gc --prune=now` removes unreachable objects immediately, packed or loose."

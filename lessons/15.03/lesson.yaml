@@ -1,0 +1,17 @@
+id: "15.03"
+section: 15
+title: "Submodules: working inside"
+kind: practice
+teaches: [submodule-work]
+requires: [submodule-update, detached-head, push]
+flags: []
+repo: work
+start: work
+repos:
+  - { path: work, label: work (your clone) }
+  - { path: app.git, label: app origin }
+  - { path: lib.git, label: lib (the library) }
+hints:
+  - "Inside `lib/`, HEAD is detached. Attach it to the library's `main` before you commit, then publish the library commit from inside `lib/`."
+  - "Back in `work`, the status says `modified: lib (new commits)`. Stage `lib` and commit: that moves the pointer."
+  - "Publish the project too, so the new pointer reaches app.git. `git submodule update --remote lib` is the other direction: pull the library's latest main into the pointer."

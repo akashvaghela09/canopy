@@ -1,0 +1,13 @@
+id: "9.22"
+section: 9
+title: Run a command at every step
+kind: practice
+teaches: [rebase-exec]
+requires: [rebase-i-basics, term-files]
+flags: []
+repo: greet
+start: greet
+hints:
+  - "Read `test.sh` first. The option that adds a command after every pick is `-x` (`--exec`)."
+  - "`git rebase -i -x ./test.sh HEAD~5` runs it after each of the last five commits."
+  - "The rebase stops after the first commit whose test fails; the status and the last log entry name it. Answer the question, then abort the rebase."

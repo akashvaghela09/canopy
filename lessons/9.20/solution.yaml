@@ -1,0 +1,15 @@
+commands: |
+  git log --oneline
+  GIT_SEQUENCE_EDITOR="sed -i '1s/^pick/edit/'" git rebase -i HEAD~2
+  git reset HEAD^
+  git status
+  git add -p index.html
+  y
+  n
+  git diff --staged
+  git commit -m "Add search box"
+  git add index.html
+  git commit -m "Fix footer year"
+  git rebase --continue
+  git log --oneline
+answers: {}

@@ -1,0 +1,10 @@
+commands: |
+  git submodule deinit lib
+  git config --local --list
+  git rm lib
+  cat .gitmodules
+  git commit -m "Remove the lib submodule"
+  ls .git/modules
+  rm -rf .git/modules/lib
+answers:
+  places: 0

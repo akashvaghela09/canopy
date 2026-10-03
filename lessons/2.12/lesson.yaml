@@ -1,0 +1,14 @@
+id: "2.12"
+section: 2
+title: Move and rename files
+kind: practice
+teaches: [mv]
+requires: [rm, add, commit]
+flags: []
+repo: project
+start: project
+panels: [three-areas]
+hints:
+  - "`git mv notes.txt journal.txt` renames and stages in one go."
+  - "For the second file: `mv draft.md chapter1.md`, then stage both the missing old name and the new name (or stage everything)."
+  - "`git add draft.md chapter1.md` stages the deletion and the addition together; the status then says renamed."

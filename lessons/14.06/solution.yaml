@@ -1,0 +1,12 @@
+commands: |
+  git cat-file -t v0.1
+  git cat-file -t v1.0
+  git cat-file -p v1.0
+  cat .git/refs/tags/v0.1
+  cat .git/refs/tags/v1.0
+answers:
+  light-type: 0
+  annot-type: 0
+  points-to: "@mark:merge"
+  message: 0
+  ref-content: 0

@@ -1,0 +1,14 @@
+id: "5.04"
+section: 5
+title: Create and switch in one step
+kind: practice
+teaches: [switch-create]
+requires: [switch, status, log-graph]
+flags: []
+minGit: "2.23"
+repo: trail-guide
+start: trail-guide
+hints:
+  - "`-c` creates the branch and switches to it. Without a start point it begins at the commit HEAD is on."
+  - "\"Add ridge trail\" is two commits below the tip of main: `HEAD~2` from main, or its id from the log."
+  - "`git switch -c maps`, then `git switch -c archive/first-trails HEAD~2`."

@@ -1,0 +1,13 @@
+id: "12.07"
+section: 12
+title: Gitflow
+kind: practice
+teaches: [workflow-gitflow]
+requires: [merge-no-ff, tag-annotated, branch-create, switch-create]
+flags: []
+repo: project
+start: project
+hints:
+  - "Features branch from `develop` and merge back into `develop`. Releases branch from `develop`, merge into `main` (then get tagged) and back into `develop`."
+  - "Every Gitflow merge uses the no-fast-forward option, so the graph keeps each branch visible."
+  - "Order: feature/login -> develop; release/1.1.0 from develop, bump VERSION there; release -> main, tag v1.1.0 on main; release -> develop."

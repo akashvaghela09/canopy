@@ -1,0 +1,12 @@
+#!/bin/sh
+# canopy-merge BASE LOCAL REMOTE MERGED
+# A tiny merge tool for the lesson. It shows both sides, then writes a
+# resolution that keeps every line from both sides (a "union" merge).
+base=$1 local=$2 remote=$3 merged=$4
+echo "canopy-merge: resolving $merged"
+echo "---- ours (LOCAL) ----";   cat "$local"
+echo "---- theirs (REMOTE) ----"; cat "$remote"
+git merge-file -p --union "$local" "$base" "$remote" > "$merged"
+echo "canopy-merge: wrote the union of both sides to $merged"
+echo "$merged" >> "$(git rev-parse --git-dir)/canopy-merge.log"
+exit 0

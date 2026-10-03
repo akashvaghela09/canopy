@@ -1,0 +1,35 @@
+commands: |
+  git switch -c task/license
+  echo "MIT License" > LICENSE
+  git add LICENSE
+  git commit -m "Add MIT license"
+  git switch main
+  git pull --ff-only
+  git merge --squash task/license
+  git commit -m "Add MIT license"
+  git push
+  git branch -D task/license
+  #action sam-push-1
+  git switch -c task/usage-docs
+  mkdir -p docs
+  echo "lantern add <text>" > docs/usage.md
+  git add docs/usage.md
+  git commit -m "Add usage doc"
+  git switch main
+  git pull --ff-only
+  git merge --squash task/usage-docs
+  git commit -m "Add usage doc"
+  git push
+  git branch -D task/usage-docs
+  #action sam-push-2
+  git switch -c task/editorconfig
+  echo "indent_size = 2" > .editorconfig
+  git add .editorconfig
+  git commit -m "Add editorconfig"
+  git switch main
+  git pull --ff-only
+  git merge --squash task/editorconfig
+  git commit -m "Add editorconfig"
+  git push
+  git branch -D task/editorconfig
+  git log --oneline --graph origin/main

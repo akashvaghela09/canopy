@@ -1,0 +1,7 @@
+commands: |
+  git commit -m "Add opening hours to the homepage"
+  git log
+answers:
+  who-search: "Sam Chen"
+  when-footer: 2
+  which-homepage: "@mark:homepage"

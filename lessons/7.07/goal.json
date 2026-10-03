@@ -1,0 +1,14 @@
+{
+  "questions": [],
+  "goals": [
+    { "label": "Commit a new file trails/meadow.md", "check": { "type": "all", "checks": [
+        { "type": "fileInRev", "path": "trails/meadow.md", "rev": "main", "present": true },
+        { "type": "status", "clean": true }
+      ] } },
+    { "label": "Push main to origin", "check": { "type": "all", "checks": [
+        { "type": "fileInRev", "repo": "origin.git", "path": "trails/meadow.md", "rev": "main", "present": true },
+        { "type": "refAt", "ref": "main", "target": "origin/main" }
+      ] } },
+    { "label": "Sam pulls and receives your commit (use the lesson action)", "check": { "type": "fileInRev", "repo": "teammate", "path": "trails/meadow.md", "rev": "main", "present": true } }
+  ]
+}

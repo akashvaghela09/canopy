@@ -1,0 +1,13 @@
+id: "1.06"
+section: 1
+title: What is a commit
+kind: concept
+teaches: [concept-commit]
+requires: [status, config-identity]
+flags: [guided]
+repo: project
+start: project
+panels: [three-areas]
+hints:
+  - "Type the two commands exactly as shown, one after the other."
+  - "`git log` prints the commit you made. Look for the Author and Date lines."

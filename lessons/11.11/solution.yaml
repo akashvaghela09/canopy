@@ -1,0 +1,9 @@
+commands: |
+  git grep -n legacy_total v0.1
+  git grep -c TAX_RATE v1.0
+  git grep -l apply_discount v0.1
+  git grep -l apply_discount v0.2
+answers:
+  files: [0]
+  tax-count: 2
+  earliest: 0

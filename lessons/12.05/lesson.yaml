@@ -1,0 +1,15 @@
+id: "12.05"
+section: 12
+title: Commits worth reading
+kind: practice
+teaches: [atomic-commits]
+requires: [split-commit, autosquash, commit-message]
+flags: []
+repo: work
+start: work
+repos:
+  - { path: work, label: Your clone }
+hints:
+  - "Start an interactive rebase onto main and mark the first commit for editing. When it stops, undo that commit but keep its changes, then commit README.md and src/config.js separately."
+  - "The bug fix belongs inside the config commit. Give it a `fixup! <subject of the config commit>` message and rebase with autosquash."
+  - "Finish by rewording \"more\" to a proper subject such as \"Add config tests\"."

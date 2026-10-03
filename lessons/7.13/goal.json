@@ -1,0 +1,16 @@
+{
+  "questions": [],
+  "goals": [
+    { "label": "Check the remote with ls-remote", "check": { "type": "usedCommand", "matches": "^git ls-remote\\b" } },
+    { "label": "winter-closures is deleted on origin", "check": { "type": "branchExists", "repo": "origin.git", "name": "winter-closures", "present": false } },
+    { "label": "Your local winter-closures branch is gone", "check": { "type": "branchExists", "name": "winter-closures", "present": false } },
+    { "label": "No stale remote-tracking branches remain (origin/winter-closures, origin/scratch)", "check": { "type": "all", "checks": [
+        { "type": "not", "check": { "type": "commitCount", "range": "origin/winter-closures", "min": 0 } },
+        { "type": "not", "check": { "type": "commitCount", "range": "origin/scratch", "min": 0 } }
+      ] } },
+    { "label": "main is untouched on origin and locally", "check": { "type": "all", "checks": [
+        { "type": "refAt", "repo": "origin.git", "ref": "main", "target": "@mark:merged" },
+        { "type": "refAt", "ref": "main", "target": "@mark:merged" }
+      ] } }
+  ]
+}

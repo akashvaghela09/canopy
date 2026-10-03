@@ -1,0 +1,8 @@
+commands: |
+  git log --oneline --author=Sam
+  git log --oneline --since=2024-03-11 --until=2024-03-17
+  git log --oneline --grep=typo
+answers:
+  sam-count: 5
+  week-count: 3
+  typo-commit: 125ef90

@@ -1,0 +1,10 @@
+commands: |
+  git log --oneline main..wip
+  git cherry-pick -x wip~2
+  git log -1
+  git cherry-pick -n wip~1
+  git cherry-pick -n wip
+  git status
+  git commit -m "Add changelog"
+  git log --oneline -3
+answers: {}

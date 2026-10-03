@@ -1,0 +1,13 @@
+id: "11.11"
+section: 11
+title: Search the code at any revision
+kind: practice
+teaches: [grep]
+requires: [show, log-pickaxe-s]
+flags: []
+repo: pricer
+start: pricer
+hints:
+  - "`git grep -n legacy_total v0.1` searches the whole tree as it was at v0.1 and prints file, line number and the line."
+  - "`git grep -c TAX_RATE v1.0` prints a count per file."
+  - "Try `git grep -l apply_discount v0.1`, then v0.2: the earliest tag where it appears is your answer."

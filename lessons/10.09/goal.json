@@ -1,0 +1,52 @@
+{
+  "questions": [
+    {
+      "id": "dangling-commit",
+      "prompt": "Which commit is dangling (the deleted ideas branch)?",
+      "type": "commit",
+      "answer": "@mark:lost-commit"
+    },
+    {
+      "id": "never-staged",
+      "prompt": "Can the hour of edits to draft.md (never staged) be recovered with git?",
+      "type": "choice",
+      "options": [
+        "No: git only stores content when it is staged or committed, so no object was ever written",
+        "Yes: fsck lists it as a dangling blob",
+        "Yes: it is in the reflog under HEAD@{1}"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    {
+      "label": "List dangling objects with fsck",
+      "check": {
+        "type": "usedCommand",
+        "matches": "^git fsck\\b"
+      }
+    },
+    {
+      "label": "Identify the dangling commit",
+      "check": {
+        "type": "answer",
+        "question": "dangling-commit"
+      }
+    },
+    {
+      "label": "notes/scratch.md is restored from the dangling blob",
+      "check": {
+        "type": "fileContent",
+        "path": "notes/scratch.md",
+        "contains": "Ask Priya about search by date."
+      }
+    },
+    {
+      "label": "Say whether never-staged edits can be recovered",
+      "check": {
+        "type": "answer",
+        "question": "never-staged"
+      }
+    }
+  ]
+}

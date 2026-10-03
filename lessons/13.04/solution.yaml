@@ -1,0 +1,7 @@
+commands: |
+  git config --global alias.lg "log --oneline --graph --decorate --all"
+  git lg
+  git config --global alias.wip '!git add -A && git commit -m wip'
+  git wip
+  git lg -3
+  git config --get-regexp alias

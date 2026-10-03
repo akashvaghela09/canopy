@@ -1,0 +1,16 @@
+id: "15.07"
+section: 15
+title: Make patch files
+kind: practice
+teaches: [format-patch]
+requires: [cherry-pick-range, show, diff-options]
+flags: []
+repo: project
+start: project
+repos:
+  - { path: project, label: project (yours) }
+  - { path: colleague, label: colleague (their clone) }
+hints:
+  - "`git format-patch main..feature -o patches` writes one numbered file per commit into patches/."
+  - "In `../colleague`: `git apply --stat ../project/patches/*.patch` summarises them; `git apply --check` tries them without changing anything."
+  - "`-3 -o patches` while on feature does the same as the range form."

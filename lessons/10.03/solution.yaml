@@ -1,0 +1,7 @@
+commands: |
+  git log --oneline
+  git status
+  git reflog
+  git reset --hard HEAD@{1}
+  git log --oneline
+answers: {}

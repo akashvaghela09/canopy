@@ -1,0 +1,9 @@
+commands: |
+  git status
+  git add .
+  git commit -m "Start the project"
+  git status
+  git log
+answers:
+  parents: 0
+  not-stored: 3

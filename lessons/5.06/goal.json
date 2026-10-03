@@ -1,0 +1,58 @@
+{
+  "questions": [
+    {
+      "id": "map-file",
+      "prompt": "`git checkout -- gear.md` is the older spelling of which command?",
+      "type": "choice",
+      "options": [
+        "git restore gear.md",
+        "git switch gear.md",
+        "git reset --hard gear.md",
+        "git rm gear.md"
+      ],
+      "answer": 0
+    },
+    {
+      "id": "map-b",
+      "prompt": "`git checkout -b winter-gear` is the older spelling of which command?",
+      "type": "choice",
+      "options": [
+        "git switch -c winter-gear",
+        "git branch winter-gear",
+        "git restore --source winter-gear",
+        "git switch winter-gear"
+      ],
+      "answer": 0
+    },
+    {
+      "id": "why-split",
+      "prompt": "Why were switch and restore split out of checkout?",
+      "type": "choice",
+      "options": [
+        "checkout mixed two unrelated jobs, moving HEAD and overwriting files, and a name that was both a branch and a file was ambiguous",
+        "checkout was removed from git and no longer works",
+        "switch is faster because it does not touch files on disk",
+        "restore can undo commits, which checkout never could"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    { "label": "Switch to winter with checkout", "check": { "type": "usedCommand", "matches": "^git checkout\\s+winter\\s*$" } },
+    { "label": "Create winter-gear with checkout -b", "check": { "type": "usedCommand", "matches": "^git checkout\\s+-b\\s+winter-gear" } },
+    { "label": "Edit gear.md on winter-gear", "sticky": true, "check": { "type": "all", "checks": [
+        { "type": "currentBranch", "name": "winter-gear" },
+        { "type": "status", "modified": ["gear.md"] }
+      ] } },
+    { "label": "Discard the edit to gear.md with checkout", "check": { "type": "usedCommand", "matches": "^git checkout\\s+(--\\s+)?gear\\.md\\s*$" } },
+    { "label": "On winter-gear, starting from winter's tip, with a clean working tree", "check": { "type": "all", "checks": [
+        { "type": "currentBranch", "name": "winter-gear" },
+        { "type": "refAt", "ref": "winter-gear", "target": "@mark:winter" },
+        { "type": "refAt", "ref": "winter", "target": "@mark:winter" },
+        { "type": "status", "clean": true }
+      ] } },
+    { "label": "Answer: checkout -- file", "check": { "type": "answer", "question": "map-file" } },
+    { "label": "Answer: checkout -b", "check": { "type": "answer", "question": "map-b" } },
+    { "label": "Answer: why the split", "check": { "type": "answer", "question": "why-split" } }
+  ]
+}

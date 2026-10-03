@@ -1,0 +1,36 @@
+{
+  "questions": [],
+  "goals": [
+    {
+      "label": "Find the stash commits with fsck",
+      "check": {
+        "type": "usedCommand",
+        "matches": "^git fsck\\b"
+      }
+    },
+    {
+      "label": "styles.css has the dark-mode rule again",
+      "check": {
+        "type": "fileContent",
+        "path": "styles.css",
+        "contains": "body.dark"
+      }
+    },
+    {
+      "label": "app.py has toggle_theme again",
+      "check": {
+        "type": "fileContent",
+        "path": "app.py",
+        "contains": "def toggle_theme"
+      }
+    },
+    {
+      "label": "main did not move",
+      "check": {
+        "type": "refAt",
+        "ref": "main",
+        "target": "@mark:main-tip"
+      }
+    }
+  ]
+}

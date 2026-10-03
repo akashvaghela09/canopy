@@ -1,0 +1,13 @@
+id: "15.14"
+section: 15
+title: Octopus merges
+kind: practice
+teaches: [octopus]
+requires: [merge-three-way, merge-strategy-ours]
+flags: []
+repo: project
+start: project
+hints:
+  - "`git merge header footer sidebar clash` stops with a conflict: clash and header both edit theme.css. Do not resolve it; abort the merge."
+  - "`git merge header footer sidebar -m 'Merge header, footer and sidebar'` succeeds: one commit, four parents."
+  - "An octopus never resolves conflicts for you, and resolving this one would merge clash too. Merge a conflicting branch on its own instead."

@@ -1,0 +1,27 @@
+{
+  "questions": [
+    {
+      "id": "where",
+      "prompt": "After `git stash`, where are your edits?",
+      "type": "choice",
+      "options": [
+        "In a stash entry, kept by git outside any branch, until you bring them back",
+        "Discarded; stash is a tidier name for restore",
+        "Committed on main with the message WIP"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    { "label": "Park the edits with git stash", "check": { "type": "all", "checks": [
+        { "type": "stash", "count": 1 },
+        { "type": "fileContent", "path": "README.md", "source": "stash@{0}", "contains": "Watering schedule" }
+      ] } },
+    { "label": "Visit release-notes", "sticky": true, "check": { "type": "currentBranch", "name": "release-notes" } },
+    { "label": "Come back to main with a clean working tree", "check": { "type": "all", "checks": [
+        { "type": "currentBranch", "name": "main" },
+        { "type": "status", "clean": true }
+      ] } },
+    { "label": "Answer: where the edits went", "check": { "type": "answer", "question": "where" } }
+  ]
+}

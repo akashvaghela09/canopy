@@ -1,0 +1,13 @@
+id: "9.03"
+section: 9
+title: Add to the last commit
+kind: practice
+teaches: [amend-content]
+requires: [amend-message, add]
+flags: []
+repo: site
+start: site
+panels: [three-areas]
+hints:
+  - "Stage the forgotten file first. An amend commits whatever is staged, on top of what the old commit already had."
+  - "`git commit --amend --no-edit` keeps the old message without opening the editor."

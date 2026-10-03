@@ -1,0 +1,13 @@
+id: "4.07"
+section: 4
+title: Reset softly
+kind: practice
+teaches: [reset-soft]
+requires: [concept-reset, relative-refs]
+flags: [destructive]
+repo: app
+start: app
+panels: [three-areas]
+hints:
+  - "The two WIP commits are HEAD and HEAD~1, so the commit to go back to is HEAD~2."
+  - "After `git reset --soft HEAD~2`, check the status: everything from both commits is already staged. One commit with a proper message finishes it."

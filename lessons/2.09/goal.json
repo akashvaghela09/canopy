@@ -1,0 +1,72 @@
+{
+  "questions": [
+    {
+      "id": "who-search",
+      "prompt": "Who made the commit \"Add search box\"?",
+      "type": "text",
+      "accept": [
+        "Sam Chen",
+        "Sam",
+        "Chen",
+        "sam@example.com",
+        "Sam Chen <sam@example.com>",
+        "<sam@example.com>"
+      ]
+    },
+    {
+      "id": "when-footer",
+      "prompt": "On which day was the footer added?",
+      "type": "choice",
+      "options": [
+        "14 February 2024",
+        "20 February 2024",
+        "3 March 2024"
+      ],
+      "answer": 2
+    },
+    {
+      "id": "which-homepage",
+      "prompt": "Which commit created the homepage? Paste the start of its id.",
+      "type": "commit",
+      "answer": "@mark:homepage"
+    }
+  ],
+  "goals": [
+    {
+      "label": "Commit the staged change to index.html",
+      "check": {
+        "type": "commitCount",
+        "range": "main",
+        "equals": 4
+      }
+    },
+    {
+      "label": "Run git log",
+      "check": {
+        "type": "usedCommand",
+        "matches": "git\\s+log\\b"
+      }
+    },
+    {
+      "label": "Answer: who added the search box",
+      "check": {
+        "type": "answer",
+        "question": "who-search"
+      }
+    },
+    {
+      "label": "Answer: when the footer was added",
+      "check": {
+        "type": "answer",
+        "question": "when-footer"
+      }
+    },
+    {
+      "label": "Answer: which commit created the homepage",
+      "check": {
+        "type": "answer",
+        "question": "which-homepage"
+      }
+    }
+  ]
+}

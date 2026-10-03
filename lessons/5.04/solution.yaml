@@ -1,0 +1,7 @@
+commands: |
+  git switch -c maps
+  git status
+  git switch -c archive/first-trails HEAD~2
+  ls
+  git log --oneline --graph --all
+answers: {}

@@ -1,0 +1,21 @@
+commands: |
+  git log --oneline --graph --all
+  git branch --merged
+  git switch -c feature/search main~2
+  echo "# Search" > search.md
+  git add search.md
+  git commit -m "Add search page"
+  git switch -c fix/typo main~1
+  sed -i 's/adress/address/' checkout.md
+  git add checkout.md
+  git commit -m "Fix typo in checkout page"
+  git switch -c feature/reviews main
+  echo "# Reviews" > reviews.md
+  git add reviews.md
+  git commit -m "Add reviews page"
+  git branch -m wip feature/cart
+  git branch -d old-banner
+  git tag -a v2.0 -m "Shop 2.0" main
+  git log --oneline --graph --all
+  git status
+answers: {}

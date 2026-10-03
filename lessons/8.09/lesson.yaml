@@ -1,0 +1,15 @@
+id: "8.09"
+section: 8
+title: Manage worktrees
+kind: practice
+teaches: [worktree-manage]
+requires: [worktree-add]
+flags: []
+repo: work
+start: work
+repos:
+  - { path: work, label: Main worktree (work) }
+  - { path: review, label: Review worktree }
+hints:
+  - "`git worktree add ../again main` is refused: main is already in use by the `work` worktree (older git says \"already checked out\", git 2.42+ says \"already used by worktree\"). Read the message."
+  - "`git worktree list` marks the deleted `scratch` worktree as prunable; `git worktree prune` forgets it. `git worktree remove ../review` deletes the review folder."

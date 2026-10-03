@@ -1,0 +1,13 @@
+id: "6.15"
+section: 6
+title: Revert a merge commit
+kind: practice
+teaches: [revert-merge]
+requires: [revert, merge-three-way, log-merges]
+flags: []
+repo: cafe
+start: cafe
+hints:
+  - "Find the merge commit by listing only merges. Revert it with `-m 1` so git keeps main's side (parent 1) and undoes what promo brought in."
+  - "Merging promo again does nothing: its commits are already ancestors of main. The revert commit is what removed their effect."
+  - "To bring the work back, revert the revert: `git revert HEAD` right after the first revert, or name the revert commit."

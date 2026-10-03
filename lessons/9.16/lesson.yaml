@@ -1,0 +1,12 @@
+id: "9.16"
+section: 9
+title: Squash and fixup
+kind: practice
+teaches: [rebase-i-squash]
+requires: [rebase-i-basics, commit-message]
+flags: []
+repo: auth
+start: auth
+hints:
+  - "Start an interactive rebase over the last five commits. Each `squash` or `fixup` line melts into the pick line above it."
+  - "Mark \"fix typo\" and \"wip\" as `squash` (or `fixup`), and \"oops forgot file\" as `fixup`. With `squash`, the editor opens for the combined message: leave only `Add login form`."

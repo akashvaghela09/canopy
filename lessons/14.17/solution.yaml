@@ -1,0 +1,10 @@
+commands: |
+  git diff-files
+  git diff-index --cached HEAD
+  git diff-index HEAD
+  git diff-tree -r HEAD~1 HEAD
+answers:
+  files: about.html
+  index-cached: index.html
+  tree: style.css
+  no-cached: 0

@@ -1,0 +1,33 @@
+{
+  "questions": [
+    {
+      "id": "pull-is",
+      "prompt": "git pull does the same work as which two commands, in this order?",
+      "type": "choice",
+      "options": [
+        "git fetch, then git merge origin/main",
+        "git merge origin/main, then git fetch",
+        "git fetch, then git push",
+        "git clone, then git merge"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    { "label": "Pull Sam's work as a fast-forward", "sticky": true, "check": { "type": "all", "checks": [
+        { "type": "usedCommand", "matches": "^git pull\\b" },
+        { "type": "isAncestor", "ancestor": "@mark:river", "descendant": "main" },
+        { "type": "refAt", "ref": "main", "target": "origin/main" },
+        { "type": "currentBranch", "name": "main" }
+      ] } },
+    { "label": "Make a commit of your own on main", "check": { "type": "commitCount", "range": "@mark:river..main", "min": 1 } },
+    { "label": "Pull Sam's new work so main ends in a merge commit", "check": { "type": "all", "checks": [
+        { "type": "fileContent", "path": "trails/lake.md", "source": "main", "contains": "Distance: 6 km" },
+        { "type": "commitParents", "rev": "main", "count": 2 },
+        { "type": "status", "clean": true },
+        { "type": "commitCount", "range": "origin/main..main", "min": 1 },
+        { "type": "isAncestor", "ancestor": "origin/main", "descendant": "main" }
+      ] } },
+    { "label": "Answer: what pull is made of", "check": { "type": "answer", "question": "pull-is" } }
+  ]
+}

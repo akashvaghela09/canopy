@@ -1,0 +1,11 @@
+commands: |
+  git branch signage
+  git branch fix/lake-distance HEAD~1
+  git branch bad..name
+  git branch -v
+  echo "- sun cream" >> gear.md
+  git add gear.md
+  git commit -m "Add sun cream to gear list"
+  git branch -v
+answers:
+  after-commit: 0

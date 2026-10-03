@@ -1,0 +1,12 @@
+id: "3.07"
+section: 3
+title: What is HEAD
+kind: concept
+teaches: [head]
+requires: [show, log-graph]
+flags: []
+repo: bakery
+start: bakery
+hints:
+  - "`git show HEAD` prints the commit HEAD points to. Its id is on the first line."
+  - "After you commit, run `git log -1` or draw the graph again: `HEAD -> main` now sits on your new commit."

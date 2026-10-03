@@ -1,0 +1,6 @@
+commands: |
+  git status
+  git add todo.txt
+  git commit -m "Add shopping list"
+answers:
+  staged-version: 0

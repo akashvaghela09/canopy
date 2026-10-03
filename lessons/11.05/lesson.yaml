@@ -1,0 +1,13 @@
+id: "11.05"
+section: 11
+title: Find the bad commit by bisecting
+kind: practice
+teaches: [bisect]
+requires: [log-oneline, detached-head, relative-refs]
+flags: []
+repo: tally
+start: tally
+hints:
+  - "`git bisect start`, then `git bisect bad` (HEAD is broken) and `git bisect good v2.0`. Git checks out a commit in the middle."
+  - "At each step run `bash tests/sum.sh && echo good || echo bad`, then tell git the result with `git bisect good` or `git bisect bad`. About six rounds."
+  - "When git prints \"<id> is the first bad commit\", note the id for the question, then `git bisect reset` to return to main."

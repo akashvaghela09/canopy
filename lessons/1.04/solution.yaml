@@ -1,0 +1,8 @@
+commands: |
+  git config --global user.name "Ada Lovelace"
+  git config --global user.email "ada@example.com"
+  git config --local user.email work@example.com
+  git config --list
+  git config --show-origin user.email
+answers:
+  origin: 0

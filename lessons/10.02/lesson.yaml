@@ -1,0 +1,13 @@
+id: "10.02"
+section: 10
+title: Address the past
+kind: practice
+teaches: [reflog-refs]
+requires: [reflog-read, relative-refs]
+flags: []
+repo: draft
+start: draft
+hints:
+  - "`git reflog show main` numbers the entries: main@{0} is the current tip, main@{1} the move before, and so on. `git show main@{3}` opens the entry three moves back."
+  - "For a date, write it inside the braces: `git show 'main@{2024-03-10}'`. Git picks the entry that was current at that moment, read in your own time zone."
+  - "Compare `git reflog show HEAD` with `git reflog show main`: HEAD's list also contains the switch to the notes branch and back, so HEAD@{3} is a different entry."

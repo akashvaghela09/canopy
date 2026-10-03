@@ -1,0 +1,24 @@
+{
+  "questions": [],
+  "goals": [
+    { "label": "The rebase pauses on a conflict in pancakes.md", "sticky": true, "check": { "type": "all", "checks": [
+        { "type": "operation", "value": "rebase" },
+        { "type": "status", "conflicted": ["pancakes.md"] }
+      ] } },
+    { "label": "Two commits on top of the skeleton: mix first, then fry", "check": { "type": "all", "checks": [
+        { "type": "commitCount", "range": "@mark:base..main", "equals": 2 },
+        { "type": "refAt", "ref": "main~2", "target": "@mark:base" },
+        { "type": "commitMessage", "rev": "main~1", "equals": "Add step: mix the batter" },
+        { "type": "commitMessage", "rev": "main", "equals": "Add step: fry the pancakes" }
+      ] } },
+    { "label": "The TODO note is gone from history", "check": { "type": "fileInRev", "path": "todo.txt", "rev": "main", "present": false } },
+    { "label": "pancakes.md lists mix before fry, in both commits", "check": { "type": "all", "checks": [
+        { "type": "fileContent", "source": "main~1", "path": "pancakes.md", "lines": ["# Pancakes", "", "## Steps", "- Mix flour, eggs and milk"] },
+        { "type": "fileContent", "source": "main", "path": "pancakes.md", "lines": ["# Pancakes", "", "## Steps", "- Mix flour, eggs and milk", "- Fry each side until golden"] }
+      ] } },
+    { "label": "Rebase finished, clean working tree", "check": { "type": "all", "checks": [
+        { "type": "operation", "value": null },
+        { "type": "status", "clean": true }
+      ] } }
+  ]
+}

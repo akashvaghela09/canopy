@@ -1,0 +1,13 @@
+id: "6.13"
+section: 6
+title: See the common ancestor in conflicts
+kind: practice
+teaches: [conflict-diff3]
+requires: [conflict-resolve, config-identity]
+flags: []
+repo: cafe
+start: cafe
+hints:
+  - "`git checkout --conflict=diff3 config.ini` rewrites the file with a third section, `||||||| base`, showing the line as it was before either branch changed it."
+  - "Compare each side with the base: main changed the hours, rename changed the name. The right result has both changes."
+  - "Set the key `merge.conflictstyle` to `diff3` with the config command, in this repo. Then write the two resolved lines, stage, and commit."

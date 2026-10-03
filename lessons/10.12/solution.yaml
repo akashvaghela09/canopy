@@ -1,0 +1,25 @@
+commands: |
+  cd case1-reset
+  cat STORY.txt
+  git reflog
+  git reset --hard HEAD@{1}
+  cd ../case2-branch
+  cat STORY.txt
+  git reflog
+  git branch feature/invoices HEAD@{1}
+  cd ../case3-rebase
+  cat STORY.txt
+  git reflog show feature/pdf
+  git reset --hard feature/pdf@{1}
+  cd ../case4-stash
+  cat STORY.txt
+  git fsck --unreachable | grep commit
+  git stash apply $(git fsck --unreachable | grep commit | cut -d' ' -f3 | xargs git log --no-walk --format='%H %s' | grep ' On main: ' | cut -d' ' -f1)
+  cd ../case5-edit
+  cat STORY.txt
+  git status
+  git reflog
+  git fsck --lost-found
+  cd ..
+answers:
+  unrecoverable: 0

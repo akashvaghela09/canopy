@@ -1,0 +1,13 @@
+id: "10.06"
+section: 10
+title: Recover a deleted branch
+kind: practice
+teaches: [recover-branch]
+requires: [branch-delete, reflog-read, branch-create]
+flags: []
+repo: blog
+start: blog
+hints:
+  - "`git reflog` still has the commits made on feature/drafts. Look for \"commit: Add draft autosave\"; the id at the start of that line is the branch tip."
+  - "Be careful with the \"checkout: moving from feature/drafts to main\" line: its id is main's tip, not the drafts tip."
+  - "`git branch feature/drafts <id>` recreates the branch at that commit. Check it with the graph."

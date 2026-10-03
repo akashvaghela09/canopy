@@ -1,0 +1,15 @@
+commands: |
+  pwd
+  git config --global include.path "$PWD/conf/shared.gitconfig"
+  git config --global includeIf."gitdir:$PWD/work/".path "$PWD/conf/work.gitconfig"
+  git config --global includeIf."gitdir:$PWD/personal/".path "$PWD/conf/personal.gitconfig"
+  cd work/client-app
+  git st
+  git add TODO.md
+  git commit -m "Add TODO list"
+  git log -1 --format='%an <%ae>'
+  cd ../../personal/blog
+  git add posts/hello.md
+  git commit -m "Add first post"
+  git log -1 --format='%an <%ae>'
+  cd ../..

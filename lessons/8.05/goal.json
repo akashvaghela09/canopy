@@ -1,0 +1,18 @@
+{
+  "questions": [],
+  "goals": [
+    { "label": "Stash the untracked draft along with the edits (-u)", "sticky": true, "check": { "type": "all", "checks": [
+        { "type": "pathAbsent", "path": "work/notes/draft.md" },
+        { "type": "stash", "count": 1 },
+        { "type": "fileInRev", "path": "notes/draft.md", "rev": "stash@{0}^3", "present": true }
+      ] } },
+    { "label": "The ignored debug.log never left the disk", "check": { "type": "pathExists", "path": "work/debug.log" } },
+    { "label": "Stash with --keep-index", "check": { "type": "usedCommand", "matches": "^git stash\\b.*(--keep-index|\\s-[a-zA-Z]*k)" } },
+    { "label": "Finish with the config.toml change staged and the app.py edit parked", "check": { "type": "all", "checks": [
+        { "type": "status", "staged": ["config.toml"], "modified": [], "exact": true },
+        { "type": "fileContent", "path": "config.toml", "source": "index", "contains": "theme = \"dark\"" },
+        { "type": "fileContent", "path": "app.py", "notContains": "Hello, gardener!" },
+        { "type": "stash", "count": 1 }
+      ] } }
+  ]
+}

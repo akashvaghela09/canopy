@@ -1,0 +1,21 @@
+commands: |
+  cd wrong-file
+  git log --oneline
+  git reset --soft HEAD~1
+  git restore --staged secret.env
+  git commit -m "Add meeting notes"
+  git status
+  cd ../shared
+  git log --oneline
+  git revert HEAD
+  git log --oneline
+  cd ../scrap
+  git status
+  git reset --hard
+  git clean -fd
+  git status
+  cd ../too-early
+  git restore --staged report.md
+  git status
+  cd ..
+answers: {}

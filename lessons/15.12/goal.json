@@ -1,0 +1,110 @@
+{
+  "questions": [
+    {
+      "id": "after-amend",
+      "prompt": "After the amend, what does `git verify-commit HEAD` report, and why?",
+      "type": "choice",
+      "options": [
+        "It fails: amending created a new commit object with no signature",
+        "It passes: the signature is copied to the amended commit",
+        "It fails: the key was deleted by the amend",
+        "It passes, with a warning that the tag moved"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    {
+      "label": "Signing is configured for SSH in this repository",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "config",
+            "key": "gpg.format",
+            "value": "ssh",
+            "scope": "local"
+          },
+          {
+            "type": "config",
+            "key": "user.signingkey",
+            "scope": "local",
+            "present": true
+          },
+          {
+            "type": "config",
+            "key": "gpg.ssh.allowedSignersFile",
+            "scope": "local",
+            "present": true
+          }
+        ]
+      }
+    },
+    {
+      "label": "An annotated tag v1.0 exists",
+      "check": {
+        "type": "tag",
+        "name": "v1.0",
+        "present": true,
+        "annotated": true
+      }
+    },
+    {
+      "label": "v1.0 carries a valid signature",
+      "check": {
+        "type": "shell",
+        "script": "git verify-tag v1.0 >/dev/null 2>&1"
+      }
+    },
+    {
+      "label": "The commit v1.0 points at carries a valid signature",
+      "check": {
+        "type": "shell",
+        "script": "git verify-commit 'v1.0^{commit}' >/dev/null 2>&1"
+      }
+    },
+    {
+      "label": "Verify a commit with git verify-commit",
+      "check": {
+        "type": "usedCommand",
+        "matches": "\\bgit verify-commit\\b"
+      }
+    },
+    {
+      "label": "Show signatures in the log",
+      "check": {
+        "type": "usedCommand",
+        "matches": "\\bgit log\\b.*--show-signature"
+      }
+    },
+    {
+      "label": "The tip was amended into an unsigned commit",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "tag",
+            "name": "v1.0",
+            "present": true
+          },
+          {
+            "type": "refNotAt",
+            "ref": "HEAD",
+            "target": "v1.0^{commit}"
+          },
+          {
+            "type": "shell",
+            "script": "! git verify-commit HEAD >/dev/null 2>&1"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Explain the failed verification",
+      "check": {
+        "type": "answer",
+        "question": "after-amend"
+      }
+    }
+  ]
+}

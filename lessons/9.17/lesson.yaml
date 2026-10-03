@@ -1,0 +1,13 @@
+id: "9.17"
+section: 9
+title: Reorder and drop
+kind: practice
+teaches: [rebase-i-reorder-drop]
+requires: [rebase-i-basics, rebase-conflict]
+flags: [destructive]
+repo: recipes
+start: recipes
+hints:
+  - "In the todo list, move the \"mix the batter\" line above the \"fry\" line and change the TODO line to `drop` (or delete it)."
+  - "Both steps were appended to the end of the same file, so each one conflicts in its new place. First stop: make the file end with the mix line only. Second stop: mix line, then fry line."
+  - "At each stop: edit `pancakes.md`, stage it, `git rebase --continue`."

@@ -1,0 +1,50 @@
+{
+  "questions": [],
+  "goals": [
+    {
+      "label": "Read a reflog to find the pre-rebase tip",
+      "check": {
+        "type": "usedCommand",
+        "matches": "^git\\s+(reflog\\b|log\\b.*\\s(-g|--walk-reflogs)\\b)"
+      }
+    },
+    {
+      "label": "feature/search is back on its original commits (original ids)",
+      "check": {
+        "type": "refAt",
+        "ref": "feature/search",
+        "target": "@mark:search-orig"
+      }
+    },
+    {
+      "label": "You are on feature/search",
+      "check": {
+        "type": "currentBranch",
+        "name": "feature/search"
+      }
+    },
+    {
+      "label": "wip-styles is untouched",
+      "check": {
+        "type": "refAt",
+        "ref": "wip-styles",
+        "target": "@mark:wip-tip"
+      }
+    },
+    {
+      "label": "main is untouched",
+      "check": {
+        "type": "refAt",
+        "ref": "main",
+        "target": "@mark:main-tip"
+      }
+    },
+    {
+      "label": "Clean working tree",
+      "check": {
+        "type": "status",
+        "clean": true
+      }
+    }
+  ]
+}

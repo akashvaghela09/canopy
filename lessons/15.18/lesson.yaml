@@ -1,0 +1,20 @@
+id: "15.18"
+section: 15
+title: "Boss: ship a vendored, signed release"
+kind: boss
+teaches: []
+requires: [section]
+flags: []
+minGit: "2.34"
+tools: [ssh-keygen, git-subtree]
+repo: app
+start: app
+repos:
+  - { path: app, label: app (yours) }
+  - { path: app.git, label: app origin }
+  - { path: lib.git, label: lib (the library) }
+  - { path: colleague, label: colleague (their clone) }
+hints:
+  - "Order that works: vendor the library and commit, configure SSH signing with ../keys/release-key, sign the tag, then archive and bundle from the tag."
+  - "The archive must contain the library's files, which decides between submodule and subtree. The patch series is `main..search`, three files, written to ../outbox."
+  - "Signing config: gpg.format ssh, user.signingkey = full path of ../keys/release-key.pub, gpg.ssh.allowedSignersFile = a file containing `<your email> <public key>`."

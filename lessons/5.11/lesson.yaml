@@ -1,0 +1,13 @@
+id: "5.11"
+section: 5
+title: Delete a branch
+kind: practice
+teaches: [branch-delete]
+requires: [branch-merged]
+flags: [destructive]
+repo: garden
+start: garden
+hints:
+  - "List the merged branches first. `-d` deletes only those; for anything else git refuses with \"not fully merged\"."
+  - "The message after a delete includes the commit id the branch was on. `git show` that id: the commit is still there."
+  - "`git branch -d pests`, `git branch -d experiment` (refused), `git branch -D experiment`. Leave herbs alone."

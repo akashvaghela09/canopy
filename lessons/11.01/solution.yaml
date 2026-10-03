@@ -1,0 +1,9 @@
+commands: |
+  git log --oneline -S legacy_total
+  git log -p -S legacy_total
+  git log --oneline -S apply_discount
+answers:
+  added: "@mark:legacy-add"
+  removed: "@mark:legacy-remove"
+  introduced: "@mark:discounts-add"
+  what-s: 0

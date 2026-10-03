@@ -1,0 +1,14 @@
+id: "1.05"
+section: 1
+title: Ask git what is going on
+kind: practice
+teaches: [status]
+requires: [init, term-files]
+flags: []
+repo: project
+start: project
+panels: [three-areas]
+hints:
+  - "Run `git status` once before you create the file, and once after. Compare the two."
+  - "Write some text into a new file called `plan.txt`, the way you did in lesson 1.02."
+  - "`echo \"learn git\" > plan.txt`, then `git status`. Read the heading above the file name."

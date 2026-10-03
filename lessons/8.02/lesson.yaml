@@ -1,0 +1,12 @@
+id: "8.02"
+section: 8
+title: Look at your stashes
+kind: practice
+teaches: [stash-inspect]
+requires: [stash-push]
+flags: []
+repo: work
+start: work
+hints:
+  - "`git stash list` names the entries. `git stash show stash@{1}` shows which files one entry touches."
+  - "Add `-p` to see the actual diff: `git stash show -p stash@{n}`."

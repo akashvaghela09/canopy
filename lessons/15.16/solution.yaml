@@ -1,0 +1,11 @@
+commands: |
+  git count-objects -v
+  git maintenance run --task=commit-graph
+  ls .git/objects/info
+  git maintenance run --task=loose-objects
+  git count-objects -v
+  git maintenance run --task=loose-objects
+  git count-objects -v
+answers:
+  two-step: 0
+  why-not-start: 0

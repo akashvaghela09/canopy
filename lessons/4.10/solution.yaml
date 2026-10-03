@@ -1,0 +1,7 @@
+commands: |
+  git status
+  git reset notes-private.md
+  git status
+  git log --oneline
+answers:
+  why-no-move: 0

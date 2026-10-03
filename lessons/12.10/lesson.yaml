@@ -1,0 +1,19 @@
+id: "12.10"
+section: 12
+title: Force-push etiquette
+kind: practice
+teaches: [force-push-policy]
+requires: [push-force-with-lease, recover-rebase]
+flags: []
+repo: work
+start: work
+repos:
+  - { path: work, label: Your clone }
+  - { path: origin.git, label: origin }
+  - { path: teammate, label: Teammate }
+actions:
+  - { id: sam-force-push, label: "Sam force-pushes main", script: actions/sam-force-push.sh }
+hints:
+  - "After fetching, compare `main` with `origin/main`. Your local `main` still has the right tip, and `git reflog show origin/main` shows where origin/main was before."
+  - "Push your `main` over origin's with `--force-with-lease`. It succeeds because you fetched first and nobody pushed since."
+  - "To stop this happening again, set `receive.denyNonFastForwards` to true in the config of `../origin.git`. If you set it before restoring, your repair is refused too: run `git -C ../origin.git config --unset receive.denyNonFastForwards`, restore, then set it again."

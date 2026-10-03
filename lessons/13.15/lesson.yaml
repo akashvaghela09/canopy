@@ -1,0 +1,15 @@
+id: "13.15"
+section: 13
+title: "Boss: set up a workstation"
+kind: boss
+teaches: []
+requires: [section]
+flags: []
+minGit: "2.25"
+repo: work/app
+start: "."
+repos:
+  - { path: work/app, label: "work/app" }
+  - { path: personal/blog, label: "personal/blog" }
+  - { path: mono, label: "mono (sparse partial clone)" }
+  - { path: big.git, label: big.git }

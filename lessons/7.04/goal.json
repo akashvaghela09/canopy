@@ -1,0 +1,23 @@
+{
+  "questions": [
+    {
+      "id": "incoming",
+      "prompt": "After fetching: how many commits are on origin/main that are not on main?",
+      "type": "number",
+      "answer": 2
+    }
+  ],
+  "goals": [
+    { "label": "Fetch from origin", "check": { "type": "usedCommand", "matches": "^git fetch\\b" } },
+    { "label": "origin/main now has Sam's two commits", "check": { "type": "all", "checks": [
+        { "type": "fileInRev", "path": "trails/river.md", "rev": "origin/main", "present": true },
+        { "type": "fileContent", "path": "trails/river.md", "source": "origin/main", "contains": "Parking" }
+      ] } },
+    { "label": "main did not move and the working tree is untouched", "check": { "type": "all", "checks": [
+        { "type": "refAt", "ref": "main", "target": "@mark:lake" },
+        { "type": "status", "clean": true }
+      ] } },
+    { "label": "List the incoming commits as a range", "check": { "type": "usedCommand", "matches": "^git (log|rev-list)\\b.*((main|HEAD|@)?\\.\\.(origin/main|origin|@\\{u(pstream)?\\})(\\s|$)|origin/main (\\^main|--not main)|\\^(main|HEAD) origin/main)" } },
+    { "label": "Answer: how many commits came in", "check": { "type": "answer", "question": "incoming" } }
+  ]
+}

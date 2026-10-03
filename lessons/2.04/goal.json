@@ -1,0 +1,70 @@
+{
+  "questions": [
+    {
+      "id": "which-flag",
+      "prompt": "Which form stages modified and deleted files but leaves new files alone?",
+      "type": "choice",
+      "options": [
+        "git add .",
+        "git add -A",
+        "git add -u"
+      ],
+      "answer": 2
+    }
+  ],
+  "goals": [
+    {
+      "label": "First, stage only the tracked changes with -u (src/app.js and old.txt, not the new files)",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "usedCommand",
+            "matches": "git\\s+add\\b.*\\s(-u|--update)(\\s|$)"
+          },
+          {
+            "type": "status",
+            "staged": [
+              "old.txt",
+              "src/app.js"
+            ],
+            "untracked": [
+              "notes.txt",
+              "src/new.js"
+            ],
+            "exact": true
+          }
+        ]
+      },
+      "sticky": true
+    },
+    {
+      "label": "Then commit all four changes in one commit",
+      "check": {
+        "type": "commitChanges",
+        "rev": "HEAD",
+        "paths": [
+          "notes.txt",
+          "old.txt",
+          "src/app.js",
+          "src/new.js"
+        ],
+        "exact": true
+      }
+    },
+    {
+      "label": "Finish with a clean working tree",
+      "check": {
+        "type": "status",
+        "clean": true
+      }
+    },
+    {
+      "label": "Answer the question",
+      "check": {
+        "type": "answer",
+        "question": "which-flag"
+      }
+    }
+  ]
+}

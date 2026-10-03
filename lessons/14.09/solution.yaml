@@ -1,0 +1,14 @@
+commands: |
+  git show-ref
+  git for-each-ref
+  git symbolic-ref HEAD
+  git update-ref refs/heads/experiment HEAD~2
+  cat .git/refs/heads/experiment
+  git update-ref refs/heads/experiment herbs
+  git update-ref -d refs/heads/old-idea
+  git pack-refs --all
+  cat .git/packed-refs
+  ls .git/refs/heads
+answers:
+  symref: refs/heads/main
+  packed: 0

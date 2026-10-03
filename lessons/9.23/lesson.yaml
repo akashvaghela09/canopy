@@ -1,0 +1,13 @@
+id: "9.23"
+section: 9
+title: Rebase a stack of branches
+kind: practice
+teaches: [rebase-update-refs]
+requires: [rebase-onto, branch-create]
+flags: []
+minGit: "2.38"
+repo: shop
+start: shop
+hints:
+  - "Stay on `part3`, the top of the stack, and rebase onto `main` with `--update-refs`."
+  - "Afterwards the graph should show main, then part1 one commit up, part2 one more, part3 on top."

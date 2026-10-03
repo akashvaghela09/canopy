@@ -1,0 +1,13 @@
+commands: |
+  ls -A lib
+  git submodule status
+  git submodule update --init --recursive
+  cat lib/version.txt
+  git -C lib status
+  cd ..
+  git clone --recurse-submodules app.git fresh
+  cat fresh/lib/version.txt
+  cd work
+answers:
+  why-old: 0
+  head-state: 0

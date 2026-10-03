@@ -1,0 +1,12 @@
+id: "9.06"
+section: 9
+title: Cherry-pick a range
+kind: practice
+teaches: [cherry-pick-range]
+requires: [cherry-pick, log-range]
+flags: []
+repo: blog
+start: blog
+hints:
+  - "List the commits on `drafts` that `main` lacks. You want the three posts in the middle, not the two drafts."
+  - "`git cherry-pick A..B` picks everything after A up to B. Make A the commit right before the first post, or write `<first-post>^..<last-post>`."

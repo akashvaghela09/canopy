@@ -1,0 +1,285 @@
+{
+  "goals": [
+    {
+      "label": "work/app: a new commit by Alex Rivera <alex@acme.example>, with no local user settings",
+      "check": {
+        "type": "all",
+        "repo": "work/app",
+        "checks": [
+          {
+            "type": "commitCount",
+            "range": "HEAD",
+            "min": 2
+          },
+          {
+            "type": "commitAuthor",
+            "rev": "HEAD",
+            "name": "Alex Rivera",
+            "email": "alex@acme.example"
+          },
+          {
+            "type": "config",
+            "key": "user.email",
+            "scope": "local",
+            "present": false
+          },
+          {
+            "type": "config",
+            "key": "user.name",
+            "scope": "local",
+            "present": false
+          }
+        ]
+      }
+    },
+    {
+      "label": "personal/blog: a new commit by Alex <alex@home.example>, with no local user settings",
+      "check": {
+        "type": "all",
+        "repo": "personal/blog",
+        "checks": [
+          {
+            "type": "commitCount",
+            "range": "HEAD",
+            "min": 2
+          },
+          {
+            "type": "commitAuthor",
+            "rev": "HEAD",
+            "name": "Alex",
+            "email": "alex@home.example"
+          },
+          {
+            "type": "fileInRev",
+            "rev": "HEAD",
+            "path": "posts/first.md",
+            "present": true
+          },
+          {
+            "type": "config",
+            "key": "user.email",
+            "scope": "local",
+            "present": false
+          }
+        ]
+      }
+    },
+    {
+      "label": "A global alias lg exists and was run",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "config",
+            "key": "alias.lg",
+            "scope": "global"
+          },
+          {
+            "type": "usedCommand",
+            "matches": "^git lg\\b"
+          }
+        ]
+      }
+    },
+    {
+      "label": "*.swp is ignored in both repos through a global ignore file, no .gitignore added",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "config",
+            "key": "core.excludesFile",
+            "scope": "global"
+          },
+          {
+            "type": "status",
+            "repo": "work/app",
+            "ignored": [
+              "editor.swp"
+            ]
+          },
+          {
+            "type": "status",
+            "repo": "personal/blog",
+            "ignored": [
+              "draft.swp"
+            ]
+          },
+          {
+            "type": "pathAbsent",
+            "path": "work/app/.gitignore"
+          },
+          {
+            "type": "pathAbsent",
+            "path": "personal/blog/.gitignore"
+          }
+        ]
+      }
+    },
+    {
+      "label": "work/app: a pre-commit hook blocked the FIXME commit",
+      "sticky": true,
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "usedCommand",
+            "matches": "^git commit\\b",
+            "exitCode": 1,
+            "last": true
+          },
+          {
+            "type": "any",
+            "checks": [
+              {
+                "type": "fileContent",
+                "path": "src/notes.js",
+                "source": "index",
+                "contains": "FIXME",
+                "repo": "work/app"
+              },
+              {
+                "type": "all",
+                "checks": [
+                  {
+                    "type": "usedCommand",
+                    "matches": "^git commit\\b.*(\\s-[a-zA-Z]*a|\\s--all\\b)",
+                    "exitCode": 1,
+                    "last": true
+                  },
+                  {
+                    "type": "fileContent",
+                    "path": "src/notes.js",
+                    "contains": "FIXME",
+                    "repo": "work/app"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "any",
+            "checks": [
+              {
+                "type": "pathExists",
+                "path": "work/app/.git/hooks/pre-commit"
+              },
+              {
+                "type": "config",
+                "repo": "work/app",
+                "key": "core.hooksPath",
+                "scope": "local"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "label": "work/app: src/notes.js committed without FIXME, hook still in place",
+      "check": {
+        "type": "all",
+        "repo": "work/app",
+        "checks": [
+          {
+            "type": "fileContent",
+            "source": "HEAD",
+            "path": "src/notes.js",
+            "contains": "module.exports"
+          },
+          {
+            "type": "fileContent",
+            "source": "HEAD",
+            "path": "src/notes.js",
+            "notContains": "FIXME"
+          },
+          {
+            "type": "any",
+            "checks": [
+              {
+                "type": "pathExists",
+                "path": "work/app/.git/hooks/pre-commit"
+              },
+              {
+                "type": "config",
+                "key": "core.hooksPath",
+                "scope": "local"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "label": "work/app: .gitattributes with text=auto committed and NOTES.txt stored with LF",
+      "check": {
+        "type": "all",
+        "repo": "work/app",
+        "checks": [
+          {
+            "type": "fileContent",
+            "source": "HEAD",
+            "path": ".gitattributes",
+            "matches": "(?m)^\\*\\s+text=auto"
+          },
+          {
+            "type": "fileContent",
+            "source": "HEAD",
+            "path": "NOTES.txt",
+            "notContains": "\r"
+          },
+          {
+            "type": "fileContent",
+            "source": "HEAD",
+            "path": "NOTES.txt",
+            "contains": "first release"
+          },
+          {
+            "type": "status",
+            "clean": true
+          }
+        ]
+      }
+    },
+    {
+      "label": "mono: blobless partial clone of big.git, sparse checkout of api only",
+      "check": {
+        "type": "all",
+        "repo": "mono",
+        "checks": [
+          {
+            "type": "repoExists",
+            "path": "mono",
+            "bare": false
+          },
+          {
+            "type": "config",
+            "key": "remote.origin.partialclonefilter",
+            "value": "blob:none"
+          },
+          {
+            "type": "config",
+            "key": "core.sparseCheckout",
+            "value": "true"
+          },
+          {
+            "type": "pathExists",
+            "path": "mono/api/server.js"
+          },
+          {
+            "type": "pathAbsent",
+            "path": "mono/web"
+          },
+          {
+            "type": "pathAbsent",
+            "path": "mono/mobile"
+          },
+          {
+            "type": "pathAbsent",
+            "path": "mono/docs"
+          }
+        ]
+      }
+    }
+  ]
+}

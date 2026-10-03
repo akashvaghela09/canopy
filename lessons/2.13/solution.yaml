@@ -1,0 +1,7 @@
+commands: |
+  git status -sb
+  git add -u
+  git status -s
+answers:
+  mm-meaning: 1
+  untracked-file: "d.txt"

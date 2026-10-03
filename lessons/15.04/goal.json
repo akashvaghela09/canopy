@@ -1,0 +1,113 @@
+{
+  "questions": [
+    {
+      "id": "places",
+      "prompt": "Which of these does `git submodule deinit lib` change?",
+      "type": "choice",
+      "options": [
+        ".git/config and the lib working folder",
+        ".gitmodules and the gitlink in the tree",
+        ".git/modules/lib",
+        "The library's own repository lib.git"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    {
+      "label": "Deinitialise the submodule",
+      "check": {
+        "type": "usedCommand",
+        "matches": "\\bgit submodule deinit\\b"
+      }
+    },
+    {
+      "label": "lib is gone from the working tree",
+      "check": {
+        "type": "any",
+        "checks": [
+          {
+            "type": "pathAbsent",
+            "path": "work/lib"
+          },
+          {
+            "type": "shell",
+            "script": "test -z \"$(ls -A lib 2>/dev/null)\""
+          }
+        ]
+      }
+    },
+    {
+      "label": "No submodule.lib entry in .git/config",
+      "check": {
+        "type": "config",
+        "key": "submodule.lib.url",
+        "scope": "local",
+        "present": false
+      }
+    },
+    {
+      "label": ".gitmodules no longer mentions lib",
+      "check": {
+        "type": "any",
+        "checks": [
+          {
+            "type": "pathAbsent",
+            "path": "work/.gitmodules"
+          },
+          {
+            "type": "fileContent",
+            "path": ".gitmodules",
+            "notContains": "lib"
+          }
+        ]
+      }
+    },
+    {
+      "label": "The removal is committed",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "refNotAt",
+            "ref": "main",
+            "target": "@mark:app-tip"
+          },
+          {
+            "type": "commitChanges",
+            "rev": "HEAD",
+            "paths": [
+              "lib"
+            ],
+            "exact": false
+          },
+          {
+            "type": "status",
+            "clean": true
+          }
+        ]
+      }
+    },
+    {
+      "label": "No gitlink left in HEAD",
+      "check": {
+        "type": "shell",
+        "script": "test -z \"$(git ls-tree HEAD lib)\""
+      }
+    },
+    {
+      "label": "The cached clone under .git/modules is deleted",
+      "check": {
+        "type": "pathAbsent",
+        "path": "work/.git/modules/lib"
+      }
+    },
+    {
+      "label": "Say what deinit changes",
+      "check": {
+        "type": "answer",
+        "question": "places"
+      }
+    }
+  ]
+}

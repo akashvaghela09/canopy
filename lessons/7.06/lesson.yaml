@@ -1,0 +1,19 @@
+id: "7.06"
+section: 7
+title: Pull
+kind: practice
+teaches: [pull]
+requires: [fetch, integrate-fetched]
+flags: []
+minGit: "2.33.1"
+repo: work
+start: work
+repos:
+  - { path: work, label: Your clone }
+  - { path: origin.git, label: origin }
+  - { path: teammate, label: Teammate (Sam) }
+actions:
+  - { id: teammate-push, label: "Teammate pushes a fix", script: actions/teammate-push.sh }
+hints:
+  - "`git pull` with no options is enough for the first round: your main has nothing of its own, so it fast-forwards."
+  - "When the branches have diverged, plain `git pull` stops and asks how to reconcile. Answer with `git pull --no-rebase` (merge), or set `git config pull.rebase false` once and pull again."

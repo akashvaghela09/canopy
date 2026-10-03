@@ -1,0 +1,13 @@
+id: "8.07"
+section: 8
+title: Stash into a new branch
+kind: practice
+teaches: [stash-branch]
+requires: [switch-create, stash-pop-apply]
+flags: []
+minGit: "2.23"
+repo: work
+start: work
+hints:
+  - "`git stash branch retry-limit` creates the branch at the commit the stash was made on, applies the stash there, and drops it."
+  - "Afterwards: `git log --oneline --graph --all` shows the branch starting one commit behind main. Commit the change if you like."

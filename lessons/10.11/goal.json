@@ -1,0 +1,128 @@
+{
+  "questions": [
+    {
+      "id": "default-reachable",
+      "prompt": "By default, how long does git keep reflog entries for commits that are still reachable?",
+      "type": "choice",
+      "options": [
+        "90 days",
+        "30 days",
+        "14 days",
+        "Forever"
+      ],
+      "answer": 0
+    },
+    {
+      "id": "default-unreachable",
+      "prompt": "And for entries pointing at commits that nothing reaches any more?",
+      "type": "choice",
+      "options": [
+        "30 days",
+        "90 days",
+        "7 days",
+        "Until the next commit"
+      ],
+      "answer": 0
+    },
+    {
+      "id": "what-deletes",
+      "prompt": "What actually removes the lost commit from the repository?",
+      "type": "choice",
+      "options": [
+        "Expiring the reflog entry and then pruning unreferenced objects (gc --prune); both are needed",
+        "The reset itself; the reflog only remembers the id",
+        "Expiring the reflog entry alone; objects without entries are deleted at once"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    {
+      "label": "Read the reflog before expiring it",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "usedCommand",
+            "last": true,
+            "matches": "^git\\s+(reflog\\b|log\\b.*\\s(-g|--walk-reflogs)\\b)"
+          },
+          {
+            "type": "fileInRev",
+            "path": "README.md",
+            "rev": "@mark:lost",
+            "present": true
+          }
+        ]
+      },
+      "sticky": true
+    },
+    {
+      "label": "Shorten the unreachable expiry (config or reflog expire)",
+      "check": {
+        "type": "any",
+        "checks": [
+          {
+            "type": "config",
+            "key": "gc.reflogExpireUnreachable",
+            "scope": "local"
+          },
+          {
+            "type": "config",
+            "key": "gc.reflogExpire",
+            "scope": "local"
+          },
+          {
+            "type": "usedCommand",
+            "matches": "^git reflog expire\\b"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Prune with gc --prune=now",
+      "check": {
+        "type": "usedCommand",
+        "matches": "^git\\s+(gc\\b.*--prune=(now|all)|prune\\b)"
+      }
+    },
+    {
+      "label": "The lost commit is gone for good",
+      "check": {
+        "type": "fileInRev",
+        "path": "README.md",
+        "rev": "@mark:lost",
+        "present": false
+      }
+    },
+    {
+      "label": "main is unchanged",
+      "check": {
+        "type": "refAt",
+        "ref": "main",
+        "target": "@mark:kept"
+      }
+    },
+    {
+      "label": "Default expiry for reachable entries",
+      "check": {
+        "type": "answer",
+        "question": "default-reachable"
+      }
+    },
+    {
+      "label": "Default expiry for unreachable entries",
+      "check": {
+        "type": "answer",
+        "question": "default-unreachable"
+      }
+    },
+    {
+      "label": "What finally deletes the commit",
+      "check": {
+        "type": "answer",
+        "question": "what-deletes"
+      }
+    }
+  ]
+}

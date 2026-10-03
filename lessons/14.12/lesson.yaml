@@ -1,0 +1,18 @@
+id: "14.12"
+section: 14
+title: Hash algorithms
+kind: concept
+teaches: [concept-hash-algos]
+requires: [hash-object, commit-object]
+flags: []
+minGit: "2.29"
+repo: garden
+start: .
+repos:
+  - { path: garden, label: garden (SHA-1) }
+  - { path: sha-repo, label: sha-repo (SHA-256) }
+panels: [inside-git]
+hints:
+  - "`git init --object-format=sha256 sha-repo` creates the repository; the format cannot be changed afterwards."
+  - "Hash the same text in both repositories: `echo hello | git hash-object --stdin`. Count the characters."
+  - "`git config extensions.objectformat` inside sha-repo shows which algorithm it uses."

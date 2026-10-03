@@ -1,0 +1,11 @@
+commands: |
+  git diff
+  git add -p report.py
+  y
+  n
+  y
+  n
+  git diff --staged
+  git commit -m "Fix rounding in report"
+  git status
+answers: {}

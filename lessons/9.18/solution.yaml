@@ -1,0 +1,10 @@
+commands: |
+  git log --oneline
+  GIT_SEQUENCE_EDITOR="sed -i '1s/^pick/edit/'" git rebase -i HEAD~3
+  git status
+  printf '\n## Usage\n\n    tool <file>\n' >> README.md
+  git add README.md
+  git commit --amend --no-edit
+  git rebase --continue
+  git log --oneline
+answers: {}

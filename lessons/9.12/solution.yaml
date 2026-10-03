@@ -1,0 +1,6 @@
+commands: |
+  git log --oneline --graph --all
+  git log --oneline api..ui
+  git rebase --onto main api ui
+  git log --oneline --graph --all
+answers: {}

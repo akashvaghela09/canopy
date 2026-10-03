@@ -1,0 +1,13 @@
+id: "11.13"
+section: 11
+title: "Boss: bug hunt"
+kind: boss
+teaches: []
+requires: [section]
+flags: []
+repo: ledger
+start: ledger
+hints:
+  - "The regression: v2.0 is good and v2.1 is bad, and tests/balance.sh exits 0 when the balance is right. Bisect between the two tags, or search the diffs for the balance line with -G."
+  - "The balance line: plain blame credits a tab-reindent commit. Use -w or --ignore-rev to see who last changed what the line says."
+  - "Releases: `git tag --contains` on the fix commit. The export script: `git log --diff-filter=R --summary` or `--follow` on tools/export-csv.sh. The notes: `git log --diff-filter=D --summary`."

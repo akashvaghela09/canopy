@@ -1,0 +1,9 @@
+commands: |
+  printf 'tests/ export-ignore\nnotes/ export-ignore\n' > .gitattributes
+  git add .gitattributes
+  git commit -m "Keep tests and notes out of release archives"
+  git tag -a v2.0 -m "Release 2.0"
+  git archive --format=tar.gz --prefix=app-2.0/ -o app-2.0.tar.gz v2.0
+  tar tzf app-2.0.tar.gz
+answers:
+  why-commit: 0

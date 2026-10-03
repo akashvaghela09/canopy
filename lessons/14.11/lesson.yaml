@@ -1,0 +1,14 @@
+id: "14.11"
+section: 14
+title: The history DAG
+kind: practice
+teaches: [rev-list]
+requires: [concept-merge, log-graph, log-range, branch-merged]
+flags: []
+repo: garden
+start: garden
+panels: [inside-git]
+hints:
+  - "`git rev-list --count main` counts what main can reach; `--count main..wip` counts what only wip can reach; `--all` takes every ref."
+  - "`git rev-list --parents main` prints each commit followed by its parents; a merge line has three ids."
+  - "`--ancestry-path A..B` keeps only commits that are both descendants of A and ancestors of B."

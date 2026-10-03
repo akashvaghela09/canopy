@@ -1,0 +1,12 @@
+id: "3.01"
+section: 3
+title: Compact history
+kind: practice
+teaches: [log-oneline]
+requires: [log]
+flags: []
+repo: bakery
+start: bakery
+hints:
+  - "`git log --oneline` prints one commit per line. Count its lines (the graph also shows a second branch, so it has one commit more)."
+  - "To see only the newest three, add `-n 3` (or the shorter `-3`). The last line of that output is the oldest of the three."

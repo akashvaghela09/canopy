@@ -1,0 +1,31 @@
+{
+  "questions": [
+    {
+      "id": "new-ids",
+      "prompt": "How many commits received new ids during the rebase?",
+      "type": "number",
+      "answer": 3
+    }
+  ],
+  "goals": [
+    { "label": "The three search commits sit on top of main, in order", "check": { "type": "all", "checks": [
+        { "type": "refAt", "ref": "search~3", "target": "main" },
+        { "type": "refAt", "ref": "main", "target": "@mark:main-tip" },
+        { "type": "commitCount", "range": "main..search", "equals": 3 },
+        { "type": "commitMessage", "rev": "search~2", "equals": "Add search box" },
+        { "type": "commitMessage", "rev": "search~1", "equals": "Add search results page" },
+        { "type": "commitMessage", "rev": "search", "equals": "Style search box" }
+      ] } },
+    { "label": "They are copies with new ids, and there is no merge commit", "check": { "type": "all", "checks": [
+        { "type": "refNotAt", "ref": "search", "target": "@mark:s3" },
+        { "type": "commitCount", "range": "--merges search", "equals": 0 },
+        { "type": "fileContent", "source": "search", "path": "cart.js", "contains": "toFixed(2)" }
+      ] } },
+    { "label": "Finish on search with a clean working tree", "check": { "type": "all", "checks": [
+        { "type": "currentBranch", "name": "search" },
+        { "type": "status", "clean": true },
+        { "type": "operation", "value": null }
+      ] } },
+    { "label": "Answer: how many new ids", "check": { "type": "answer", "question": "new-ids" } }
+  ]
+}

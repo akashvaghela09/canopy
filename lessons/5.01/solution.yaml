@@ -1,0 +1,10 @@
+commands: |
+  git log --oneline --graph --all --decorate
+  git branch
+  git branch -v
+  git branch --show-current
+answers:
+  current: main
+  weekend-tip: "@mark:lake"
+  what-is-branch: 0
+  on-commit: 0

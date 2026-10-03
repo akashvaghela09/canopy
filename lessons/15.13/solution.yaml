@@ -1,0 +1,9 @@
+commands: |
+  git show legacy-fix:config.yaml
+  cat config.yaml
+  git merge -s ours legacy-fix -m "Close legacy-fix; the new queue stays"
+  cat config.yaml
+  git log --oneline --graph
+  git branch --merged
+answers:
+  s-vs-x: 0

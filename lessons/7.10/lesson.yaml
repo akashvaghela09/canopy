@@ -1,0 +1,16 @@
+id: "7.10"
+section: 7
+title: Push a new branch
+kind: practice
+teaches: [push-branch]
+requires: [upstream, switch-create]
+flags: []
+minGit: "2.23"
+repo: work
+start: work
+repos:
+  - { path: work, label: Your clone }
+  - { path: origin.git, label: origin }
+hints:
+  - "Create and switch to `trail-maps`, add the file, commit. Then try a plain `git push` and read what git suggests."
+  - "`git push -u origin trail-maps` publishes the branch and sets its upstream in one go."

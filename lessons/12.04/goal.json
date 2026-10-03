@@ -1,0 +1,40 @@
+{
+  "questions": [
+    {
+      "id": "file-count",
+      "prompt": "Before your fixes, how many files does feature/reminders change compared with main?",
+      "type": "number",
+      "answer": 4
+    }
+  ],
+  "goals": [
+    { "label": "Count the files the branch touches", "check": { "type": "answer", "question": "file-count" } },
+    {
+      "label": "The debug print is gone from src/reminders.js on the branch",
+      "check": { "type": "all", "checks": [
+        { "type": "fileContent", "source": "feature/reminders", "path": "src/reminders.js", "notContains": "DEBUG" },
+        { "type": "fileContent", "source": "feature/reminders", "path": "src/reminders.js", "contains": "function due" }
+      ] }
+    },
+    {
+      "label": "notes.tmp is not in the branch",
+      "check": { "type": "fileInRev", "rev": "feature/reminders", "path": "notes.tmp", "present": false }
+    },
+    {
+      "label": "The feature itself is still there (CLI wired, changelog entry)",
+      "check": { "type": "all", "checks": [
+        { "type": "fileContent", "source": "feature/reminders", "path": "src/cli.js", "contains": "require('./reminders')" },
+        { "type": "fileContent", "source": "feature/reminders", "path": "CHANGELOG.md", "contains": "due reminders" }
+      ] }
+    },
+    {
+      "label": "After fixing, compare old and new branch with range-diff",
+      "sticky": true,
+      "check": { "type": "all", "checks": [
+        { "type": "usedCommand", "matches": "^git range-diff\\b", "last": true },
+        { "type": "refNotAt", "ref": "feature/reminders", "target": "origin/feature/reminders" }
+      ] }
+    },
+    { "label": "Leave the working tree clean", "check": { "type": "status", "clean": true } }
+  ]
+}

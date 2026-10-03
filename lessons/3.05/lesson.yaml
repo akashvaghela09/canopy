@@ -1,0 +1,12 @@
+id: "3.05"
+section: 3
+title: Inspect one commit
+kind: practice
+teaches: [show]
+requires: [log-oneline]
+flags: []
+repo: bakery
+start: bakery
+hints:
+  - "Find the short id of 'Add opening hours to index' in the compact log, then `git show --stat <id>`."
+  - "A tag name works wherever a commit id works: `git show v0.1:menu.md`."

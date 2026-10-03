@@ -1,0 +1,30 @@
+{
+  "questions": [
+    {
+      "id": "after-mixed",
+      "prompt": "Right after `git reset HEAD~1`, where are the changes from the undone commit?",
+      "type": "choice",
+      "options": [
+        "In the working tree only; nothing is staged",
+        "In the staging area, ready to commit again",
+        "Gone from both the staging area and the working tree",
+        "Still in the commit; reset only changes HEAD"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    { "label": "Undo the last commit with a mixed reset", "check": { "type": "usedCommand", "matches": "^git reset( (--mixed|-q|--quiet))* (HEAD|@|main|[0-9a-f]{4,40})([~^][0-9]*)*( --mixed)?\\s*$" } },
+    { "label": "Recommit only settings.json", "check": { "type": "all", "checks": [
+        { "type": "commitCount", "range": "main", "equals": 3 },
+        { "type": "refAt", "ref": "HEAD~1", "target": "@mark:parser" },
+        { "type": "commitChanges", "rev": "HEAD", "paths": ["settings.json"], "exact": true },
+        { "type": "fileInRev", "path": "debug.log", "rev": "HEAD", "present": false }
+      ] } },
+    { "label": "Leave debug.log on disk, untracked", "check": { "type": "all", "checks": [
+        { "type": "pathExists", "path": "tool/debug.log" },
+        { "type": "status", "untracked": ["debug.log"], "staged": [], "modified": [], "exact": true }
+      ] } },
+    { "label": "Answer: where the changes went", "check": { "type": "answer", "question": "after-mixed" } }
+  ]
+}

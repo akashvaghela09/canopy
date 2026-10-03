@@ -1,0 +1,11 @@
+commands: |
+  git merge-base main spicy
+  git merge-tree --write-tree main spicy
+  git ls-tree $(git merge-tree --write-tree main spicy | head -1)
+  git show $(git merge-tree --write-tree main spicy | head -1):notes.md
+  git status
+answers:
+  base: "@mark:base"
+  conflict-file: chili.md
+  notes-blob: "ae8754082fad74bcbb240e1cd6440f23d3d66848"
+  side-effects: 0

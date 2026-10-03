@@ -1,0 +1,11 @@
+commands: |
+  cat trails/lake.md
+  git log --oneline --graph --all
+  git switch winter
+  cat trails/lake.md
+  git status
+  git switch -
+  cat trails/lake.md
+  git switch -
+answers:
+  file-changed: 0

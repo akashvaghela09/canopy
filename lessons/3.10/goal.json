@@ -1,0 +1,33 @@
+{
+  "questions": [
+    {
+      "id": "not-changed",
+      "prompt": "Between v0.1 and v1.0, which of these files did NOT change?",
+      "type": "choice",
+      "options": ["index.html", "README.md", "styles.css", "pages/contact.md"],
+      "answer": 0
+    },
+    {
+      "id": "whitespace-file",
+      "prompt": "Two files changed between HEAD~5 and HEAD~3. Which one changed only in whitespace?",
+      "type": "choice",
+      "options": ["styles.css", "pages/menu.md", "Both", "Neither"],
+      "answer": 0
+    },
+    {
+      "id": "rename-letter",
+      "prompt": "In `git diff --name-status HEAD~7 HEAD~6`, which letter does git print for the menu file?",
+      "type": "choice",
+      "options": ["R, renamed", "A, added", "M, modified", "D, deleted"],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    { "label": "Use --stat", "check": { "type": "usedCommand", "matches": "^git diff\\b.*--stat" } },
+    { "label": "Ignore whitespace with -w", "check": { "type": "usedCommand", "matches": "^git diff\\b.*(\\s-w\\b|--ignore-all-space)" } },
+    { "label": "Use --name-status or --name-only", "check": { "type": "usedCommand", "matches": "^git diff\\b.*--name-(status|only)" } },
+    { "label": "Answer: the file that did not change", "check": { "type": "answer", "question": "not-changed" } },
+    { "label": "Answer: the whitespace-only file", "check": { "type": "answer", "question": "whitespace-file" } },
+    { "label": "Answer: the rename letter", "check": { "type": "answer", "question": "rename-letter" } }
+  ]
+}

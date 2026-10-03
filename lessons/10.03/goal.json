@@ -1,0 +1,41 @@
+{
+  "questions": [],
+  "goals": [
+    {
+      "label": "Read the reflog",
+      "check": {
+        "type": "usedCommand",
+        "matches": "^git\\s+(reflog\\b|log\\b.*\\s(-g|--walk-reflogs)\\b)"
+      }
+    },
+    {
+      "label": "main is back on the original \"Add health endpoint\" commit",
+      "check": {
+        "type": "refAt",
+        "ref": "main",
+        "target": "@mark:tip"
+      }
+    },
+    {
+      "label": "You are on main",
+      "check": {
+        "type": "currentBranch",
+        "name": "main"
+      }
+    },
+    {
+      "label": "The rate-limit commit is reachable again",
+      "check": {
+        "type": "reachable",
+        "rev": "@mark:rate"
+      }
+    },
+    {
+      "label": "Clean working tree",
+      "check": {
+        "type": "status",
+        "clean": true
+      }
+    }
+  ]
+}

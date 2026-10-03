@@ -1,0 +1,17 @@
+commands: |
+  git fetch
+  git log --oneline --graph --all
+  GIT_SEQUENCE_EDITOR="sed -i -e '2{h;d}' -e '3{x;H;d}' -e '4{s/^pick/fixup/;G;s/\npick/\nreword/}' -e '5s/^pick/edit/'" GIT_EDITOR="sed -i '1s/.*/Add CSV export/'" git rebase -i origin/main
+  git status
+  printf '# app\n\nExports data as CSV or JSON files.\n' > README.md
+  git add README.md
+  git rebase --continue
+  git reset HEAD^
+  git add settings.js
+  git commit -m "Add export settings"
+  git add README.md
+  git commit -m "Fix README typo"
+  git rebase --continue
+  git log --oneline --graph --all
+  git push --force-with-lease
+answers: {}

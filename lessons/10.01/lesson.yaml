@@ -1,0 +1,13 @@
+id: "10.01"
+section: 10
+title: The safety net
+kind: concept
+teaches: [concept-reflog, reflog-read]
+requires: [head, relative-refs, reset-hard]
+flags: []
+repo: journal
+start: journal
+hints:
+  - "`git reflog` lists where HEAD has been, newest first. Each line shows the commit HEAD pointed to *after* that action."
+  - "The top line is the reset itself. The line below it is where HEAD was just before the reset: that commit id is the answer."
+  - "Open that commit the way you open any commit, with its id, to confirm it is \"Add Thursday entry\"."

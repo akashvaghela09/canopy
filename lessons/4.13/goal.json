@@ -1,0 +1,29 @@
+{
+  "questions": [],
+  "goals": [
+    { "label": "The tests are back, restored by a new commit on top of the shared one", "check": { "type": "all", "checks": [
+        { "type": "commitCount", "range": "main", "equals": 5 },
+        { "type": "refAt", "ref": "HEAD~1", "target": "@mark:bad" },
+        { "type": "commitParents", "rev": "HEAD", "count": 1 },
+        { "type": "fileInRev", "path": "tests/test_inventory.py", "rev": "HEAD", "present": true },
+        { "type": "fileContent", "path": "tests/test_inventory.py", "source": "HEAD", "contains": "def test_total" }
+      ] } },
+    { "label": "The debugging edit in inventory.py is gone", "check": { "type": "all", "checks": [
+        { "type": "fileContent", "path": "inventory.py", "source": "worktree", "notContains": "DEBUG" },
+        { "type": "fileContent", "path": "inventory.py", "source": "HEAD", "notContains": "DEBUG" }
+      ] } },
+    { "label": "notes-personal.txt is neither committed nor in the folder", "check": { "type": "all", "checks": [
+        { "type": "fileInRev", "path": "notes-personal.txt", "rev": "HEAD", "present": false },
+        { "type": "pathAbsent", "path": "inventory/notes-personal.txt" }
+      ] } },
+    { "label": "The untracked clutter is removed", "check": { "type": "all", "checks": [
+        { "type": "pathAbsent", "path": "inventory/scratch.txt" },
+        { "type": "pathAbsent", "path": "inventory/tmp" }
+      ] } },
+    { "label": "The ignored log file is still there", "check": { "type": "pathExists", "path": "inventory/inventory.log" } },
+    { "label": "Clean status, on main", "check": { "type": "all", "checks": [
+        { "type": "status", "clean": true },
+        { "type": "currentBranch", "name": "main" }
+      ] } }
+  ]
+}

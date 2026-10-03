@@ -1,0 +1,7 @@
+commands: |
+  git status
+  git diff --staged
+  git restore --staged draft.md
+  git status
+  git diff --staged
+answers: {}

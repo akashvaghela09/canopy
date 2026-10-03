@@ -1,0 +1,32 @@
+{
+  "questions": [
+    {
+      "id": "why-unmerged",
+      "prompt": "Why does git say export is not fully merged, even though its work is in main?",
+      "type": "choice",
+      "options": [
+        "The squash commit does not have export's commits as ancestors; only their combined changes were copied",
+        "The squash left some of export's changes out",
+        "A branch can only be deleted after a merge commit with two parents exists",
+        "The branch still has uncommitted changes"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    { "label": "Squash export into one commit on main", "check": { "type": "usedCommand", "matches": "^git merge\\b.*(--squash\\b.*\\bexport\\b|\\bexport\\b.*--squash\\b)" } },
+    { "label": "One new commit on main holds the whole export module", "check": { "type": "all", "checks": [
+        { "type": "currentBranch", "name": "main" },
+        { "type": "refAt", "ref": "main~1", "target": "@mark:main-tip" },
+        { "type": "commitParents", "rev": "main", "count": 1 },
+        { "type": "fileContent", "path": "export.py", "source": "main", "contains": "writer.writerow(['name', 'price'])" },
+        { "type": "fileContent", "path": "export.py", "source": "main", "contains": "writer.writerows(menu)" }
+      ] } },
+    { "label": "Message: \"Add CSV export\"", "check": { "type": "commitMessage", "rev": "main", "matches": "(?i)^add csv export" } },
+    { "label": "export's own commits are not part of main's history", "check": { "type": "not", "check": { "type": "isAncestor", "ancestor": "@mark:export-tip", "descendant": "main" } } },
+    { "label": "Try the normal delete and read why git refuses", "check": { "type": "usedCommand", "matches": "^git branch\\b.*((\\s-d|--delete)\\b.*\\bexport\\b|\\bexport\\b.*(\\s-d|--delete)\\b)", "exitCode": 1 } },
+    { "label": "Answer: why the branch counts as unmerged", "check": { "type": "answer", "question": "why-unmerged" } },
+    { "label": "Delete the export branch", "check": { "type": "branchExists", "name": "export", "present": false } },
+    { "label": "Finish with a clean working tree", "check": { "type": "status", "clean": true } }
+  ]
+}

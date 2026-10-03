@@ -1,0 +1,83 @@
+{
+  "questions": [
+    {
+      "id": "two-step",
+      "prompt": "Why were the loose objects still there after the first loose-objects run?",
+      "type": "choice",
+      "options": [
+        "The task packs loose objects on one run and deletes the packed copies on the next, to avoid racing other commands",
+        "The task only handles unreachable objects",
+        "It needs --prune to delete anything",
+        "The first run only builds the commit-graph"
+      ],
+      "answer": 0
+    },
+    {
+      "id": "why-not-start",
+      "prompt": "Why is `git maintenance start` not run in this lesson?",
+      "type": "choice",
+      "options": [
+        "It registers a scheduled job with the operating system, outside the learning folder",
+        "It deletes the reflog",
+        "It needs a remote to work",
+        "It is the same as gc --aggressive and too slow"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    {
+      "label": "A commit-graph file was written",
+      "check": {
+        "type": "shell",
+        "script": "test -f .git/objects/info/commit-graph -o -d .git/objects/info/commit-graphs"
+      }
+    },
+    {
+      "label": "Run the loose-objects task",
+      "check": {
+        "type": "usedCommand",
+        "matches": "\\bgit maintenance run\\b.*--task[= ]loose-objects"
+      }
+    },
+    {
+      "label": "No loose objects remain",
+      "check": {
+        "type": "shell",
+        "script": "git count-objects -v | grep -q '^count: 0$'"
+      }
+    },
+    {
+      "label": "The objects are in a pack",
+      "check": {
+        "type": "shell",
+        "script": "ls .git/objects/pack/*.pack >/dev/null 2>&1"
+      }
+    },
+    {
+      "label": "maintenance start was not run",
+      "check": {
+        "type": "not",
+        "check": {
+          "type": "usedCommand",
+          "matches": "\\bgit maintenance start\\b",
+          "exitCode": null
+        }
+      }
+    },
+    {
+      "label": "Explain the two-step packing",
+      "check": {
+        "type": "answer",
+        "question": "two-step"
+      }
+    },
+    {
+      "label": "Say why start is skipped",
+      "check": {
+        "type": "answer",
+        "question": "why-not-start"
+      }
+    }
+  ]
+}

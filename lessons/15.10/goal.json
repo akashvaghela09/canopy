@@ -1,0 +1,61 @@
+{
+  "questions": [
+    {
+      "id": "why-commit",
+      "prompt": "Why must .gitattributes be committed before tagging?",
+      "type": "choice",
+      "options": [
+        "git archive reads attributes from the tree being archived, not from the working tree",
+        "Tags refuse to be created while there are uncommitted changes",
+        "export-ignore only works on files that have been committed at least twice",
+        "It does not; archive always reads the working tree's .gitattributes"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    {
+      "label": "export-ignore for tests/ and notes/ is in the tagged commit",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "fileContent",
+            "source": "v2.0",
+            "path": ".gitattributes",
+            "matches": "(?m)^/?tests(/|/\\*\\*)?\\s+export-ignore"
+          },
+          {
+            "type": "fileContent",
+            "source": "v2.0",
+            "path": ".gitattributes",
+            "matches": "(?m)^/?notes(/|/\\*\\*)?\\s+export-ignore"
+          }
+        ]
+      }
+    },
+    {
+      "label": "An annotated tag v2.0 exists",
+      "check": {
+        "type": "tag",
+        "name": "v2.0",
+        "present": true,
+        "annotated": true
+      }
+    },
+    {
+      "label": "app-2.0.tar.gz has the prefix, the sources, and no tests/ or notes/",
+      "check": {
+        "type": "shell",
+        "script": "f=app-2.0.tar.gz; [ -f \"$f\" ] || f=\"$LESSON_ROOT/app-2.0.tar.gz\"; [ -f \"$f\" ] && l=$(tar tzf \"$f\") && echo \"$l\" | grep -q '^app-2.0/src/app.js$' && echo \"$l\" | grep -q '^app-2.0/README.md$' && ! echo \"$l\" | grep -q '/tests/.' && ! echo \"$l\" | grep -q '/notes/.'"
+      }
+    },
+    {
+      "label": "Say why the attributes must be committed",
+      "check": {
+        "type": "answer",
+        "question": "why-commit"
+      }
+    }
+  ]
+}

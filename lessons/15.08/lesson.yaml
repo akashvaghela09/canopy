@@ -1,0 +1,16 @@
+id: "15.08"
+section: 15
+title: Apply patch files
+kind: practice
+teaches: [am]
+requires: [format-patch, conflict-resolve, cherry-pick-conflict]
+flags: []
+repo: work
+start: work
+repos:
+  - { path: work, label: work (yours) }
+  - { path: upstream, label: upstream (where the patches came from) }
+hints:
+  - "`git am -3 ../patches/*.patch` applies the series in order and falls back to a three-way merge when context differs."
+  - "Patch 2 conflicts with your local change to config.txt. Edit the file to keep `level = 2`, stage it, then `git am --continue`."
+  - "`git am --skip` drops the current patch; `git am --abort` returns to where you started."

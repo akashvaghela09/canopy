@@ -1,0 +1,12 @@
+commands: |
+  echo "hello from plumbing" > hello.txt
+  blob=$(git hash-object -w hello.txt)
+  echo $blob
+  git update-index --add --cacheinfo 100644,$blob,hello.txt
+  git ls-files -s
+  tree=$(git write-tree)
+  git ls-tree $tree
+  new=$(git commit-tree $tree -p HEAD -m "Add hello by hand")
+  git cat-file -p $new
+  git update-ref refs/heads/main $new
+  git log --oneline -3

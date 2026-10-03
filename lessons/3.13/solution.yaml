@@ -1,0 +1,16 @@
+commands: |
+  git log --oneline --graph --all --decorate
+  git blame -L 2,2 weather.py
+  git show 1128da3
+  git diff --name-status v1.0 v1.1
+  git show HEAD~4:weather.py
+  git show --stat v1.1^2
+  git log --oneline --author=Priya
+answers:
+  culprit: 0
+  bug-commit: 1128da3
+  renamed: 0
+  added: 0
+  city-head4: 0
+  merged-tip: 437eff2
+  priya-count: 4

@@ -1,0 +1,58 @@
+{
+  "questions": [
+    {
+      "id": "origin",
+      "prompt": "Run git config --show-origin user.email. Which file does the value come from?",
+      "type": "choice",
+      "options": [
+        "This repo's own .git/config",
+        "The global settings file",
+        "Both files at once"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    {
+      "label": "Set user.name globally",
+      "check": {
+        "type": "config",
+        "key": "user.name",
+        "scope": "global",
+        "present": true
+      }
+    },
+    {
+      "label": "Set user.email globally",
+      "check": {
+        "type": "config",
+        "key": "user.email",
+        "scope": "global",
+        "present": true
+      }
+    },
+    {
+      "label": "Set user.email to work@example.com for this repo only",
+      "check": {
+        "type": "config",
+        "key": "user.email",
+        "scope": "local",
+        "value": "work@example.com"
+      }
+    },
+    {
+      "label": "List your settings",
+      "check": {
+        "type": "usedCommand",
+        "matches": "git\\s+config\\b.*\\s(--list|-l|list)(\\s|$)"
+      }
+    },
+    {
+      "label": "Answer where user.email comes from",
+      "check": {
+        "type": "answer",
+        "question": "origin"
+      }
+    }
+  ]
+}

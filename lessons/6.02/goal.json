@@ -1,0 +1,34 @@
+{
+  "questions": [
+    {
+      "id": "first-parent",
+      "prompt": "After the merge: which commit is HEAD^1, the first parent of the merge commit?",
+      "type": "commit",
+      "answer": "@mark:main-tip"
+    },
+    {
+      "id": "second-parent",
+      "prompt": "Which commit is HEAD^2, the second parent?",
+      "type": "commit",
+      "answer": "@mark:hours2"
+    },
+    {
+      "id": "merge-base",
+      "prompt": "Which commit was the merge base, the newest commit both branches shared before the merge?",
+      "type": "commit",
+      "answer": "@mark:base"
+    }
+  ],
+  "goals": [
+    { "label": "Merge opening-hours into main with a merge commit", "check": { "type": "all", "checks": [
+        { "type": "currentBranch", "name": "main" },
+        { "type": "commitParents", "rev": "HEAD", "count": 2 },
+        { "type": "refAt", "ref": "HEAD^1", "target": "@mark:main-tip" },
+        { "type": "refAt", "ref": "HEAD^2", "target": "@mark:hours2" }
+      ] } },
+    { "label": "Answer: the first parent", "check": { "type": "answer", "question": "first-parent" } },
+    { "label": "Answer: the second parent", "check": { "type": "answer", "question": "second-parent" } },
+    { "label": "Answer: the merge base", "check": { "type": "answer", "question": "merge-base" } },
+    { "label": "Finish with a clean working tree", "check": { "type": "status", "clean": true } }
+  ]
+}

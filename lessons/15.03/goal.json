@@ -1,0 +1,103 @@
+{
+  "questions": [
+    {
+      "id": "remote",
+      "prompt": "Sam later pushes lib 1.2 to lib.git. Which command brings lib/ to it, leaving the pointer change for you to commit?",
+      "type": "choice",
+      "options": [
+        "git submodule update --remote lib",
+        "git submodule update --init lib",
+        "git pull in the project",
+        "git submodule sync lib"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    {
+      "label": "lib.git main has the new greeting",
+      "check": {
+        "type": "fileContent",
+        "repo": "lib.git",
+        "source": "main",
+        "path": "greet.txt",
+        "contains": "hello there"
+      }
+    },
+    {
+      "label": "work's commit points at the library's new main",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "refNotAt",
+            "ref": "main",
+            "target": "@mark:app-tip"
+          },
+          {
+            "type": "shell",
+            "script": "test \"$(git rev-parse HEAD:lib)\" = \"$(git -C \"$LESSON_ROOT/lib.git\" rev-parse main)\""
+          }
+        ]
+      }
+    },
+    {
+      "label": "The pointer move is a new commit on main",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "refNotAt",
+            "ref": "main",
+            "target": "@mark:app-tip"
+          },
+          {
+            "type": "isAncestor",
+            "ancestor": "@mark:app-tip",
+            "descendant": "main"
+          },
+          {
+            "type": "commitChanges",
+            "rev": "HEAD",
+            "paths": [
+              "lib"
+            ],
+            "exact": false
+          }
+        ]
+      }
+    },
+    {
+      "label": "app.git main has the new pointer too",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "refNotAt",
+            "ref": "main",
+            "target": "@mark:app-tip",
+            "repo": "app.git"
+          },
+          {
+            "type": "shell",
+            "script": "test \"$(git rev-parse main)\" = \"$(git -C \"$LESSON_ROOT/app.git\" rev-parse main)\""
+          }
+        ]
+      }
+    },
+    {
+      "label": "Nothing left uncommitted in work",
+      "check": {
+        "type": "status",
+        "clean": true
+      }
+    },
+    {
+      "label": "Name the command that follows the library's main",
+      "check": {
+        "type": "answer",
+        "question": "remote"
+      }
+    }
+  ]
+}

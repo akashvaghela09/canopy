@@ -1,0 +1,15 @@
+commands: |
+  git fsck --full --lost-found
+  git ls-tree -r 8cb8b09a54a924f9ae20126d395845d32ccc45ac
+  git cat-file -p 8cb8b09a54a924f9ae20126d395845d32ccc45ac
+  git update-ref refs/heads/recovered $(git commit-tree 8cb8b09a54a924f9ae20126d395845d32ccc45ac -p main -m "Add launch plan")
+  cat .git/refs/heads/release
+  git update-ref --no-deref refs/heads/release v1.0^{}
+  git ls-tree -r HEAD
+  cp ../backup/.git/objects/92/bf40c207a9e0e2e04c036fed0976bc7448e2aa .git/objects/92/
+  git fsck --full
+  git rev-list --count main
+  git cat-file -t v1.0
+answers:
+  count: 4
+  tag-type: 0

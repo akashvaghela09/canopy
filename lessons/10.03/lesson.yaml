@@ -1,0 +1,13 @@
+id: "10.03"
+section: 10
+title: Undo a bad reset
+kind: practice
+teaches: [recover-reset]
+requires: [reflog-refs, reset-hard]
+flags: []
+repo: api
+start: api
+hints:
+  - "Run `git reflog` first. The top entry is the reset; HEAD@{1} is where main was before it."
+  - "A hard reset to that entry puts the branch, the staging area and the files back: `git reset --hard HEAD@{1}`."
+  - "Check with the log: six commits, \"Add health endpoint\" on top, and a clean status."

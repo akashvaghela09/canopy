@@ -1,0 +1,16 @@
+commands: |
+  git log --oneline --graph --all
+  git rev-list --count main
+  git rev-list --count main..wip
+  git rev-list --count --all
+  git rev-list --parents main
+  git rev-list --count 2728b4f..main
+  git rev-list --count --ancestry-path 2728b4f..main
+  git rev-list --topo-order main
+answers:
+  count-main: 8
+  count-wip: 2
+  count-all: 10
+  merge-commit: "@mark:merge"
+  ancestry: 3
+  topo: 0

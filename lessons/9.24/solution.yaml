@@ -1,0 +1,6 @@
+commands: |
+  git log --oneline --graph --all
+  git rebase --rebase-merges main
+  git log --oneline --graph --all
+answers:
+  plain-rebase: 0

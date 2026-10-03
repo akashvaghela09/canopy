@@ -1,0 +1,16 @@
+id: "13.05"
+section: 13
+title: Ignore globally
+kind: practice
+teaches: [ignore-global]
+requires: [gitignore, config-levels]
+flags: []
+repo: app
+start: "."
+repos:
+  - { path: app, label: app }
+  - { path: docs, label: docs }
+hints:
+  - "Write the patterns `*.swp` and `.idea/` into a file in this lesson folder, then set `core.excludesFile` globally to that file's full path (use `pwd` to find it)."
+  - "`.git/info/exclude` works like a .gitignore that is never committed. Add `scratch.md` to `app/.git/info/exclude` only."
+  - "Check with `git status` in both repos: the editor files are gone from both, scratch.md only from app."

@@ -1,0 +1,10 @@
+commands: |
+  git log --oneline --graph --all
+  git merge --no-edit opening-hours
+  git log --oneline --graph --all
+  git log -1 HEAD^1
+  git log -1 HEAD^2
+answers:
+  first-parent: "daa2e8c"
+  second-parent: "65b5477"
+  merge-base: "ce224e5"

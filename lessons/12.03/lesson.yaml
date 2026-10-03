@@ -1,0 +1,17 @@
+id: "12.03"
+section: 12
+title: Keep your branch up to date
+kind: practice
+teaches: [branch-sync]
+requires: [merge-three-way, rebase, fetch, push-force-with-lease]
+flags: []
+repo: work
+start: work
+repos:
+  - { path: work, label: Your clone }
+  - { path: origin.git, label: origin }
+  - { path: teammate, label: Teammate }
+hints:
+  - "Start by fetching, so `origin/main` shows what Sam pushed. Your local `main` does not need to move."
+  - "On `tags-ui`, rebase onto `origin/main`. On `export-pdf`, merge `origin/main` in."
+  - "The rebased `tags-ui` no longer matches origin's copy. Push it with `--force-with-lease`; the merged `export-pdf` pushes normally."

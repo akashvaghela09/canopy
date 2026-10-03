@@ -1,0 +1,13 @@
+id: "6.17"
+section: 6
+title: "Boss: integrate three features"
+kind: boss
+teaches: []
+requires: [merge-ff, merge-three-way, merge-message, merge-squash, conflict-read, conflict-resolve, reset-hard, switch, log-graph, branch-delete]
+flags: [destructive]
+repo: cafe
+start: cafe
+hints:
+  - "Draw the history first. One branch is strictly ahead of main; do that one first, while a fast-forward is still possible."
+  - "The conflict in menu.md wants both changes on one line: `- Tea 2.20 (also iced)`. Remove the markers, stage, commit."
+  - "Squash analytics, commit it, then take that commit back off main with a hard reset to its parent. The analytics branch itself stays."

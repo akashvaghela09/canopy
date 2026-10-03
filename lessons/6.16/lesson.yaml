@@ -1,0 +1,13 @@
+id: "6.16"
+section: 6
+title: Merge options
+kind: practice
+teaches: [merge-options]
+requires: [conflict-ours-theirs, merge-three-way]
+flags: []
+repo: cafe
+start: cafe
+hints:
+  - "`git merge -X theirs pricing` resolves only the conflicting coffee line in pricing's favour; main's toast change and pricing's cake line both survive."
+  - "`git merge --no-commit footer` stops just before the commit. Check the status and the staged diff, then commit."
+  - "Order does not matter. Finish with both branches merged, two merge commits, and a clean working tree."

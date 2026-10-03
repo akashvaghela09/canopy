@@ -1,0 +1,11 @@
+commands: |
+  git merge rename
+  cat config.ini
+  git checkout --conflict=diff3 config.ini
+  cat config.ini
+  git config merge.conflictstyle diff3
+  printf '[site]\nname = Hilltop Cafe and Bakery\nhours = 7-15\ncurrency = EUR\n' > config.ini
+  git add config.ini
+  git commit --no-edit
+answers:
+  who-changed-hours: 0

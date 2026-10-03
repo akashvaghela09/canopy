@@ -1,0 +1,10 @@
+commands: |
+  git switch -c trail-maps
+  mkdir -p maps
+  echo "Scanned maps go in this folder." > maps/README.md
+  git add maps/README.md
+  git commit -m "Start the maps folder"
+  git push
+  git push -u origin trail-maps
+  git branch -vv
+answers: {}

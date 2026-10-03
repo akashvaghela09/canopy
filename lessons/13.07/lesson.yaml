@@ -1,0 +1,13 @@
+id: "13.07"
+section: 13
+title: Hooks
+kind: practice
+teaches: [hooks-client]
+requires: [term-files, add, commit]
+flags: []
+repo: project
+start: project
+hints:
+  - "The hook is a script at `.git/hooks/pre-commit`. Create it with the content from the lesson text and make it executable with `chmod +x`."
+  - "A hook that exits non-zero stops the commit. `git commit --no-verify` skips pre-commit and commit-msg hooks on purpose."
+  - "Move the script into a `hooks/` folder inside the project, set `git config core.hooksPath hooks`, and commit the folder so teammates get it."

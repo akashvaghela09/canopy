@@ -1,0 +1,9 @@
+commands: |
+  git mv notes.txt journal.txt
+  git status
+  mv draft.md chapter1.md
+  git status
+  git add draft.md chapter1.md
+  git status
+  git commit -m "Rename notes and draft"
+answers: {}

@@ -1,0 +1,205 @@
+{
+  "questions": [],
+  "goals": [
+    {
+      "label": "feature/export has exactly five commits on top of the latest origin/main",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "refAt",
+            "ref": "feature/export~5",
+            "target": "@mark:m1"
+          },
+          {
+            "type": "commitCount",
+            "range": "@mark:m1..feature/export",
+            "equals": 5
+          },
+          {
+            "type": "commitCount",
+            "range": "--merges @mark:m1..feature/export",
+            "equals": 0
+          }
+        ]
+      }
+    },
+    {
+      "label": "Messages in order: button, CSV export, tests, settings, README typo",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "commitMessage",
+            "rev": "feature/export~4",
+            "equals": "Add export button"
+          },
+          {
+            "type": "commitMessage",
+            "rev": "feature/export~3",
+            "equals": "Add CSV export"
+          },
+          {
+            "type": "commitMessage",
+            "rev": "feature/export~2",
+            "equals": "Add tests for CSV export"
+          },
+          {
+            "type": "commitMessage",
+            "rev": "feature/export~1",
+            "equals": "Add export settings"
+          },
+          {
+            "type": "commitMessage",
+            "rev": "feature/export",
+            "equals": "Fix README typo"
+          }
+        ]
+      }
+    },
+    {
+      "label": "The label fix is folded into \"Add export button\"",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "commitChanges",
+            "rev": "feature/export~4",
+            "paths": [
+              "export.js"
+            ],
+            "exact": true
+          },
+          {
+            "type": "fileContent",
+            "source": "feature/export~4",
+            "path": "export.js",
+            "contains": "Export data"
+          },
+          {
+            "type": "commitChanges",
+            "rev": "feature/export~3",
+            "paths": [
+              "csv.js"
+            ],
+            "exact": true
+          },
+          {
+            "type": "commitChanges",
+            "rev": "feature/export~2",
+            "paths": [
+              "tests/csv.test.js"
+            ],
+            "exact": true
+          }
+        ]
+      }
+    },
+    {
+      "label": "The oversized commit is split: settings.js alone, then README.md alone",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "commitChanges",
+            "rev": "feature/export~1",
+            "paths": [
+              "settings.js"
+            ],
+            "exact": true
+          },
+          {
+            "type": "commitChanges",
+            "rev": "feature/export",
+            "paths": [
+              "README.md"
+            ],
+            "exact": true
+          }
+        ]
+      }
+    },
+    {
+      "label": "The README conflict is resolved: \"Exports data as CSV or JSON files.\"",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "fileContent",
+            "source": "feature/export",
+            "path": "README.md",
+            "contains": "Exports data as CSV or JSON files."
+          },
+          {
+            "type": "fileContent",
+            "source": "feature/export",
+            "path": "README.md",
+            "notContains": "CVS"
+          },
+          {
+            "type": "fileContent",
+            "source": "feature/export",
+            "path": "README.md",
+            "notContains": "<<<<"
+          }
+        ]
+      }
+    },
+    {
+      "label": "origin's feature/export is updated with the lease, never a plain --force",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "refAt",
+            "ref": "origin/feature/export",
+            "target": "feature/export"
+          },
+          {
+            "type": "commitCount",
+            "repo": "origin.git",
+            "range": "main..feature/export",
+            "equals": 5
+          },
+          {
+            "type": "commitMessage",
+            "repo": "origin.git",
+            "rev": "feature/export",
+            "equals": "Fix README typo"
+          },
+          {
+            "type": "usedCommand",
+            "matches": "\\bgit push\\b.*--force-with-lease"
+          },
+          {
+            "type": "not",
+            "check": {
+              "type": "usedCommand",
+              "matches": "\\bgit push\\b.*(\\s(-[a-zA-Z]*f[a-zA-Z]*|--force)(\\s|$)|\\s\\+[^\\s+])"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "label": "On feature/export, nothing in progress, clean working tree",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "currentBranch",
+            "name": "feature/export"
+          },
+          {
+            "type": "operation",
+            "value": null
+          },
+          {
+            "type": "status",
+            "clean": true
+          }
+        ]
+      }
+    }
+  ]
+}

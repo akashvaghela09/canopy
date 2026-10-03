@@ -1,0 +1,8 @@
+commands: |
+  git status
+  git log --oneline
+  git reset --hard HEAD~2
+  git status
+  git log --oneline
+  cat deploy.sh
+answers: {}

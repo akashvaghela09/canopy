@@ -1,0 +1,15 @@
+commands: |
+  git switch -c feature/login develop
+  echo "// Lantern: login" > src/login.js
+  git add src/login.js
+  git commit -m "Add login module"
+  git switch develop
+  git merge --no-ff feature/login -m "Merge branch 'feature/login' into develop"
+  git switch -c release/1.1.0
+  echo "1.1.0" > VERSION
+  git commit -am "Bump version to 1.1.0"
+  git switch main
+  git merge --no-ff release/1.1.0 -m "Merge branch 'release/1.1.0'"
+  git tag -a v1.1.0 -m "Lantern 1.1.0"
+  git switch develop
+  git merge --no-ff release/1.1.0 -m "Merge branch 'release/1.1.0' into develop"

@@ -1,0 +1,13 @@
+id: "15.17"
+section: 15
+title: Which commits are equivalent
+kind: practice
+teaches: [cherry-equivalence]
+requires: [cherry-pick, rebase, range-diff]
+flags: []
+repo: project
+start: project
+hints:
+  - "`git cherry -v feature-v2 feature` lists feature's commits: `-` means an equivalent patch exists in feature-v2, `+` means none does."
+  - "`git show <commit> | git patch-id` prints the patch id; compare it between an old and a new commit."
+  - "Messages were reworded during the rebase, so match by patch id, not by message."

@@ -1,0 +1,114 @@
+{
+  "questions": [
+    {
+      "id": "negation",
+      "prompt": "Your .gitignore has *.log and then !audit.log. What happens to audit.log?",
+      "type": "choice",
+      "options": [
+        "It is ignored like the other logs",
+        "It is not ignored: the ! line makes an exception",
+        "It is deleted from disk"
+      ],
+      "answer": 1
+    }
+  ],
+  "goals": [
+    {
+      "label": "Commit a .gitignore",
+      "check": {
+        "type": "fileInRev",
+        "path": ".gitignore",
+        "rev": "HEAD",
+        "present": true
+      }
+    },
+    {
+      "label": "The build folder and the noisy logs are ignored, not committed",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "fileInRev",
+            "path": "build/app.min.js",
+            "rev": "HEAD",
+            "present": false
+          },
+          {
+            "type": "fileInRev",
+            "path": "debug.log",
+            "rev": "HEAD",
+            "present": false
+          },
+          {
+            "type": "fileInRev",
+            "path": "trace.log",
+            "rev": "HEAD",
+            "present": false
+          },
+          {
+            "type": "status",
+            "ignored": [
+              "build/",
+              "debug.log",
+              "trace.log"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "label": "The ignored files are still on disk",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "pathExists",
+            "path": "project/build/app.min.js"
+          },
+          {
+            "type": "pathExists",
+            "path": "project/debug.log"
+          },
+          {
+            "type": "pathExists",
+            "path": "project/trace.log"
+          }
+        ]
+      }
+    },
+    {
+      "label": "audit.log and notes.txt are committed",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "fileInRev",
+            "path": "audit.log",
+            "rev": "HEAD",
+            "present": true
+          },
+          {
+            "type": "fileInRev",
+            "path": "notes.txt",
+            "rev": "HEAD",
+            "present": true
+          }
+        ]
+      }
+    },
+    {
+      "label": "Finish with a clean working tree",
+      "check": {
+        "type": "status",
+        "clean": true
+      }
+    },
+    {
+      "label": "Answer: what the ! line does",
+      "check": {
+        "type": "answer",
+        "question": "negation"
+      }
+    }
+  ]
+}

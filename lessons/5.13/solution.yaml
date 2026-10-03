@@ -1,0 +1,14 @@
+commands: |
+  git log --oneline --graph --all
+  git switch --detach HEAD~2
+  git status
+  ls
+  echo "Add a trail difficulty rating" > ideas.md
+  git add ideas.md
+  git commit -m "Note ideas for the guide"
+  git log --oneline --graph --all
+  git switch -c ideas
+  git switch main
+  git log --oneline --graph --all
+answers:
+  if-switched: 0

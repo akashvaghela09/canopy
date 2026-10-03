@@ -1,0 +1,13 @@
+id: "2.01"
+section: 2
+title: Stage a file
+kind: practice
+teaches: [add, concept-staging-area]
+requires: [status, term-files, concept-commit]
+flags: []
+repo: project
+start: project
+panels: [three-areas]
+hints:
+  - "Check the status first. Three files are untracked; you want exactly one of them staged."
+  - "`git add intro.txt` stages that one file and leaves the others alone."

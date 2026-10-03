@@ -1,0 +1,10 @@
+commands: |
+  git switch signage
+  git fetch
+  git branch -r
+  git switch signage
+  git branch -vv
+  echo "- Alex" >> trails/signage.md
+  git add trails/signage.md
+  git commit -m "Alex volunteers for signage"
+answers: {}

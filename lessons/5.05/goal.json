@@ -1,0 +1,43 @@
+{
+  "questions": [
+    {
+      "id": "fork-point",
+      "prompt": "Which commit is the newest one that main and river still share?",
+      "type": "commit",
+      "answer": "@mark:gear"
+    },
+    {
+      "id": "parents",
+      "prompt": "Your two new commits, one on river and one on main, have:",
+      "type": "choice",
+      "options": [
+        "The same parent, \"Add gear checklist\"",
+        "Each other as parent: the main commit builds on the river commit",
+        "No parent, because they are on different branches",
+        "Two parents each, because history forked"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    { "label": "river has a commit that adds trails/river.md", "check": { "type": "all", "checks": [
+        { "type": "branchExists", "name": "river" },
+        { "type": "commitCount", "range": "main..river", "min": 1 },
+        { "type": "fileInRev", "path": "trails/river.md", "rev": "river", "present": true },
+        { "type": "isAncestor", "ancestor": "@mark:gear", "descendant": "river" }
+      ] } },
+    { "label": "main has its own new commit, without the river file", "check": { "type": "all", "checks": [
+        { "type": "commitCount", "range": "river..main", "min": 1 },
+        { "type": "fileInRev", "path": "trails/river.md", "rev": "main", "present": false },
+        { "type": "isAncestor", "ancestor": "@mark:gear", "descendant": "main" },
+        { "type": "commitChanges", "rev": "main", "paths": ["gear.md"], "exact": false }
+      ] } },
+    { "label": "Draw the forked graph with all branches", "check": { "type": "usedCommand", "matches": "^git log\\b.*(--graph.*(--all|--branches)|(--all|--branches).*--graph)" } },
+    { "label": "Finish on main with a clean working tree", "check": { "type": "all", "checks": [
+        { "type": "currentBranch", "name": "main" },
+        { "type": "status", "clean": true }
+      ] } },
+    { "label": "Answer: the last shared commit", "check": { "type": "answer", "question": "fork-point" } },
+    { "label": "Answer: the parents of the two new commits", "check": { "type": "answer", "question": "parents" } }
+  ]
+}

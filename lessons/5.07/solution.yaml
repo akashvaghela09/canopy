@@ -1,0 +1,13 @@
+commands: |
+  echo "Maintained by the Pine Hollow walking club." >> README.md
+  git switch winter
+  git status
+  echo "- Check ice reports first" >> trails/lake.md
+  git switch main
+  git status
+  git add trails/lake.md
+  git commit -m "Add ice report reminder"
+  git switch main
+  git status
+answers:
+  why-refused: 0

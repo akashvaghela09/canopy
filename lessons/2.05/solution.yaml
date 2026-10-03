@@ -1,0 +1,5 @@
+commands: |
+  git status
+  git commit -m "Increase request timeout to 30s" -m "The payment API often takes 15 to 20 seconds. With a 10 second limit, one checkout in five failed."
+answers:
+  best-subject: 1

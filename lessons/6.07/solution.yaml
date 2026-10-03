@@ -1,0 +1,10 @@
+commands: |
+  git log --oneline --graph
+  git log --oneline --merges
+  git log --oneline --first-parent
+  git log --oneline --no-merges --author=Sam
+answers:
+  merge-count: 3
+  last-merged: hotfix
+  first-parent-count: 9
+  sam-count: 4

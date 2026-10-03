@@ -1,0 +1,13 @@
+id: "2.09"
+section: 2
+title: Read the history
+kind: practice
+teaches: [log]
+requires: [commit]
+flags: []
+repo: project
+start: project
+hints:
+  - "Commit the staged change first, then run `git log`."
+  - "Each entry starts with the word commit and a long id. The author and date are on the next two lines."
+  - "For the commit question, copy the first seven or so characters of the id of the commit whose message is \"Create homepage\"."

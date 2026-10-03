@@ -1,0 +1,94 @@
+{
+  "questions": [
+    {
+      "id": "count",
+      "prompt": "How many commits does main contain?",
+      "type": "number",
+      "answer": 4
+    },
+    {
+      "id": "tag-type",
+      "prompt": "What type of object does the name v1.0 resolve to directly?",
+      "type": "choice",
+      "options": [
+        "tag",
+        "commit",
+        "tree",
+        "blob"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    {
+      "label": "ledger.txt is readable from HEAD again",
+      "check": {
+        "type": "fileContent",
+        "source": "HEAD",
+        "path": "ledger.txt",
+        "contains": "sunflower"
+      }
+    },
+    {
+      "label": "release points at the commit tagged v1.0",
+      "check": {
+        "type": "refAt",
+        "ref": "release",
+        "target": "v1.0^{}"
+      }
+    },
+    {
+      "label": "A branch recovered holds a commit built from the orphaned tree, on top of main",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "fileContent",
+            "source": "recovered",
+            "path": "plans/launch.md",
+            "equals": "# Launch plan\n\nOpen the vault to the public in spring.\n"
+          },
+          {
+            "type": "commitChanges",
+            "rev": "recovered",
+            "paths": [
+              "plans/launch.md"
+            ],
+            "exact": true
+          },
+          {
+            "type": "commitParents",
+            "rev": "recovered",
+            "count": 1
+          },
+          {
+            "type": "refAt",
+            "ref": "recovered~1",
+            "target": "@mark:tip"
+          }
+        ]
+      }
+    },
+    {
+      "label": "git fsck --full reports no errors",
+      "check": {
+        "type": "shell",
+        "script": "git fsck --full >/dev/null 2>&1"
+      }
+    },
+    {
+      "label": "Count the commits on main",
+      "check": {
+        "type": "answer",
+        "question": "count"
+      }
+    },
+    {
+      "label": "Name the object type behind v1.0",
+      "check": {
+        "type": "answer",
+        "question": "tag-type"
+      }
+    }
+  ]
+}

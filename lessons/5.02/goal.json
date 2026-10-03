@@ -1,0 +1,97 @@
+{
+  "questions": [
+    {
+      "id": "after-commit",
+      "prompt": "After your commit on main, where is the branch signage?",
+      "type": "choice",
+      "options": [
+        "Still on the commit where you created it, one below the new tip of main",
+        "On your new commit, together with main",
+        "Deleted, because main moved past it",
+        "On the first commit of the repo"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    {
+      "label": "signage exists at the commit HEAD was on",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "branchExists",
+            "name": "signage"
+          },
+          {
+            "type": "refAt",
+            "ref": "signage",
+            "target": "@mark:gear"
+          }
+        ]
+      }
+    },
+    {
+      "label": "fix/lake-distance exists at \"Add lake loop trail\"",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "branchExists",
+            "name": "fix/lake-distance"
+          },
+          {
+            "type": "refAt",
+            "ref": "fix/lake-distance",
+            "target": "@mark:lake"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Still on main",
+      "check": {
+        "type": "currentBranch",
+        "name": "main"
+      }
+    },
+    {
+      "label": "A new commit on main that changes gear.md",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "commitCount",
+            "range": "main",
+            "min": 5
+          },
+          {
+            "type": "isAncestor",
+            "ancestor": "@mark:gear",
+            "descendant": "main"
+          },
+          {
+            "type": "refNotAt",
+            "ref": "main",
+            "target": "@mark:gear"
+          },
+          {
+            "type": "commitChanges",
+            "rev": "main",
+            "paths": [
+              "gear.md"
+            ],
+            "exact": false
+          }
+        ]
+      }
+    },
+    {
+      "label": "Answer: where signage is after the commit",
+      "check": {
+        "type": "answer",
+        "question": "after-commit"
+      }
+    }
+  ]
+}

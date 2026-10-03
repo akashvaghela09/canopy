@@ -1,0 +1,31 @@
+{
+  "questions": [
+    {
+      "id": "describe-tags",
+      "prompt": "What does `git describe --tags` print for HEAD?",
+      "type": "text",
+      "accept": ["v0.2"]
+    },
+    {
+      "id": "why-fail",
+      "prompt": "Why does plain `git describe` fail in this repo?",
+      "type": "choice",
+      "options": [
+        "It only considers annotated tags unless --tags is given, and the repo has only lightweight tags",
+        "describe needs at least three tags",
+        "HEAD is tagged, and describe cannot describe a tagged commit",
+        "Tags on older commits confuse describe"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    { "label": "v0.2 is a lightweight tag on the current commit", "check": { "type": "tag", "name": "v0.2", "present": true, "annotated": false, "target": "@mark:gear" } },
+    { "label": "v0.1 is a lightweight tag on \"Add ridge trail\"", "check": { "type": "tag", "name": "v0.1", "present": true, "annotated": false, "target": "@mark:ridge" } },
+    { "label": "List tags with a pattern", "check": { "type": "usedCommand", "matches": "^git tag\\b.*(-l|--list)\\s+\\S+" } },
+    { "label": "Show the commit behind v0.1", "check": { "type": "usedCommand", "matches": "^git show\\b.*\\bv0\\.1\\b" } },
+    { "label": "Describe HEAD including lightweight tags", "check": { "type": "usedCommand", "matches": "^git describe\\b.*--tags" } },
+    { "label": "Answer: describe --tags", "check": { "type": "answer", "question": "describe-tags" } },
+    { "label": "Answer: why describe fails", "check": { "type": "answer", "question": "why-fail" } }
+  ]
+}

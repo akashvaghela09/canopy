@@ -1,0 +1,17 @@
+id: "7.08"
+section: 7
+title: Rejected push
+kind: practice
+teaches: [push-rejected]
+requires: [push, pull, merge-three-way]
+flags: []
+repo: work
+start: work
+repos:
+  - { path: work, label: Your clone }
+  - { path: origin.git, label: origin }
+  - { path: teammate, label: Teammate (Sam) }
+hints:
+  - "Commit, then push. Read the rejection: your main is behind its remote counterpart."
+  - "Bring Sam's commit in first (pull, or fetch and merge), then push again."
+  - "Never answer a rejection with `--force`. It would erase Sam's commit from origin."

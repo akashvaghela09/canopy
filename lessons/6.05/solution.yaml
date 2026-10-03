@@ -1,0 +1,8 @@
+commands: |
+  git log --oneline --graph --all
+  git merge --ff-only redesign
+  git log --oneline -1
+  git merge --ff-only hotfix
+  git log --oneline --graph --all
+answers:
+  why-refused: 0

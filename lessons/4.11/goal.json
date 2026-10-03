@@ -1,0 +1,29 @@
+{
+  "questions": [
+    {
+      "id": "x-option",
+      "prompt": "Which option would make git clean delete the ignored files as well?",
+      "type": "choice",
+      "options": ["-x", "-d", "-f", "-n"],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    { "label": "Do a dry run first", "sticky": true, "check": { "type": "all", "checks": [
+        { "type": "usedCommand", "matches": "^git clean\\b.*(\\s-[a-zA-Z]*n|--dry-run)" },
+        { "type": "pathExists", "path": "firmware/scratch.txt" },
+        { "type": "pathExists", "path": "firmware/tmp" }
+      ] } },
+    { "label": "Remove the untracked file and folder", "check": { "type": "all", "checks": [
+        { "type": "usedCommand", "matches": "^git clean\\b.*(\\s-[a-zA-Z]*f|--force)" },
+        { "type": "pathAbsent", "path": "firmware/scratch.txt" },
+        { "type": "pathAbsent", "path": "firmware/tmp" }
+      ] } },
+    { "label": "Keep the ignored files", "check": { "type": "all", "checks": [
+        { "type": "pathExists", "path": "firmware/flash.log" },
+        { "type": "pathExists", "path": "firmware/build/firmware.bin" }
+      ] } },
+    { "label": "Finish with a clean status", "check": { "type": "status", "clean": true } },
+    { "label": "Answer: the option that also removes ignored files", "check": { "type": "answer", "question": "x-option" } }
+  ]
+}

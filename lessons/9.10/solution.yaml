@@ -1,0 +1,16 @@
+commands: |
+  cd merge-way
+  git merge feature -m "Merge branch 'feature'"
+  git log --oneline --graph --all
+  git log --merges --oneline
+  cd ../rebase-way
+  git switch feature
+  git rebase main
+  git switch main
+  git merge feature
+  git log --oneline --graph --all
+  git log --merges --oneline
+answers:
+  merge-count: 1
+  never-rebase: 0
+  why-ff: 0

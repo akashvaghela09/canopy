@@ -1,0 +1,13 @@
+id: "6.05"
+section: 6
+title: Refuse non-trivial merges
+kind: practice
+teaches: [merge-ff-only]
+requires: [merge-three-way]
+flags: []
+repo: cafe
+start: cafe
+hints:
+  - "Draw the history first: one branch is strictly ahead of main, the other has forked."
+  - "`--ff-only` succeeds only when git can move the label forward. On a forked branch it stops with \"Not possible to fast-forward\"."
+  - "`git merge --ff-only redesign` is refused; `git merge --ff-only hotfix` moves main forward."

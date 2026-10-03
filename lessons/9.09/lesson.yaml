@@ -1,0 +1,12 @@
+id: "9.09"
+section: 9
+title: Rebase a branch
+kind: practice
+teaches: [rebase]
+requires: [cherry-pick, log-range, concept-divergence, merge-three-way]
+flags: []
+repo: shop
+start: shop
+hints:
+  - "Stay on `search`. A rebase moves the branch you are on; the argument is the new base."
+  - "`git rebase main` replays the three search commits on top of main's tip."

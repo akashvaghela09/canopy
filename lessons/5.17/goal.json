@@ -1,0 +1,35 @@
+{
+  "questions": [],
+  "goals": [
+    { "label": "feature/search starts at \"Add price list\" and has a commit of its own", "check": { "type": "all", "checks": [
+        { "type": "branchExists", "name": "feature/search" },
+        { "type": "isAncestor", "ancestor": "@mark:prices", "descendant": "feature/search" },
+        { "type": "not", "check": { "type": "isAncestor", "ancestor": "@mark:checkout", "descendant": "feature/search" } },
+        { "type": "commitCount", "range": "@mark:prices..feature/search", "min": 1 }
+      ] } },
+    { "label": "fix/typo starts at \"Add checkout page\" and has a commit of its own", "check": { "type": "all", "checks": [
+        { "type": "branchExists", "name": "fix/typo" },
+        { "type": "isAncestor", "ancestor": "@mark:checkout", "descendant": "fix/typo" },
+        { "type": "not", "check": { "type": "isAncestor", "ancestor": "@mark:readme", "descendant": "fix/typo" } },
+        { "type": "commitCount", "range": "@mark:checkout..fix/typo", "min": 1 }
+      ] } },
+    { "label": "feature/reviews starts at the tip of main and has a commit of its own", "check": { "type": "all", "checks": [
+        { "type": "branchExists", "name": "feature/reviews" },
+        { "type": "isAncestor", "ancestor": "@mark:readme", "descendant": "feature/reviews" },
+        { "type": "commitCount", "range": "@mark:readme..feature/reviews", "min": 1 },
+        { "type": "not", "check": { "type": "isAncestor", "ancestor": "@mark:cart", "descendant": "feature/reviews" } }
+      ] } },
+    { "label": "wip is now called feature/cart, on the same commit", "check": { "type": "all", "checks": [
+        { "type": "branchExists", "name": "feature/cart" },
+        { "type": "refAt", "ref": "feature/cart", "target": "@mark:cart" },
+        { "type": "branchExists", "name": "wip", "present": false }
+      ] } },
+    { "label": "old-banner is deleted", "check": { "type": "branchExists", "name": "old-banner", "present": false } },
+    { "label": "v2.0 is an annotated tag on the tip of main", "check": { "type": "tag", "name": "v2.0", "present": true, "annotated": true, "target": "@mark:readme" } },
+    { "label": "main did not move", "check": { "type": "refAt", "ref": "main", "target": "@mark:readme" } },
+    { "label": "Finish on feature/reviews with a clean working tree", "check": { "type": "all", "checks": [
+        { "type": "currentBranch", "name": "feature/reviews" },
+        { "type": "status", "clean": true }
+      ] } }
+  ]
+}

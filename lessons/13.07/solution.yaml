@@ -1,0 +1,13 @@
+commands: |
+  printf '%s\n' '#!/bin/sh' "if git diff --cached -- '*.js' | grep -q '^+.*FIXME'; then" '  echo "pre-commit: staged .js changes contain FIXME" >&2' '  exit 1' 'fi' > .git/hooks/pre-commit
+  chmod +x .git/hooks/pre-commit
+  echo "// FIXME: handle missing notes file" >> src/app.js
+  git add src/app.js
+  git commit -m "Note the missing-file case"
+  git commit --no-verify -m "Note the missing-file case"
+  mkdir hooks
+  mv .git/hooks/pre-commit hooks/pre-commit
+  git config core.hooksPath hooks
+  sed -i '/FIXME/d' src/app.js
+  git add src/app.js hooks
+  git commit -m "Handle the missing-file note and share the pre-commit hook"

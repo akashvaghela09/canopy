@@ -1,0 +1,28 @@
+{
+  "questions": [],
+  "goals": [
+    { "label": "styles.css keeps main's version", "check": { "type": "all", "checks": [
+        { "type": "fileContent", "path": "styles.css", "source": "main", "contains": "Palatino" },
+        { "type": "fileContent", "path": "styles.css", "source": "main", "notContains": "Helvetica" },
+        { "type": "fileContent", "path": "styles.css", "source": "main", "notContains": "<<<<<<<" }
+      ] } },
+    { "label": "CHANGELOG.md takes cleanup's version", "check": { "type": "all", "checks": [
+        { "type": "fileContent", "path": "CHANGELOG.md", "source": "main", "contains": "Clean up styles" },
+        { "type": "fileContent", "path": "CHANGELOG.md", "source": "main", "notContains": "Switch heading font" },
+        { "type": "fileContent", "path": "CHANGELOG.md", "source": "main", "notContains": "<<<<<<<" }
+      ] } },
+    { "label": "old-notes.txt is kept, with main's edit", "check": { "type": "all", "checks": [
+        { "type": "fileInRev", "path": "old-notes.txt", "rev": "main", "present": true },
+        { "type": "fileContent", "path": "old-notes.txt", "source": "main", "contains": "a map to the cafe" }
+      ] } },
+    { "label": "legacy.py stays deleted", "check": { "type": "fileInRev", "path": "legacy.py", "rev": "main", "present": false } },
+    { "label": "The merge is committed on main", "check": { "type": "all", "checks": [
+        { "type": "currentBranch", "name": "main" },
+        { "type": "operation", "value": null },
+        { "type": "commitParents", "rev": "main", "count": 2 },
+        { "type": "refAt", "ref": "main^1", "target": "@mark:main-tip" },
+        { "type": "refAt", "ref": "main^2", "target": "@mark:cleanup-tip" }
+      ] } },
+    { "label": "Finish with a clean working tree", "check": { "type": "status", "clean": true } }
+  ]
+}

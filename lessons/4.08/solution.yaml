@@ -1,0 +1,10 @@
+commands: |
+  git log --oneline
+  git show --stat HEAD
+  git reset HEAD~1
+  git status
+  git add settings.json
+  git commit -m "Add settings file"
+  git status
+answers:
+  after-mixed: 0

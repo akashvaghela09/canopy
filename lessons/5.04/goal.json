@@ -1,0 +1,16 @@
+{
+  "questions": [],
+  "goals": [
+    { "label": "Create a branch with switch -c", "check": { "type": "usedCommand", "matches": "^git switch\\b.*\\s(-c|--create)(\\s|=|$)" } },
+    { "label": "maps exists at the commit main is on", "check": { "type": "all", "checks": [
+        { "type": "branchExists", "name": "maps" },
+        { "type": "refAt", "ref": "maps", "target": "@mark:gear" }
+      ] } },
+    { "label": "archive/first-trails starts at \"Add ridge trail\" and is checked out", "check": { "type": "all", "checks": [
+        { "type": "branchExists", "name": "archive/first-trails" },
+        { "type": "refAt", "ref": "archive/first-trails", "target": "@mark:ridge" },
+        { "type": "currentBranch", "name": "archive/first-trails" }
+      ] } },
+    { "label": "main did not move", "check": { "type": "refAt", "ref": "main", "target": "@mark:gear" } }
+  ]
+}

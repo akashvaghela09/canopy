@@ -1,0 +1,16 @@
+{
+  "questions": [
+    {
+      "id": "hidden-folder",
+      "prompt": "What is the name of the hidden folder git created?",
+      "type": "text",
+      "accept": [".git", "git", ".git/"]
+    }
+  ],
+  "goals": [
+    { "label": "Turn garden into a repository", "check": { "type": "repoExists", "path": "garden" } },
+    { "label": "The .git folder exists inside garden", "check": { "type": "pathExists", "path": "garden/.git" } },
+    { "label": "The repo starts on the main branch", "check": { "type": "currentBranch", "repo": "garden", "name": "main" } },
+    { "label": "Name the hidden folder", "check": { "type": "answer", "question": "hidden-folder" } }
+  ]
+}

@@ -1,0 +1,17 @@
+id: "12.01"
+section: 12
+title: One branch per task
+kind: practice
+teaches: [workflow-feature-branch]
+requires: [push-branch, merge-no-ff, branch-delete, push-delete]
+flags: []
+repo: work
+start: work
+repos:
+  - { path: work, label: Your clone }
+  - { path: origin.git, label: origin }
+  - { path: teammate, label: Teammate }
+hints:
+  - "The cycle is: branch, commit, publish the branch, merge it into main with a merge commit, push main, then delete the branch in both places."
+  - "A merge that keeps the branch visible in the graph needs the no-fast-forward option."
+  - "Deleting on origin is a push with a delete flag, or a push of 'nothing' to the branch name."

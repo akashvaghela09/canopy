@@ -1,0 +1,26 @@
+{
+  "questions": [
+    {
+      "id": "why-refused",
+      "prompt": "Why did git refuse `git worktree add ../again main`?",
+      "type": "choice",
+      "options": [
+        "main is already checked out in the work worktree, and a branch can be checked out in only one worktree at a time",
+        "Worktree folders must be inside the repository folder",
+        "A repository can have at most two worktrees"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    { "label": "Try to check out main in a second worktree and read the refusal", "check": { "type": "usedCommand", "matches": "^git worktree add\\b.* main\\b", "exitCode": 128 } },
+    { "label": "Prune the stale scratch worktree and remove the review worktree", "check": { "type": "all", "checks": [
+        { "type": "worktreeCount", "equals": 1 },
+        { "type": "pathAbsent", "path": "review" },
+        { "type": "pathAbsent", "path": "again" },
+        { "type": "usedCommand", "matches": "^git worktree remove\\b.*review" }
+      ] } },
+    { "label": "The review branch still exists", "check": { "type": "branchExists", "name": "review" } },
+    { "label": "Answer: why the add was refused", "check": { "type": "answer", "question": "why-refused" } }
+  ]
+}

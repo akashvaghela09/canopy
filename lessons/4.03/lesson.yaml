@@ -1,0 +1,13 @@
+id: "4.03"
+section: 4
+title: Bring back an old version of a file
+kind: practice
+teaches: [restore-source]
+requires: [restore, relative-refs, show]
+flags: []
+minGit: "2.23"
+repo: server
+start: server
+hints:
+  - "Print settings.conf as it was one commit back and compare it with the file now. The retries line is missing."
+  - "`git restore --source=HEAD~1 settings.conf` puts the old version in your working tree. Then stage and commit it like any change."

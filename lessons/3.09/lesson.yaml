@@ -1,0 +1,12 @@
+id: "3.09"
+section: 3
+title: Compare two commits
+kind: practice
+teaches: [diff-commits]
+requires: [diff, relative-refs]
+flags: []
+repo: bakery
+start: bakery
+hints:
+  - "The `diff --git a/... b/...` header at the top of each block names the file."
+  - "`git diff v1.0 HEAD` shows everything that changed since the launch tag. Look for the baguette line."

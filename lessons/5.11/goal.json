@@ -1,0 +1,31 @@
+{
+  "questions": [
+    {
+      "id": "what-happened",
+      "prompt": "After `git branch -D experiment`, what happened to the commit \"Try raised beds\"?",
+      "type": "choice",
+      "options": [
+        "It still exists in the repo; only the label pointing at it was removed, so no branch reaches it any more",
+        "It was deleted from disk together with the branch",
+        "It was moved onto main so that nothing is lost",
+        "It was turned into a tag"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    { "label": "Check which branches are merged first", "check": { "type": "usedCommand", "matches": "^git branch\\b.*--(no-)?merged" } },
+    { "label": "pests is deleted", "check": { "type": "branchExists", "name": "pests", "present": false } },
+    { "label": "git refuses to delete experiment with -d", "sticky": true, "check": { "type": "usedCommand", "matches": "^git branch\\s+(-d|--delete)\\s+experiment\\s*$", "exitCode": 1 } },
+    { "label": "experiment is deleted anyway", "check": { "type": "branchExists", "name": "experiment", "present": false } },
+    { "label": "Its commit is no longer reachable from any branch, but still exists", "check": { "type": "all", "checks": [
+        { "type": "not", "check": { "type": "reachable", "rev": "@mark:raised" } },
+        { "type": "commitMessage", "rev": "@mark:raised", "contains": "Try raised beds" }
+      ] } },
+    { "label": "herbs and main still exist, on their commits", "check": { "type": "all", "checks": [
+        { "type": "refAt", "ref": "herbs", "target": "@mark:mint" },
+        { "type": "refAt", "ref": "main", "target": "@mark:harvest" }
+      ] } },
+    { "label": "Answer: what happened to the commit", "check": { "type": "answer", "question": "what-happened" } }
+  ]
+}

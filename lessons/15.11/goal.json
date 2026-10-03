@@ -1,0 +1,68 @@
+{
+  "questions": [
+    {
+      "id": "id-change",
+      "prompt": "After adding a note, what happened to the commit's id?",
+      "type": "choice",
+      "options": [
+        "Nothing; the note is stored in a separate ref and the commit object is unchanged",
+        "It changed, because the note is part of the commit message",
+        "It changed, because the note is stored in the commit's tree",
+        "The old id became an alias of the new one"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    {
+      "label": "The login commit has a note that mentions the review",
+      "check": {
+        "type": "fileContent",
+        "source": "refs/notes/commits",
+        "path": "ca9b8c4b79ad1ee92724330233952db1bf722475",
+        "matches": "(?i)reviewed"
+      }
+    },
+    {
+      "label": "The note was extended with the approval",
+      "check": {
+        "type": "fileContent",
+        "source": "refs/notes/commits",
+        "path": "ca9b8c4b79ad1ee92724330233952db1bf722475",
+        "contains": "Approved for release"
+      }
+    },
+    {
+      "label": "Append to the note with git notes append",
+      "check": {
+        "type": "usedCommand",
+        "matches": "\\bgit notes append\\b"
+      }
+    },
+    {
+      "label": "The notes are published to origin",
+      "check": {
+        "type": "fileContent",
+        "repo": "origin.git",
+        "source": "refs/notes/commits",
+        "path": "ca9b8c4b79ad1ee92724330233952db1bf722475",
+        "contains": "Approved for release"
+      }
+    },
+    {
+      "label": "The commits themselves are unchanged",
+      "check": {
+        "type": "refAt",
+        "ref": "main",
+        "target": "@mark:c3"
+      }
+    },
+    {
+      "label": "Say what happened to the id",
+      "check": {
+        "type": "answer",
+        "question": "id-change"
+      }
+    }
+  ]
+}

@@ -1,0 +1,106 @@
+{
+  "questions": [
+    {
+      "id": "id-a",
+      "prompt": "What id does git give seeds-a.txt? (the full id or its first 7 or more characters)",
+      "type": "text",
+      "accept": [
+        "7d79c12",
+        "7d79c12d",
+        "7d79c12d9",
+        "7d79c12d92",
+        "7d79c12d924",
+        "7d79c12d9247",
+        "7d79c12d92477",
+        "7d79c12d924770",
+        "7d79c12d9247704",
+        "7d79c12d92477044",
+        "7d79c12d924770449",
+        "7d79c12d924770449e",
+        "7d79c12d924770449ed",
+        "7d79c12d924770449edb",
+        "7d79c12d924770449edb2",
+        "7d79c12d924770449edb2b",
+        "7d79c12d924770449edb2bd",
+        "7d79c12d924770449edb2bdf",
+        "7d79c12d924770449edb2bdf6",
+        "7d79c12d924770449edb2bdf68",
+        "7d79c12d924770449edb2bdf68f",
+        "7d79c12d924770449edb2bdf68f1",
+        "7d79c12d924770449edb2bdf68f1e",
+        "7d79c12d924770449edb2bdf68f1ec",
+        "7d79c12d924770449edb2bdf68f1ec7",
+        "7d79c12d924770449edb2bdf68f1ec75",
+        "7d79c12d924770449edb2bdf68f1ec753",
+        "7d79c12d924770449edb2bdf68f1ec7538",
+        "7d79c12d924770449edb2bdf68f1ec75380",
+        "7d79c12d924770449edb2bdf68f1ec75380a",
+        "7d79c12d924770449edb2bdf68f1ec75380a6",
+        "7d79c12d924770449edb2bdf68f1ec75380a66",
+        "7d79c12d924770449edb2bdf68f1ec75380a660",
+        "7d79c12d924770449edb2bdf68f1ec75380a6608"
+      ]
+    },
+    {
+      "id": "same",
+      "prompt": "seeds-a.txt and seeds-b.txt get:",
+      "type": "choice",
+      "options": [
+        "the same id, because their content is identical",
+        "different ids, because their names differ",
+        "different ids, because they were created at different times"
+      ],
+      "answer": 0
+    },
+    {
+      "id": "folder",
+      "prompt": "After `hash-object -w seeds-a.txt`, which folder inside .git/objects holds the new object?",
+      "type": "text",
+      "accept": [
+        "7d",
+        ".git/objects/7d",
+        "objects/7d",
+        "7d/",
+        ".git/objects/7d/",
+        "objects/7d/"
+      ]
+    }
+  ],
+  "goals": [
+    {
+      "label": "Report the id of seeds-a.txt",
+      "check": {
+        "type": "answer",
+        "question": "id-a"
+      }
+    },
+    {
+      "label": "Compare the ids of the two identical files",
+      "check": {
+        "type": "answer",
+        "question": "same"
+      }
+    },
+    {
+      "label": "Store seeds-a.txt as an object",
+      "check": {
+        "type": "pathExists",
+        "path": "garden/.git/objects/7d/79c12d924770449edb2bdf68f1ec75380a6608"
+      }
+    },
+    {
+      "label": "Find the object's folder",
+      "check": {
+        "type": "answer",
+        "question": "folder"
+      }
+    },
+    {
+      "label": "Store seeds-c.txt as an object",
+      "check": {
+        "type": "pathExists",
+        "path": "garden/.git/objects/32/25abb006b9eb4de3f970767abda764b8e0f6b6"
+      }
+    }
+  ]
+}

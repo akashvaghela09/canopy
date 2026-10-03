@@ -1,0 +1,107 @@
+{
+  "questions": [
+    {
+      "id": "tags",
+      "prompt": "Which tags contain the fix? Select all that apply.",
+      "type": "choice",
+      "options": [
+        "v0.1",
+        "v0.2",
+        "v1.0",
+        "v1.1"
+      ],
+      "answers": [
+        3
+      ]
+    },
+    {
+      "id": "branches",
+      "prompt": "Which branches contain the fix? Select all that apply.",
+      "type": "choice",
+      "options": [
+        "main",
+        "release/0.2",
+        "feature/cli",
+        "topic/rounding",
+        "topic/rounding-v1"
+      ],
+      "answers": [
+        0,
+        3
+      ]
+    },
+    {
+      "id": "ancestor",
+      "prompt": "Is the fix an ancestor of v1.0?",
+      "type": "choice",
+      "options": [
+        "No",
+        "Yes"
+      ],
+      "answer": 0
+    },
+    {
+      "id": "name-rev",
+      "prompt": "How does git name-rev describe the fix commit?",
+      "type": "choice",
+      "options": [
+        "tags/v1.1~3",
+        "tags/v1.0+4",
+        "main~8",
+        "release/0.2~1"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    {
+      "label": "Query containment with --contains",
+      "check": {
+        "type": "usedCommand",
+        "matches": "^git(\\s+(--no-pager|-C\\s+\\S+|-c\\s+\\S+))*\\s+(tag|branch)\\b.*--contains"
+      }
+    },
+    {
+      "label": "Check one pair with merge-base --is-ancestor",
+      "check": {
+        "type": "usedCommand",
+        "matches": "^git(\\s+(--no-pager|-C\\s+\\S+|-c\\s+\\S+))*\\s+merge-base\\b.*--is-ancestor"
+      }
+    },
+    {
+      "label": "Name the commit with name-rev",
+      "check": {
+        "type": "usedCommand",
+        "matches": "^git(\\s+(--no-pager|-C\\s+\\S+|-c\\s+\\S+))*\\s+name-rev\\b"
+      }
+    },
+    {
+      "label": "Tags containing the fix",
+      "check": {
+        "type": "answer",
+        "question": "tags"
+      }
+    },
+    {
+      "label": "Branches containing the fix",
+      "check": {
+        "type": "answer",
+        "question": "branches"
+      }
+    },
+    {
+      "label": "Whether v1.0 has it",
+      "check": {
+        "type": "answer",
+        "question": "ancestor"
+      }
+    },
+    {
+      "label": "name-rev's description",
+      "check": {
+        "type": "answer",
+        "question": "name-rev"
+      }
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+id: "14.17"
+section: 14
+title: Diff plumbing
+kind: concept
+teaches: [diff-plumbing]
+requires: [diff-commits, ls-tree, index-file]
+flags: [optional]
+repo: site
+start: site
+panels: [inside-git]
+hints:
+  - "Run each command and read the path at the end of each output line."
+  - "`diff-files` is index vs working tree; `diff-index --cached HEAD` is HEAD vs index; `diff-tree -r A B` is tree vs tree."
+  - "Without `--cached`, `diff-index HEAD` compares HEAD with the working tree, so it lists both changed files."

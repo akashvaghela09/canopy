@@ -1,0 +1,14 @@
+id: "2.13"
+section: 2
+title: Read status in short form
+kind: practice
+teaches: [status-short]
+requires: [status, concept-three-areas, add, add-patterns]
+flags: []
+repo: project
+start: project
+panels: [three-areas]
+hints:
+  - "Left column is the staging area, right column is the working tree. A letter in the left column means the change is staged."
+  - "To reach the target, the changes to a.txt, c.txt and e.txt must be staged and nothing may remain in the right column. d.txt stays untracked."
+  - "Stage the tracked changes only (`git add -u` does exactly that), then check the short status again."

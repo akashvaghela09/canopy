@@ -1,0 +1,17 @@
+id: "15.01"
+section: 15
+title: "Submodules: add"
+kind: practice
+teaches: [submodule-add]
+requires: [clone, remote-manage, config-settings]
+flags: []
+repo: app
+start: app
+repos:
+  - { path: app, label: app (your project) }
+  - { path: app.git, label: app origin }
+  - { path: lib.git, label: lib (the library) }
+hints:
+  - "`git submodule add ../lib.git lib` clones the library into `lib/` and records it. The path is relative to your project's origin."
+  - "`git submodule status` shows the pinned commit; `git ls-files -s lib` shows the special mode 160000 entry."
+  - "Commit `.gitmodules` and the `lib` entry together, like any other change."

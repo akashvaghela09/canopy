@@ -1,0 +1,35 @@
+{
+  "questions": [
+    {
+      "id": "range-meaning",
+      "prompt": "Which commits does `git cherry-pick A..B` apply?",
+      "type": "choice",
+      "options": [
+        "Every commit after A up to and including B; A itself is left out",
+        "A and B only",
+        "Every commit from A to B, including A",
+        "Every commit after B"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    { "label": "main gains exactly the three posts, in order", "check": { "type": "all", "checks": [
+        { "type": "commitCount", "range": "@mark:main-tip..main", "equals": 3 },
+        { "type": "commitMessage", "rev": "main~2", "matches": "^Add post: Hello world(\n|$)" },
+        { "type": "commitMessage", "rev": "main~1", "matches": "^Add post: Git tips(\n|$)" },
+        { "type": "commitMessage", "rev": "main", "matches": "^Add post: Branching(\n|$)" },
+        { "type": "refAt", "ref": "main~3", "target": "@mark:main-tip" }
+      ] } },
+    { "label": "Neither draft is on main", "check": { "type": "all", "checks": [
+        { "type": "fileInRev", "path": "ideas.md", "rev": "main", "present": false },
+        { "type": "fileInRev", "path": "posts/99-draft.md", "rev": "main", "present": false }
+      ] } },
+    { "label": "drafts is unchanged; clean working tree on main", "check": { "type": "all", "checks": [
+        { "type": "refAt", "ref": "drafts", "target": "@mark:d5" },
+        { "type": "currentBranch", "name": "main" },
+        { "type": "status", "clean": true }
+      ] } },
+    { "label": "Answer: what A..B means", "check": { "type": "answer", "question": "range-meaning" } }
+  ]
+}

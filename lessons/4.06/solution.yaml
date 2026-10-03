@@ -1,0 +1,9 @@
+commands: |
+  git log --oneline --graph
+  git reset HEAD~1
+  git log --oneline --graph
+  git status
+answers:
+  main-now: 66c60ad
+  file-on-disk: 0
+  old-commit: 0

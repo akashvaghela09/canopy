@@ -1,0 +1,13 @@
+id: "12.09"
+section: 12
+title: Hotfix flow
+kind: practice
+teaches: [hotfix-flow]
+requires: [cherry-pick, tag-annotated, switch-create]
+flags: []
+repo: project
+start: project
+hints:
+  - "Start the hotfix branch at the tag, not at main: create and switch to a branch whose start point is `v1.0.0`."
+  - "Commit the fix alone, then the version bump, and tag the bump `v1.0.1` (annotated)."
+  - "On main, cherry-pick the fix commit: `git cherry-pick hotfix/1.0.1~1`, or use its hash from the log. Merging the hotfix branch also passes."

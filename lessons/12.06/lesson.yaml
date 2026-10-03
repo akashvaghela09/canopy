@@ -1,0 +1,20 @@
+id: "12.06"
+section: 12
+title: Trunk-based development
+kind: practice
+teaches: [workflow-trunk]
+requires: [merge-squash, pull-ff-only, branch-sync]
+flags: []
+repo: work
+start: work
+repos:
+  - { path: work, label: Your clone }
+  - { path: origin.git, label: origin }
+  - { path: teammate, label: Teammate }
+actions:
+  - { id: sam-push-1, label: "Sam pushes: changelog entry", script: actions/sam-push-1.sh }
+  - { id: sam-push-2, label: "Sam pushes: count command", script: actions/sam-push-2.sh }
+hints:
+  - "For each task: tiny branch, one commit, back to main, fast-forward-only pull, squash-merge the branch, commit, push. Then delete the branch."
+  - "If the push is rejected, Sam got there first. A fast-forward-only pull refuses now, because your commit is already on `main`: rebase `main` onto `origin/main` (or pull with rebase) and push again. After a squash merge git calls the task branch unmerged, so delete it with `-D`."
+  - "`git log --oneline --graph origin/main` should be a straight line at the end."

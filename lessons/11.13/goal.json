@@ -1,0 +1,129 @@
+{
+  "questions": [
+    {
+      "id": "regression",
+      "prompt": "Which commit introduced the regression (cents dropped from the balance)?",
+      "type": "commit",
+      "answer": "@mark:bug"
+    },
+    {
+      "id": "who-balance",
+      "prompt": "Ignoring whitespace-only commits, who last changed the balance= line in ledger.sh?",
+      "type": "choice",
+      "options": [
+        "Priya Patel",
+        "Jordan Lee",
+        "Sam Chen",
+        "Alex Rivera"
+      ],
+      "answer": 0
+    },
+    {
+      "id": "releases",
+      "prompt": "Which releases contain the fix? Select all that apply.",
+      "type": "choice",
+      "options": [
+        "v2.0",
+        "v2.1",
+        "v2.2",
+        "v2.3"
+      ],
+      "answers": [
+        2,
+        3
+      ]
+    },
+    {
+      "id": "maint",
+      "prompt": "Does the maint/2.1 branch contain the fix?",
+      "type": "choice",
+      "options": [
+        "No",
+        "Yes"
+      ],
+      "answer": 0
+    },
+    {
+      "id": "export",
+      "prompt": "What happened to scripts/export.sh?",
+      "type": "choice",
+      "options": [
+        "It was renamed to tools/export-csv.sh",
+        "It was deleted in \"Clean up the repo root\"",
+        "It was merged into ledger.sh",
+        "It never existed in this repo"
+      ],
+      "answer": 0
+    },
+    {
+      "id": "notes",
+      "prompt": "Who removed NOTES.txt?",
+      "type": "choice",
+      "options": [
+        "Jordan Lee",
+        "Priya Patel",
+        "Alex Rivera",
+        "Sam Chen"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    {
+      "label": "The commit that introduced the regression",
+      "check": {
+        "type": "answer",
+        "question": "regression"
+      }
+    },
+    {
+      "label": "Who really last changed the balance line",
+      "check": {
+        "type": "answer",
+        "question": "who-balance"
+      }
+    },
+    {
+      "label": "Which releases contain the fix",
+      "check": {
+        "type": "answer",
+        "question": "releases"
+      }
+    },
+    {
+      "label": "Whether maint/2.1 has the fix",
+      "check": {
+        "type": "answer",
+        "question": "maint"
+      }
+    },
+    {
+      "label": "Where scripts/export.sh went",
+      "check": {
+        "type": "answer",
+        "question": "export"
+      }
+    },
+    {
+      "label": "Who removed NOTES.txt",
+      "check": {
+        "type": "answer",
+        "question": "notes"
+      }
+    },
+    {
+      "label": "No bisect left running",
+      "check": {
+        "type": "operation",
+        "value": null
+      }
+    },
+    {
+      "label": "End on main",
+      "check": {
+        "type": "currentBranch",
+        "name": "main"
+      }
+    }
+  ]
+}

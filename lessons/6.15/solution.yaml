@@ -1,0 +1,11 @@
+commands: |
+  git log --oneline --merges
+  git log --oneline --graph
+  git revert --no-edit -m 1 HEAD~1
+  ls
+  git merge promo
+  git revert --no-edit HEAD
+  ls
+  git log --oneline
+answers:
+  merge-again: 0

@@ -1,0 +1,13 @@
+id: "8.03"
+section: 8
+title: Bring a stash back
+kind: practice
+teaches: [stash-pop-apply]
+requires: [stash-push, stash-inspect]
+flags: []
+repo: work
+start: work
+panels: [three-areas]
+hints:
+  - "List the stashes first. The debug one is `stash@{1}`; apply it and it stays in the list."
+  - "`git stash apply stash@{1}`, then `git stash pop` for the greeting (stash@{0}). Check `git stash list` at the end: one entry left."

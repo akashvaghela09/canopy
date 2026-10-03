@@ -1,0 +1,25 @@
+{
+  "questions": [
+    {
+      "id": "which-stash",
+      "prompt": "Which stash entry changes config.toml? Answer with its name, in the form stash@{n}.",
+      "type": "commit",
+      "allowRefs": true,
+      "answer": "@mark:cfg-stash"
+    },
+    {
+      "id": "theme",
+      "prompt": "In that stash, what is theme set to?",
+      "type": "text",
+      "accept": ["dark", "\"dark\"", "'dark'", "theme = \"dark\"", "theme=\"dark\"", "theme = dark", "theme=dark"]
+    }
+  ],
+  "goals": [
+    { "label": "List the stashes", "check": { "type": "usedCommand", "matches": "^git stash list\\b" } },
+    { "label": "Look inside a stash with stash show", "check": { "type": "usedCommand", "matches": "^git stash show\\b" } },
+    { "label": "Read the diff of a stash with -p", "check": { "type": "usedCommand", "matches": "^git stash show\\b.*(-p|--patch)\\b" } },
+    { "label": "Answer: which stash touches config.toml", "check": { "type": "answer", "question": "which-stash" } },
+    { "label": "Answer: the theme value", "check": { "type": "answer", "question": "theme" } },
+    { "label": "All three stashes are still there", "check": { "type": "stash", "count": 3 } }
+  ]
+}

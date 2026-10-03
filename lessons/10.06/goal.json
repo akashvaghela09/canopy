@@ -1,0 +1,43 @@
+{
+  "questions": [],
+  "goals": [
+    {
+      "label": "Find the lost tip in the reflog",
+      "check": {
+        "type": "usedCommand",
+        "matches": "^git\\s+(reflog\\b|log\\b.*\\s(-g|--walk-reflogs)\\b)"
+      }
+    },
+    {
+      "label": "feature/drafts exists again",
+      "check": {
+        "type": "branchExists",
+        "name": "feature/drafts"
+      }
+    },
+    {
+      "label": "feature/drafts points at the original \"Add draft autosave\" commit",
+      "check": {
+        "type": "refAt",
+        "ref": "feature/drafts",
+        "target": "@mark:drafts-tip"
+      }
+    },
+    {
+      "label": "main is untouched",
+      "check": {
+        "type": "refAt",
+        "ref": "main",
+        "target": "@mark:main-tip"
+      }
+    },
+    {
+      "label": "feature/comments is untouched",
+      "check": {
+        "type": "refAt",
+        "ref": "feature/comments",
+        "target": "@mark:comments-tip"
+      }
+    }
+  ]
+}

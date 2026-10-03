@@ -1,0 +1,9 @@
+commands: |
+  git cat-file -p HEAD
+  git cat-file -p HEAD~1
+answers:
+  tree: "0d4542af435ac87c2ef34b24a166b7fd77ffce68"
+  parent: "@mark:merge"
+  parents: 2
+  author-committer: 0
+  ripple: 0

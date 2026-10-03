@@ -1,0 +1,39 @@
+{
+  "goals": [
+    {
+      "label": "Fetch Sam's commits so origin/main is current",
+      "check": { "type": "refAt", "ref": "origin/main", "target": "@mark:main-tip" }
+    },
+    {
+      "label": "tags-ui is rebased onto the new main (linear, two commits on top)",
+      "check": { "type": "all", "checks": [
+        { "type": "isAncestor", "ancestor": "@mark:main-tip", "descendant": "tags-ui" },
+        { "type": "commitCount", "range": "@mark:main-tip..tags-ui", "equals": 2 },
+        { "type": "fileContent", "source": "tags-ui", "path": "src/tags.js", "contains": "hasTag" }
+      ] }
+    },
+    {
+      "label": "The backup copy on origin matches, updated with --force-with-lease",
+      "check": { "type": "all", "checks": [
+        { "type": "refAt", "ref": "origin/tags-ui", "target": "tags-ui" },
+        { "type": "usedCommand", "matches": "^git push\\b.*--force-with-lease" },
+        { "type": "not", "check": { "type": "usedCommand", "matches": "^git push\\b.*(\\s--force(\\s|$)|\\s-f(\\s|$))" } }
+      ] }
+    },
+    {
+      "label": "export-pdf contains main through a merge commit and keeps Sam's commit",
+      "check": { "type": "all", "checks": [
+        { "type": "isAncestor", "ancestor": "@mark:main-tip", "descendant": "export-pdf" },
+        { "type": "commitParents", "rev": "export-pdf", "count": 2 },
+        { "type": "fileContent", "source": "export-pdf", "path": "src/pdf.js", "contains": "TODO(sam)" }
+      ] }
+    },
+    {
+      "label": "export-pdf is pushed",
+      "check": { "type": "all", "checks": [
+        { "type": "refAt", "ref": "origin/export-pdf", "target": "export-pdf" },
+        { "type": "commitParents", "rev": "export-pdf", "count": 2 }
+      ] }
+    }
+  ]
+}

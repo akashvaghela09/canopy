@@ -1,0 +1,13 @@
+id: "9.20"
+section: 9
+title: Split a commit
+kind: practice
+teaches: [split-commit]
+requires: [rebase-i-edit, reset-mixed, add-patch]
+flags: []
+repo: site
+start: site
+panels: [three-areas]
+hints:
+  - "Interactive rebase over the last two commits, `edit` on the big one. When it stops, undo that commit but keep its changes in the working tree: a mixed reset to its parent."
+  - "Now the two changes are unstaged edits in index.html. Stage the search-box hunk in patch mode, commit it as `Add search box`; stage the rest, commit it as `Fix footer year`; then continue the rebase."

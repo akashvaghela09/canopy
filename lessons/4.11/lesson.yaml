@@ -1,0 +1,12 @@
+id: "4.11"
+section: 4
+title: Clean untracked files
+kind: practice
+teaches: [clean]
+requires: [status, gitignore]
+flags: [destructive]
+repo: firmware
+start: firmware
+hints:
+  - "`git clean -n` lists what would be removed. Add `-d` to include folders: `git clean -nd`."
+  - "When the dry run lists only scratch.txt and tmp/, run `git clean -fd`. Do not add `-x`; that would remove the ignored files too."

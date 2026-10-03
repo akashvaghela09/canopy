@@ -1,0 +1,10 @@
+commands: |
+  git remote -v
+  git remote show origin
+  git branch -r
+  git branch -a
+  git ls-remote origin
+answers:
+  url: 0
+  remote-branches: 1
+  new-branch: winter-closures

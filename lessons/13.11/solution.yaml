@@ -1,0 +1,13 @@
+commands: |
+  cat tools/canopy-merge
+  git config diff.tool canopy
+  git config difftool.canopy.cmd 'tools/canopy-diff "$LOCAL" "$REMOTE"'
+  git difftool -y main feature
+  git config merge.tool canopy
+  git config mergetool.canopy.cmd 'tools/canopy-merge "$BASE" "$LOCAL" "$REMOTE" "$MERGED"'
+  git config mergetool.canopy.trustExitCode true
+  git config mergetool.keepBackup false
+  git merge feature
+  git mergetool -y
+  cat greeting.txt
+  git commit -m "Merge feature: keep both greeting lines"

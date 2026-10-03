@@ -1,0 +1,57 @@
+{
+  "questions": [
+    {
+      "id": "bug",
+      "prompt": "Which commit changed TAX_RATE from 0.20 to 0.02?",
+      "type": "commit",
+      "answer": "@mark:bug"
+    },
+    {
+      "id": "g-count",
+      "prompt": "How many commits does `git log -G 'TAX_RATE ='` list?",
+      "type": "number",
+      "answer": 3
+    },
+    {
+      "id": "why",
+      "prompt": "Why does `git log -S TAX_RATE` not list the commit that changed the rate?",
+      "type": "choice",
+      "options": [
+        "That commit changed the line but not the number of times TAX_RATE appears in the file",
+        "-S only searches commit messages",
+        "-S ignores Python files"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    {
+      "label": "Search the history with -G",
+      "check": {
+        "type": "usedCommand",
+        "matches": "^git(\\s+(--no-pager|-C\\s+\\S+|-c\\s+\\S+))*\\s+log\\b.*\\s-G"
+      }
+    },
+    {
+      "label": "Find the commit that changed the tax rate",
+      "check": {
+        "type": "answer",
+        "question": "bug"
+      }
+    },
+    {
+      "label": "Count the commits -G lists",
+      "check": {
+        "type": "answer",
+        "question": "g-count"
+      }
+    },
+    {
+      "label": "Explain why -S missed it",
+      "check": {
+        "type": "answer",
+        "question": "why"
+      }
+    }
+  ]
+}

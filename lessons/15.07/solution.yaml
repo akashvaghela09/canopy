@@ -1,0 +1,7 @@
+commands: |
+  git format-patch main..feature -o patches
+  cat patches/0001-Add-search-box.patch
+  cd ../colleague
+  git apply --stat ../project/patches/*.patch
+  git apply --check ../project/patches/*.patch
+  cd ../project

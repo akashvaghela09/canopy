@@ -1,0 +1,11 @@
+commands: |
+  git branch -vv
+  git status -sb
+  git log --oneline @{u}..
+  git switch signage
+  git branch -vv
+  git branch --set-upstream-to=origin/signage
+  git branch -vv
+answers:
+  ahead: 2
+  behind: 1

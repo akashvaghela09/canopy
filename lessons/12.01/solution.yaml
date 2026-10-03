@@ -1,0 +1,11 @@
+commands: |
+  git switch -c feature/search
+  printf '%s\n' "function search(notes, word) {" "  return notes.filter((n) => n.text.includes(word));" "}" "module.exports = { search };" > src/search.js
+  git add src/search.js
+  git commit -m "Add search over note text"
+  git push -u origin feature/search
+  git switch main
+  git merge --no-ff feature/search -m "Merge branch 'feature/search'"
+  git push
+  git branch -d feature/search
+  git push origin --delete feature/search

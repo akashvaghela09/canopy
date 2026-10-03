@@ -1,0 +1,106 @@
+{
+  "goals": [
+    {
+      "label": "The pre-commit hook blocked a commit containing FIXME",
+      "sticky": true,
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "usedCommand",
+            "matches": "^git commit\\b",
+            "exitCode": 1,
+            "last": true
+          },
+          {
+            "type": "any",
+            "checks": [
+              {
+                "type": "fileContent",
+                "path": "src/app.js",
+                "source": "index",
+                "contains": "FIXME"
+              },
+              {
+                "type": "all",
+                "checks": [
+                  {
+                    "type": "usedCommand",
+                    "matches": "^git commit\\b.*(\\s-[a-zA-Z]*a|\\s--all\\b)",
+                    "exitCode": 1,
+                    "last": true
+                  },
+                  {
+                    "type": "fileContent",
+                    "path": "src/app.js",
+                    "contains": "FIXME"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "label": "The same change was committed on purpose with --no-verify",
+      "sticky": true,
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "usedCommand",
+            "matches": "^git commit\\b.*(--no-verify|\\s-[a-zA-Z]*n)"
+          },
+          {
+            "type": "fileContent",
+            "source": "HEAD",
+            "path": "src/app.js",
+            "contains": "FIXME"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Hooks live in a project folder named by core.hooksPath",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "config",
+            "key": "core.hooksPath",
+            "scope": "local"
+          },
+          {
+            "type": "pathExists",
+            "path": "project/hooks/pre-commit"
+          }
+        ]
+      }
+    },
+    {
+      "label": "A final clean commit: no FIXME in src/app.js, hooks/pre-commit committed",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "fileContent",
+            "source": "HEAD",
+            "path": "src/app.js",
+            "notContains": "FIXME"
+          },
+          {
+            "type": "fileContent",
+            "source": "HEAD",
+            "path": "hooks/pre-commit",
+            "contains": "FIXME"
+          },
+          {
+            "type": "status",
+            "clean": true
+          }
+        ]
+      }
+    }
+  ]
+}

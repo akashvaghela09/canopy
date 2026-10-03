@@ -1,0 +1,12 @@
+commands: |
+  git log --oneline --graph --all
+  git reflog
+  git reset --hard HEAD@{1}
+  git branch feature/login $(git reflog | grep 'Add password reset' | head -1 | cut -d' ' -f1)
+  git reflog show feature/api-v2
+  git branch -f feature/api-v2 feature/api-v2@{1}
+  git fsck --unreachable | grep commit | cut -d' ' -f3 | xargs git log --no-walk --oneline
+  git stash apply $(git fsck --unreachable | grep commit | cut -d' ' -f3 | xargs git log --no-walk --format='%H %s' | grep ' On main: ' | cut -d' ' -f1)
+  git log --oneline --graph --all
+  git status
+answers: {}

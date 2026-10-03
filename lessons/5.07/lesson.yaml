@@ -1,0 +1,15 @@
+id: "5.07"
+section: 5
+title: Switching with uncommitted changes
+kind: concept
+teaches: [concept-switch-dirty]
+requires: [switch, status, restore]
+flags: []
+minGit: "2.23"
+repo: trail-guide
+start: trail-guide
+panels: [three-areas]
+hints:
+  - "README.md is the same on both branches, so an edit to it comes along. trails/lake.md differs between main and winter, so an edit to it blocks the switch."
+  - "To get past the refusal, either commit the lake edit on winter or throw it away with restore. Then switch again."
+  - "Scenario 1: edit README.md, `git switch winter`. Scenario 2: edit trails/lake.md, `git switch main` (refused). Scenario 3: `git add trails/lake.md && git commit -m ...` or `git restore trails/lake.md`, then `git switch main`."

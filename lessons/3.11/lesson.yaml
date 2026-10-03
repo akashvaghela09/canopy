@@ -1,0 +1,13 @@
+id: "3.11"
+section: 3
+title: Who changed this line
+kind: practice
+teaches: [blame]
+requires: [show, log-path]
+flags: []
+repo: bakery
+start: bakery
+hints:
+  - "Each line of blame output starts with the id of the commit that last changed that line, followed by the author."
+  - "The baguette is on line 4. `git blame -L 4,4 pages/menu.md` shows only that line."
+  - "Copy the id from the start of the blame line and open it the way you open any commit."

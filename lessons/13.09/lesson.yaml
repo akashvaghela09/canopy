@@ -1,0 +1,13 @@
+id: "13.09"
+section: 13
+title: .gitattributes
+kind: practice
+teaches: [gitattributes]
+requires: [gitignore, add-patterns]
+flags: []
+repo: project
+start: project
+hints:
+  - "Create `.gitattributes` at the project root with one rule per line: `* text=auto`, `*.sh text eol=lf`, `*.png binary`, `*.min.js -diff`, `docs/internal.md export-ignore`."
+  - "Existing files keep their old line endings until you run `git add --renormalize .` and commit."
+  - "`git check-attr -a notes.txt` shows the attributes git applies to a path."

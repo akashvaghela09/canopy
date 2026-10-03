@@ -1,0 +1,33 @@
+{
+  "questions": [
+    {
+      "id": "show-diff",
+      "prompt": "What does `git show v1.0` print that `git show v0.1` does not?",
+      "type": "choice",
+      "options": [
+        "A tag header with tagger, date and the tag message, before the commit",
+        "The list of branches that contain the commit",
+        "The full contents of every file in the commit",
+        "Nothing; the output is identical"
+      ],
+      "answer": 0
+    },
+    {
+      "id": "describe-now",
+      "prompt": "What does `git describe` print now?",
+      "type": "text",
+      "accept": ["v1.0"]
+    }
+  ],
+  "goals": [
+    { "label": "v1.0 is an annotated tag on the current commit with the message \"Trail guide 1.0\"", "check": { "type": "tag", "name": "v1.0", "present": true, "annotated": true, "target": "@mark:gear", "message": "Trail guide 1.0" } },
+    { "label": "v0.1 is still a lightweight tag", "check": { "type": "tag", "name": "v0.1", "present": true, "annotated": false, "target": "@mark:ridge" } },
+    { "label": "Show both tags", "check": { "type": "all", "checks": [
+        { "type": "usedCommand", "matches": "^git show\\b.*\\bv1\\.0\\b" },
+        { "type": "usedCommand", "matches": "^git show\\b.*\\bv0\\.1\\b" }
+      ] } },
+    { "label": "Run git describe", "check": { "type": "usedCommand", "matches": "^git describe(\\s+HEAD)?\\s*$" } },
+    { "label": "Answer: what show adds for an annotated tag", "check": { "type": "answer", "question": "show-diff" } },
+    { "label": "Answer: describe output", "check": { "type": "answer", "question": "describe-now" } }
+  ]
+}

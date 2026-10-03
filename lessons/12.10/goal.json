@@ -1,0 +1,77 @@
+{
+  "questions": [
+    {
+      "id": "who-may",
+      "prompt": "Which of these is an acceptable force-push?",
+      "type": "choice",
+      "options": [
+        "Rewriting main after a rebase, as long as you use --force-with-lease",
+        "Rewriting your own feature branch after a rebase, with --force-with-lease",
+        "Rewriting a teammate's branch to fix their commit messages"
+      ],
+      "answer": 1
+    }
+  ],
+  "goals": [
+    {
+      "label": "Sam's force-push moved origin's main away from the correct tip",
+      "sticky": true,
+      "check": {
+        "type": "refNotAt",
+        "repo": "origin.git",
+        "ref": "main",
+        "target": "@mark:base"
+      }
+    },
+    {
+      "label": "Fetch, so your clone sees the rewritten origin/main",
+      "sticky": true,
+      "check": {
+        "type": "refNotAt",
+        "ref": "origin/main",
+        "target": "@mark:base"
+      }
+    },
+    {
+      "label": "origin's main is back at the correct tip, restored with --force-with-lease (a plain --force does not count)",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "refAt",
+            "repo": "origin.git",
+            "ref": "main",
+            "target": "@mark:base"
+          },
+          {
+            "type": "usedCommand",
+            "matches": "^git push\\b.*--force-with-lease"
+          },
+          {
+            "type": "not",
+            "check": {
+              "type": "usedCommand",
+              "matches": "^git push\\b.*(\\s--force(\\s|$)|\\s-f(\\s|$)|\\s\\+\\S)"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "label": "origin refuses non-fast-forward pushes from now on",
+      "check": {
+        "type": "config",
+        "repo": "origin.git",
+        "key": "receive.denyNonFastForwards",
+        "value": "true"
+      }
+    },
+    {
+      "label": "Answer the question about policy",
+      "check": {
+        "type": "answer",
+        "question": "who-may"
+      }
+    }
+  ]
+}

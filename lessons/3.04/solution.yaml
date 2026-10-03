@@ -1,0 +1,8 @@
+commands: |
+  git log --oneline -- pages/menu.md
+  git log -p -- pages/menu.md
+  git log --oneline --follow -- pages/menu.md
+answers:
+  plain-count: 5
+  follow-count: 7
+  rename-commit: c5f79fd

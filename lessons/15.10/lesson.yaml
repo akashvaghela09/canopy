@@ -1,0 +1,13 @@
+id: "15.10"
+section: 15
+title: Archives
+kind: practice
+teaches: [archive]
+requires: [gitattributes, tag-annotated]
+flags: []
+repo: app
+start: app
+hints:
+  - "Put `tests/ export-ignore` and `notes/ export-ignore` in .gitattributes, commit, then create the annotated tag v2.0."
+  - "`git archive --format=tar.gz --prefix=app-2.0/ -o app-2.0.tar.gz v2.0` writes the release file."
+  - "`tar tzf app-2.0.tar.gz` lists what went in. Attributes are read from the tagged commit, so they must be committed before tagging."

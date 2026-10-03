@@ -1,0 +1,14 @@
+id: "14.13"
+section: 14
+title: Loose objects and packfiles
+kind: practice
+teaches: [packfiles]
+requires: [cat-file]
+flags: []
+repo: logbook
+start: logbook
+panels: [inside-git]
+hints:
+  - "`git count-objects -v`: `count` is loose objects, `in-pack` is packed ones."
+  - "`git gc` packs everything reachable. Count again afterwards and look in `.git/objects/pack/`."
+  - "`git verify-pack -v .git/objects/pack/*.idx` lists each object; a line that ends with a depth and a second id is a delta against that id."

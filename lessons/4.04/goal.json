@@ -1,0 +1,18 @@
+{
+  "questions": [],
+  "goals": [
+    { "label": "Read the history first", "check": { "type": "usedCommand", "matches": "^git log\\b" } },
+    { "label": "Add a revert commit on top of the existing history", "check": { "type": "all", "checks": [
+        { "type": "commitCount", "range": "main", "equals": 5 },
+        { "type": "refAt", "ref": "HEAD~1", "target": "@mark:about" },
+        { "type": "commitParents", "rev": "HEAD", "count": 1 },
+        { "type": "usedCommand", "matches": "^git revert\\b" }
+      ] } },
+    { "label": "The tracking script is gone from the newest commit", "check": { "type": "all", "checks": [
+        { "type": "fileInRev", "path": "tracker.js", "rev": "HEAD", "present": false },
+        { "type": "fileContent", "path": "index.html", "source": "HEAD", "notContains": "tracker.js" }
+      ] } },
+    { "label": "The original commit is still in the history", "check": { "type": "isAncestor", "ancestor": "@mark:tracker", "descendant": "HEAD" } },
+    { "label": "Finish with a clean working tree", "check": { "type": "status", "clean": true } }
+  ]
+}

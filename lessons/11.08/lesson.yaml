@@ -1,0 +1,13 @@
+id: "11.08"
+section: 11
+title: Compare two versions of a series
+kind: practice
+teaches: [range-diff]
+requires: [rebase, log-range, diff-commits]
+flags: []
+repo: pricer
+start: pricer
+hints:
+  - "`git range-diff v1.0..topic/rounding-v1 main..topic/rounding` pairs the commits of the two series."
+  - "Read the markers: `=` unchanged, `!` changed (with a diff of the diff below it), `<` only in the first series, `>` only in the second."
+  - "In the `!` pair, lines starting with `++` are added lines that only the new version of that commit has."

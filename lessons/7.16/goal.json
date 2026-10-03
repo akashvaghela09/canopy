@@ -1,0 +1,19 @@
+{
+  "questions": [],
+  "goals": [
+    { "label": "Round 1: your ridge water note is on origin", "check": { "type": "fileContent", "repo": "origin.git", "path": "trails/ridge.md", "source": "main", "contains": "Water: none on the trail" } },
+    { "label": "Round 1: Sam's river trail is in your main", "check": { "type": "fileInRev", "path": "trails/river.md", "rev": "main", "present": true } },
+    { "label": "Round 2: your meadow trail is on origin", "check": { "type": "fileInRev", "repo": "origin.git", "path": "trails/meadow.md", "rev": "main", "present": true } },
+    { "label": "Round 2: Sam's lake fix is in your main", "check": { "type": "fileContent", "path": "trails/lake.md", "source": "main", "contains": "Distance: 6 km" } },
+    { "label": "Inspect before integrating: status -sb and the incoming range", "check": { "type": "all", "checks": [
+        { "type": "usedCommand", "matches": "^git status\\b.*(-sb|-bs|-s -b|-b -s|--short --branch|--branch --short)" },
+        { "type": "usedCommand", "matches": "^git log\\b.*(main\\.\\.origin/main|@\\{u\\}|HEAD\\.\\.origin/main|\\.\\.origin/main)" }
+      ] } },
+    { "label": "No force was used", "check": { "type": "not", "check": { "type": "usedCommand", "matches": "^git push\\b.*(--force|-f\\b|\\+main)" } } },
+    { "label": "main and origin/main agree, working tree clean", "check": { "type": "all", "checks": [
+        { "type": "refAt", "ref": "main", "target": "origin/main" },
+        { "type": "fileInRev", "repo": "origin.git", "path": "trails/meadow.md", "rev": "main", "present": true },
+        { "type": "status", "clean": true }
+      ] } }
+  ]
+}

@@ -1,0 +1,19 @@
+commands: |
+  git config --list --show-origin
+  git config --system core.abbrev 12
+  git log --oneline
+  git config --global core.abbrev 10
+  git log --oneline
+  git config --local core.abbrev 8
+  git log --oneline
+  git config extensions.worktreeConfig true
+  git config --worktree core.abbrev 6
+  git log --oneline
+  git config --show-origin --get core.abbrev
+  git config --system --unset core.abbrev
+  git config --global --unset core.abbrev
+  git config --local --unset pull.rebase
+  git config --get core.abbrev
+answers:
+  origin-name: 1
+  origin-pull: 2

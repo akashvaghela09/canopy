@@ -1,0 +1,17 @@
+id: "14.15"
+section: 14
+title: Checking integrity
+kind: practice
+teaches: [fsck]
+requires: [gc, fsck-dangling, clone]
+flags: []
+repo: project
+start: project
+repos:
+  - { path: project, label: project (damaged) }
+  - { path: backup, label: backup (healthy clone) }
+panels: [inside-git]
+hints:
+  - "`git fsck` names the damaged object. The recursive tree listing of HEAD tells you which file that blob is."
+  - "The clone in `../backup` has a healthy copy of the same object, at the same path under `.git/objects/`. `cp` it across."
+  - "Copy it over: `cp ../backup/.git/objects/9b/740284d38fa24876bc3cf62049202085020142 .git/objects/9b/`, then run fsck again."

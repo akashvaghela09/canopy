@@ -1,0 +1,14 @@
+id: "5.12"
+section: 5
+title: "Peek inside .git: a branch is a file"
+kind: concept
+teaches: [concept-refs-files]
+requires: [branch-create, head, commit]
+flags: []
+repo: trail-guide
+start: trail-guide
+panels: [inside-git]
+hints:
+  - "`cat .git/HEAD` and `ls .git/refs/heads` need no git command at all: they are ordinary files."
+  - "Compare `cat .git/refs/heads/main` with the id of the newest commit in the log. Then commit and compare again."
+  - "`cat .git/HEAD`, `ls .git/refs/heads`, `cat .git/refs/heads/main`, `git branch notes`, `ls .git/refs/heads`, make a commit on main, `cat .git/refs/heads/main`."

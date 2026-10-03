@@ -1,0 +1,8 @@
+commands: |
+  git log --oneline --graph --all
+  git merge --no-edit newsletter
+  git log --oneline --graph --all
+  git reset --hard HEAD~1
+  git log --oneline --graph --all
+answers:
+  ff-trap: 0

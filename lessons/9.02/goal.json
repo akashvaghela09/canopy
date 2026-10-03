@@ -1,0 +1,17 @@
+{
+  "questions": [],
+  "goals": [
+    { "label": "Amend the newest commit so its message is \"Add contact page\"", "check": { "type": "all", "checks": [
+        { "type": "usedCommand", "matches": "\\bgit commit\\b.*--amend" },
+        { "type": "commitMessage", "rev": "HEAD", "equals": "Add contact page" }
+      ] } },
+    { "label": "The replacement keeps the same parent and the same files", "check": { "type": "all", "checks": [
+        { "type": "refAt", "ref": "HEAD~1", "target": "@mark:about" },
+        { "type": "refNotAt", "ref": "HEAD", "target": "@mark:typo" },
+        { "type": "commitCount", "range": "main", "equals": 3 },
+        { "type": "commitChanges", "rev": "HEAD", "paths": ["contact.html"], "exact": true },
+        { "type": "fileContent", "source": "HEAD", "path": "contact.html", "lines": ["<h1>Contact</h1>", "<p>hello@studio.example</p>"] }
+      ] } },
+    { "label": "Finish with a clean working tree", "check": { "type": "status", "clean": true } }
+  ]
+}

@@ -1,0 +1,13 @@
+id: "2.08"
+section: 2
+title: See what is staged
+kind: practice
+teaches: [diff-staged]
+requires: [diff, add]
+flags: []
+repo: project
+start: project
+panels: [three-areas, diff]
+hints:
+  - "Run the plain diff and the staged diff one after the other and compare what each shows."
+  - "For the last step, stage `recipe.txt` once more. The plain diff is then empty because the working tree and the staging area match."

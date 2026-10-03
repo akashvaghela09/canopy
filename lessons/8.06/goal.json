@@ -1,0 +1,26 @@
+{
+  "questions": [
+    {
+      "id": "entry-fate",
+      "prompt": "What happens to the stash entry when `git stash pop` hits a conflict?",
+      "type": "choice",
+      "options": [
+        "It is kept; you drop it yourself after resolving",
+        "It is dropped, as with any successful pop",
+        "It is turned into a commit on the current branch"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    { "label": "Pop the stash and hit the conflict", "sticky": true, "check": { "type": "status", "conflicted": ["app.py"] } },
+    { "label": "Resolve app.py to the requested greeting, no markers left", "check": { "type": "all", "checks": [
+        { "type": "fileContent", "path": "app.py", "contains": "return 'Hello there, gardener!'" },
+        { "type": "fileContent", "path": "app.py", "notContains": "<<<<<<<" },
+        { "type": "fileContent", "path": "app.py", "notContains": ">>>>>>>" },
+        { "type": "status", "conflicted": [], "exact": true }
+      ] } },
+    { "label": "Drop the stash entry", "check": { "type": "stash", "count": 0 } },
+    { "label": "Answer: what happens to the entry", "check": { "type": "answer", "question": "entry-fate" } }
+  ]
+}

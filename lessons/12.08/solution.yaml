@@ -1,0 +1,18 @@
+commands: |
+  echo "1.0.0" > VERSION
+  git commit -am "Release 1.0.0"
+  git tag -a v1.0.0 -m "Lantern 1.0.0"
+  git push origin v1.0.0
+  ./build.sh
+  echo "- search notes" >> CHANGELOG.md
+  git commit -am "Changelog: search"
+  echo "- due reminders" >> CHANGELOG.md
+  git commit -am "Changelog: reminders"
+  git describe
+  echo "1.1.0" > VERSION
+  git commit -am "Release 1.1.0"
+  git tag -a v1.1.0 -m "Lantern 1.1.0"
+  git push --follow-tags
+  ./build.sh
+answers:
+  describe-count: 2

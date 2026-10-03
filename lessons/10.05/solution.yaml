@@ -1,0 +1,6 @@
+commands: |
+  git log --oneline --graph --all
+  git reflog show feature/search
+  git reset --hard feature/search@{1}
+  git log --oneline --graph --all
+answers: {}

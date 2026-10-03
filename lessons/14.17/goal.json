@@ -1,0 +1,91 @@
+{
+  "questions": [
+    {
+      "id": "files",
+      "prompt": "Which path does `git diff-files` list?",
+      "type": "text",
+      "accept": [
+        "about.html"
+      ]
+    },
+    {
+      "id": "index-cached",
+      "prompt": "Which path does `git diff-index --cached HEAD` list?",
+      "type": "text",
+      "accept": [
+        "index.html"
+      ]
+    },
+    {
+      "id": "tree",
+      "prompt": "Which path does `git diff-tree -r HEAD~1 HEAD` list?",
+      "type": "text",
+      "accept": [
+        "style.css"
+      ]
+    },
+    {
+      "id": "no-cached",
+      "prompt": "`git diff-index HEAD` without --cached compares HEAD with:",
+      "type": "choice",
+      "options": [
+        "the working tree",
+        "the index only",
+        "the previous commit",
+        "the stash"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    {
+      "label": "Run git diff-files",
+      "check": {
+        "type": "usedCommand",
+        "matches": "\\bgit diff-files\\b"
+      }
+    },
+    {
+      "label": "Say what diff-files compares",
+      "check": {
+        "type": "answer",
+        "question": "files"
+      }
+    },
+    {
+      "label": "Run git diff-index",
+      "check": {
+        "type": "usedCommand",
+        "matches": "\\bgit diff-index\\b"
+      }
+    },
+    {
+      "label": "Say what diff-index --cached compares",
+      "check": {
+        "type": "answer",
+        "question": "index-cached"
+      }
+    },
+    {
+      "label": "Run git diff-tree",
+      "check": {
+        "type": "usedCommand",
+        "matches": "\\bgit diff-tree\\b"
+      }
+    },
+    {
+      "label": "Say what diff-tree compares",
+      "check": {
+        "type": "answer",
+        "question": "tree"
+      }
+    },
+    {
+      "label": "Say what diff-index without --cached compares",
+      "check": {
+        "type": "answer",
+        "question": "no-cached"
+      }
+    }
+  ]
+}

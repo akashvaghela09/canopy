@@ -1,0 +1,107 @@
+{
+  "questions": [],
+  "goals": [
+    {
+      "label": "Integrate with a rebase: Sam's commit, then your two, no merge commit",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "any",
+            "checks": [
+              {
+                "type": "usedCommand",
+                "matches": "\\bgit pull\\b.*(--rebase|\\s-r\\b)"
+              },
+              {
+                "type": "usedCommand",
+                "matches": "\\bgit rebase\\b"
+              },
+              {
+                "type": "config",
+                "key": "pull.rebase",
+                "value": "true",
+                "scope": "local"
+              }
+            ]
+          },
+          {
+            "type": "commitCount",
+            "range": "--merges main",
+            "equals": 0
+          },
+          {
+            "type": "refAt",
+            "ref": "main~2",
+            "target": "@mark:sam"
+          },
+          {
+            "type": "commitMessage",
+            "rev": "main~1",
+            "equals": "Add settings page"
+          },
+          {
+            "type": "commitMessage",
+            "rev": "main",
+            "equals": "Add settings tests"
+          },
+          {
+            "type": "refNotAt",
+            "ref": "main",
+            "target": "@mark:l2"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Push the result: origin's main matches yours",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "refAt",
+            "ref": "origin/main",
+            "target": "main"
+          },
+          {
+            "type": "commitCount",
+            "repo": "origin.git",
+            "range": "main",
+            "equals": 5
+          },
+          {
+            "type": "commitMessage",
+            "repo": "origin.git",
+            "rev": "main",
+            "equals": "Add settings tests"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Set pull.rebase to true in this repository's config",
+      "check": {
+        "type": "config",
+        "key": "pull.rebase",
+        "value": "true",
+        "scope": "local"
+      }
+    },
+    {
+      "label": "Nothing in progress, clean working tree",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "operation",
+            "value": null
+          },
+          {
+            "type": "status",
+            "clean": true
+          }
+        ]
+      }
+    }
+  ]
+}

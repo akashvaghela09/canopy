@@ -1,0 +1,13 @@
+id: "15.15"
+section: 15
+title: Strategy options
+kind: practice
+teaches: [merge-strategy-options]
+requires: [merge-options, diff-options]
+flags: []
+repo: project
+start: project
+hints:
+  - "A plain merge of fix ends in a modify/delete conflict on util.py. Abort it."
+  - "Lower the rename threshold: `git diff --find-renames=1% --name-status HEAD~1 HEAD` shows util.py became lib/helpers.py at 20% similarity."
+  - "`git merge -X find-renames=20% fix` detects the rename and applies the fix inside lib/helpers.py."

@@ -1,0 +1,12 @@
+id: "9.01"
+section: 9
+title: Why history can be rewritten
+kind: concept
+teaches: [concept-rewrite]
+requires: [concept-reset, concept-commit-id, log-graph, revert]
+flags: [guided]
+repo: recipes
+start: recipes
+hints:
+  - "Compare the short id of the last commit before and after the amend. Only the top one changes."
+  - "The old commit is not gone; no branch points to it any more, so the log stops listing it. The graph shows it ghosted."

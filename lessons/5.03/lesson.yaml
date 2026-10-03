@@ -1,0 +1,14 @@
+id: "5.03"
+section: 5
+title: Switch branches
+kind: practice
+teaches: [switch]
+requires: [branch-create, status]
+flags: []
+minGit: "2.23"
+repo: trail-guide
+start: trail-guide
+hints:
+  - "Read trails/lake.md before and after switching. The winter branch has one extra commit that changed it."
+  - "`git switch -` goes back to the branch you were on before, like `cd -` for folders."
+  - "`git switch winter`, `git switch -` (back on main), `git switch -` again to finish on winter."

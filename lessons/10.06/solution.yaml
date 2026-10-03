@@ -1,0 +1,6 @@
+commands: |
+  git branch
+  git reflog
+  git branch feature/drafts HEAD@{1}
+  git log --oneline --graph --all
+answers: {}

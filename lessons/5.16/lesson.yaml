@@ -1,0 +1,13 @@
+id: "5.16"
+section: 5
+title: Move and delete tags
+kind: practice
+teaches: [tag-manage]
+requires: [tag-annotated]
+flags: [destructive]
+repo: trail-guide
+start: trail-guide
+hints:
+  - "`git show v1.0` tells you which commit it is on. The release commit is the tip of main."
+  - "Either delete v1.0 and create it again on HEAD, or create it again with `-f`. Keep it annotated."
+  - "`git tag -d scratch`, then `git tag -f -a v1.0 -m \"Trail guide 1.0\"` (or `git tag -d v1.0` followed by `git tag -a v1.0 -m ...`)."

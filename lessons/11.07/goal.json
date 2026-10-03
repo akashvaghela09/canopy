@@ -1,0 +1,74 @@
+{
+  "questions": [
+    {
+      "id": "neg-fix",
+      "prompt": "Which commit made tally.sh accept negative numbers (the first fixed commit)?",
+      "type": "commit",
+      "answer": "@mark:neg-fix"
+    },
+    {
+      "id": "why-skip",
+      "prompt": "Why did one commit on the way have to be skipped?",
+      "type": "choice",
+      "options": [
+        "tally.sh had a syntax error there, so the script could not run and the behaviour could not be judged",
+        "It was a merge commit, and merges cannot be bisected",
+        "Git skips every third commit to save time"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    {
+      "label": "Use custom or old/new terms",
+      "check": {
+        "type": "usedCommand",
+        "matches": "^git(\\s+(--no-pager|-C\\s+\\S+|-c\\s+\\S+))*\\s+bisect\\b.*(--term-(old|new|good|bad)\\b|\\b(old|new)\\b)"
+      }
+    },
+    {
+      "label": "Skip an untestable commit",
+      "check": {
+        "type": "shell",
+        "script": "git for-each-ref 'refs/bisect/skip-*' | grep -q ."
+      },
+      "sticky": true
+    },
+    {
+      "label": "Let bisect narrow the search down to one commit",
+      "sticky": true,
+      "check": {
+        "type": "shell",
+        "script": "t=$(git rev-parse --git-path BISECT_TERMS); { read -r new; read -r old; } < \"$t\" 2>/dev/null || { new=bad; old=good; }; b=$(git rev-parse -q --verify \"refs/bisect/$new\") || exit 1; [ \"$(git rev-list --count \"$b\" --not $(git for-each-ref --format='%(objectname)' \"refs/bisect/$old-*\"))\" = 1 ] && git show \"$b:tally.sh\" | bash -s -- -2 5 >/dev/null 2>&1 && ! git show \"$b^:tally.sh\" | bash -s -- -2 5 >/dev/null 2>&1"
+      }
+    },
+    {
+      "label": "Identify the commit that fixed negative numbers",
+      "check": {
+        "type": "answer",
+        "question": "neg-fix"
+      }
+    },
+    {
+      "label": "Explain the skip",
+      "check": {
+        "type": "answer",
+        "question": "why-skip"
+      }
+    },
+    {
+      "label": "Finish the search with git bisect reset (no bisect in progress)",
+      "check": {
+        "type": "operation",
+        "value": null
+      }
+    },
+    {
+      "label": "End on main",
+      "check": {
+        "type": "currentBranch",
+        "name": "main"
+      }
+    }
+  ]
+}

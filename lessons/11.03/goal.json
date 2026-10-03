@@ -1,0 +1,53 @@
+{
+  "questions": [
+    {
+      "id": "which",
+      "prompt": "Which commits changed the total() function? Select all that apply.",
+      "type": "choice",
+      "options": [
+        "Add pricer skeleton",
+        "Round totals to cents",
+        "Apply discount before tax",
+        "Handle empty carts in total",
+        "Tidy tax constants",
+        "Clean up cart.py",
+        "Add discount codes"
+      ],
+      "answers": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    {
+      "id": "first-change",
+      "prompt": "After the function was created, which commit was the first to change total()?",
+      "type": "commit",
+      "answer": "@mark:total-round"
+    }
+  ],
+  "goals": [
+    {
+      "label": "Trace lines with log -L",
+      "check": {
+        "type": "usedCommand",
+        "matches": "^git(\\s+(--no-pager|-C\\s+\\S+|-c\\s+\\S+))*\\s+log\\b.*\\s-L"
+      }
+    },
+    {
+      "label": "List the commits that changed total()",
+      "check": {
+        "type": "answer",
+        "question": "which"
+      }
+    },
+    {
+      "label": "Name the first change to total()",
+      "check": {
+        "type": "answer",
+        "question": "first-change"
+      }
+    }
+  ]
+}

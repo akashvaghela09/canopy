@@ -1,0 +1,100 @@
+{
+  "questions": [
+    {
+      "id": "deleted-file",
+      "prompt": "Which config file was deleted? Give its full path.",
+      "type": "text",
+      "accept": [
+        "config/defaults.toml",
+        "./config/defaults.toml"
+      ],
+      "caseSensitive": true
+    },
+    {
+      "id": "who-deleted",
+      "prompt": "Who deleted the config file?",
+      "type": "choice",
+      "options": [
+        "Jordan Lee",
+        "Sam Chen",
+        "Alex Rivera",
+        "Priya Patel"
+      ],
+      "answer": 0
+    },
+    {
+      "id": "delete-commit",
+      "prompt": "Which commit deleted it?",
+      "type": "commit",
+      "answer": "@mark:config-delete"
+    },
+    {
+      "id": "old-name",
+      "prompt": "What was docs/usage.md called before it was moved?",
+      "type": "text",
+      "accept": [
+        "USAGE.md",
+        "/USAGE.md",
+        "./USAGE.md"
+      ],
+      "caseSensitive": true
+    },
+    {
+      "id": "follow-count",
+      "prompt": "With --follow, how many commits does the history of docs/usage.md have?",
+      "type": "number",
+      "answer": 4
+    }
+  ],
+  "goals": [
+    {
+      "label": "Filter the log by change kind",
+      "check": {
+        "type": "usedCommand",
+        "matches": "^git(\\s+(--no-pager|-C\\s+\\S+|-c\\s+\\S+))*\\s+log\\b.*--diff-filter="
+      }
+    },
+    {
+      "label": "Follow a file across its rename",
+      "check": {
+        "type": "usedCommand",
+        "matches": "^git(\\s+(--no-pager|-C\\s+\\S+|-c\\s+\\S+))*\\s+log\\b.*--follow"
+      }
+    },
+    {
+      "label": "Which file was deleted",
+      "check": {
+        "type": "answer",
+        "question": "deleted-file"
+      }
+    },
+    {
+      "label": "Who deleted it",
+      "check": {
+        "type": "answer",
+        "question": "who-deleted"
+      }
+    },
+    {
+      "label": "Which commit deleted it",
+      "check": {
+        "type": "answer",
+        "question": "delete-commit"
+      }
+    },
+    {
+      "label": "The old name of docs/usage.md",
+      "check": {
+        "type": "answer",
+        "question": "old-name"
+      }
+    },
+    {
+      "label": "Length of its full history",
+      "check": {
+        "type": "answer",
+        "question": "follow-count"
+      }
+    }
+  ]
+}

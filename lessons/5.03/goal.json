@@ -1,0 +1,30 @@
+{
+  "questions": [
+    {
+      "id": "file-changed",
+      "prompt": "After switching to winter, trails/lake.md on disk gained the winter note. Why?",
+      "type": "choice",
+      "options": [
+        "Switching makes the files on disk match the tip commit of the branch you switch to",
+        "Switching merges the other branch's commits into main",
+        "Git copied the whole project into a folder named winter",
+        "The file was already changed; switching only renamed the branch"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    { "label": "Switch to winter", "check": { "type": "usedCommand", "matches": "^git switch\\s+winter\\s*$" } },
+    { "label": "Jump back with git switch -", "check": { "type": "usedCommand", "matches": "^git switch\\s+-\\s*$" } },
+    { "label": "Finish on winter with its version of trails/lake.md", "check": { "type": "all", "checks": [
+        { "type": "currentBranch", "name": "winter" },
+        { "type": "fileContent", "path": "trails/lake.md", "source": "worktree", "contains": "Icy in winter" },
+        { "type": "status", "clean": true }
+      ] } },
+    { "label": "No branch moved", "check": { "type": "all", "checks": [
+        { "type": "refAt", "ref": "main", "target": "@mark:gear" },
+        { "type": "refAt", "ref": "winter", "target": "@mark:winter" }
+      ] } },
+    { "label": "Answer: why the file changed", "check": { "type": "answer", "question": "file-changed" } }
+  ]
+}

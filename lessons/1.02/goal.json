@@ -1,0 +1,48 @@
+{
+  "questions": [
+    {
+      "id": "eggs",
+      "prompt": "How many eggs does recipe.txt call for?",
+      "type": "number",
+      "answer": 3
+    }
+  ],
+  "goals": [
+    {
+      "label": "Print a file with cat",
+      "check": {
+        "type": "usedCommand",
+        "matches": "^\\s*cat\\s+\\S"
+      }
+    },
+    {
+      "label": "Answer the question about the recipe",
+      "check": {
+        "type": "answer",
+        "question": "eggs"
+      }
+    },
+    {
+      "label": "Create a folder called project",
+      "check": {
+        "type": "pathExists",
+        "path": "project"
+      }
+    },
+    {
+      "label": "Create notes.txt inside project",
+      "check": {
+        "type": "pathExists",
+        "path": "project/notes.txt"
+      }
+    },
+    {
+      "label": "Create project/hello.txt containing \"hello git\"",
+      "check": {
+        "type": "fileContent",
+        "path": "project/hello.txt",
+        "contains": "hello git"
+      }
+    }
+  ]
+}

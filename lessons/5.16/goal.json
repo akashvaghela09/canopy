@@ -1,0 +1,26 @@
+{
+  "questions": [
+    {
+      "id": "published",
+      "prompt": "Why is moving a tag that has already been pushed discouraged?",
+      "type": "choice",
+      "options": [
+        "Other clones keep the old tag, so the same name would mean different commits for different people",
+        "Git deletes the commit the old tag pointed to",
+        "A pushed tag is read-only and cannot be deleted locally",
+        "Annotated tags cannot be recreated once pushed"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    { "label": "scratch is deleted", "check": { "type": "tag", "name": "scratch", "present": false } },
+    { "label": "v1.0 is an annotated tag on \"Add gear checklist\"", "check": { "type": "tag", "name": "v1.0", "present": true, "annotated": true, "target": "@mark:gear", "message": "Trail guide 1.0" } },
+    { "label": "No commit or branch moved", "check": { "type": "all", "checks": [
+        { "type": "refAt", "ref": "main", "target": "@mark:gear" },
+        { "type": "currentBranch", "name": "main" },
+        { "type": "status", "clean": true }
+      ] } },
+    { "label": "Answer: why not move pushed tags", "check": { "type": "answer", "question": "published" } }
+  ]
+}

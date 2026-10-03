@@ -1,0 +1,49 @@
+{
+  "goals": [
+    {
+      "label": "feature/login exists with src/login.js, started from develop",
+      "sticky": true,
+      "check": { "type": "all", "checks": [
+        { "type": "branchExists", "name": "feature/login" },
+        { "type": "fileContent", "source": "feature/login", "path": "src/login.js", "contains": "login" },
+        { "type": "isAncestor", "ancestor": "@mark:develop-start", "descendant": "feature/login" }
+      ] }
+    },
+    {
+      "label": "develop merged the feature with a merge commit",
+      "sticky": true,
+      "check": { "type": "all", "checks": [
+        { "type": "commitParents", "rev": "develop", "count": 2 },
+        { "type": "fileInRev", "rev": "develop", "path": "src/login.js", "present": true },
+        { "type": "fileContent", "source": "develop", "path": "VERSION", "contains": "1.0.0" }
+      ] }
+    },
+    {
+      "label": "release/1.1.0 branched from develop and bumps VERSION to 1.1.0",
+      "sticky": true,
+      "check": { "type": "all", "checks": [
+        { "type": "branchExists", "name": "release/1.1.0" },
+        { "type": "fileContent", "source": "release/1.1.0", "path": "VERSION", "equals": "1.1.0" },
+        { "type": "fileInRev", "rev": "release/1.1.0", "path": "src/login.js", "present": true }
+      ] }
+    },
+    {
+      "label": "main merged the release with a merge commit and is tagged v1.1.0 (annotated)",
+      "check": { "type": "all", "checks": [
+        { "type": "commitParents", "rev": "main", "count": 2 },
+        { "type": "fileInRev", "rev": "main", "path": "src/login.js", "present": true },
+        { "type": "fileContent", "source": "main", "path": "VERSION", "equals": "1.1.0" },
+        { "type": "tag", "name": "v1.1.0", "annotated": true, "target": "main" }
+      ] }
+    },
+    {
+      "label": "develop merged the release back with a merge commit",
+      "check": { "type": "all", "checks": [
+        { "type": "commitParents", "rev": "develop", "count": 2 },
+        { "type": "isAncestor", "ancestor": "main^2", "descendant": "develop" },
+        { "type": "fileContent", "source": "develop", "path": "VERSION", "equals": "1.1.0" }
+      ] }
+    },
+    { "label": "Leave the working tree clean", "check": { "type": "status", "clean": true } }
+  ]
+}

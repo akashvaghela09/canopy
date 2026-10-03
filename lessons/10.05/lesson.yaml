@@ -1,0 +1,13 @@
+id: "10.05"
+section: 10
+title: Undo a finished rebase
+kind: practice
+teaches: [recover-rebase]
+requires: [rebase, reflog-refs, orig-head]
+flags: []
+repo: webapp
+start: webapp
+hints:
+  - "`git reflog show feature/search`: the top entry says \"rebase (finish)\". The entry right below it is the tip from before the rebase."
+  - "Hard-reset the branch to that entry: `git reset --hard feature/search@{1}`."
+  - "Afterwards the graph shows feature/search growing from \"Add login page\" again, not from wip-styles, and its commit ids are the original ones."

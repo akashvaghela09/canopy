@@ -1,0 +1,9 @@
+commands: |
+  git diff
+  git diff --staged
+  git add recipe.txt
+  git diff
+  git diff --staged
+answers:
+  staged-shows: 0
+  after-restage: 2

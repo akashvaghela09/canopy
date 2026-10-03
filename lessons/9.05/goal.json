@@ -1,0 +1,26 @@
+{
+  "questions": [],
+  "goals": [
+    { "label": "main has exactly two new commits", "check": { "type": "commitCount", "range": "@mark:main-tip..main", "equals": 2 } },
+    { "label": "The crash fix is on main and its message names the source commit", "check": { "type": "any", "checks": [
+        { "type": "all", "checks": [
+          { "type": "commitMessage", "rev": "HEAD", "contains": "Fix crash on empty input" },
+          { "type": "commitMessage", "rev": "HEAD", "matches": "cherry picked from commit [0-9a-f]{7,}" } ] },
+        { "type": "all", "checks": [
+          { "type": "commitMessage", "rev": "HEAD~1", "contains": "Fix crash on empty input" },
+          { "type": "commitMessage", "rev": "HEAD~1", "matches": "cherry picked from commit [0-9a-f]{7,}" } ] }
+      ] } },
+    { "label": "Both changelog changes arrive in one commit that touches only CHANGELOG.md", "check": { "type": "all", "checks": [
+        { "type": "any", "checks": [
+          { "type": "commitChanges", "rev": "HEAD", "paths": ["CHANGELOG.md"], "exact": true },
+          { "type": "commitChanges", "rev": "HEAD~1", "paths": ["CHANGELOG.md"], "exact": true } ] },
+        { "type": "fileContent", "source": "main", "path": "CHANGELOG.md", "contains": "- Fix crash on empty input" },
+        { "type": "fileContent", "source": "main", "path": "CHANGELOG.md", "contains": "- Document the command format" },
+        { "type": "fileContent", "source": "main", "path": "parser.py", "contains": "return None" }
+      ] } },
+    { "label": "Finish on main with a clean working tree", "check": { "type": "all", "checks": [
+        { "type": "currentBranch", "name": "main" },
+        { "type": "status", "clean": true }
+      ] } }
+  ]
+}

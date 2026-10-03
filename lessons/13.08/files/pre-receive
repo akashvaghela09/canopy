@@ -1,0 +1,13 @@
+#!/bin/sh
+# Server-side hook in origin.git: refuse pushes that contain a commit whose
+# subject starts with "wip". Runs once per push with lines "old new ref" on stdin.
+zero=0000000000000000000000000000000000000000
+while read old new ref; do
+  [ "$new" = "$zero" ] && continue            # branch deletion: nothing to check
+  if [ "$old" = "$zero" ]; then range="$new"; else range="$old..$new"; fi
+  if git rev-list --format=%s "$range" | grep -qi '^wip'; then
+    echo "pre-receive: refusing $ref: it contains a work-in-progress commit" >&2
+    exit 1
+  fi
+done
+exit 0

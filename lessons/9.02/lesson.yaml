@@ -1,0 +1,12 @@
+id: "9.02"
+section: 9
+title: Fix the last commit message
+kind: practice
+teaches: [amend-message]
+requires: [commit, commit-message, concept-rewrite]
+flags: []
+repo: site
+start: site
+hints:
+  - "The last message says \"contcat\". Only the newest commit can be amended this way."
+  - "`git commit --amend` opens the editor with the old message; `git commit --amend -m \"...\"` sets it directly."

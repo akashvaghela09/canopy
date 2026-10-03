@@ -1,0 +1,13 @@
+id: "4.05"
+section: 4
+title: Revert in more detail
+kind: practice
+teaches: [revert-options]
+requires: [revert]
+flags: []
+repo: shop
+start: shop
+hints:
+  - "The two commits to undo are the newest two: the range `HEAD~2..HEAD` names both."
+  - "With `--no-commit`, revert stops after staging the undo. Check the status, then commit once with your own message."
+  - "`git revert --no-commit HEAD~2..HEAD`, then make a commit with the message \"Remove ads and popup\"."

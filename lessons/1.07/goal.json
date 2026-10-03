@@ -1,0 +1,17 @@
+{
+  "questions": [],
+  "goals": [
+    { "label": "bakery is a git repository", "check": { "type": "repoExists", "path": "bakery" } },
+    { "label": "bakery/menu.txt exists and has text in it",
+      "check": { "type": "fileContent", "path": "menu.txt", "matches": "\\S" } },
+    { "label": "bakery/hours.txt exists and has text in it",
+      "check": { "type": "fileContent", "path": "hours.txt", "matches": "\\S" } },
+    { "label": "user.name is set for this repo only",
+      "check": { "type": "config", "key": "user.name", "scope": "local", "present": true } },
+    { "label": "user.email is set for this repo only",
+      "check": { "type": "config", "key": "user.email", "scope": "local", "present": true } },
+    { "label": "Both files are untracked and nothing is staged",
+      "check": { "type": "status", "untracked": ["hours.txt", "menu.txt"], "staged": [], "exact": true } },
+    { "label": "Check the status", "check": { "type": "usedCommand", "matches": "git\\s+status\\b" } }
+  ]
+}

@@ -1,0 +1,17 @@
+commands: |
+  mkdir keys
+  ssh-keygen -t ed25519 -N '' -C canopy -f keys/canopy-key
+  git config gpg.format ssh
+  git config user.signingkey "$PWD/keys/canopy-key.pub"
+  echo "$(git config user.email) $(cat keys/canopy-key.pub)" > keys/allowed_signers
+  git config gpg.ssh.allowedSignersFile "$PWD/keys/allowed_signers"
+  echo "- tide tables for 1.0" >> CHANGELOG.md
+  git commit -S -am "Release notes for 1.0"
+  git tag -s v1.0 -m "Release 1.0"
+  git verify-commit HEAD
+  git verify-tag v1.0
+  git log --show-signature -1
+  git commit --amend --no-edit
+  git verify-commit HEAD
+answers:
+  after-amend: 0

@@ -1,0 +1,48 @@
+{
+  "questions": [
+    {
+      "id": "main-now",
+      "prompt": "After the reset, which commit does main point to?",
+      "type": "commit",
+      "answer": "@mark:soup"
+    },
+    {
+      "id": "file-on-disk",
+      "prompt": "What happened to soup.md on disk?",
+      "type": "choice",
+      "options": [
+        "Nothing; the salt line is still there and now shows as an unstaged change",
+        "It was rewritten to match the older commit, so the salt line is gone",
+        "It was deleted, because the commit that changed it was undone",
+        "It is now staged for the next commit"
+      ],
+      "answer": 0
+    },
+    {
+      "id": "old-commit",
+      "prompt": "What happened to the commit \"Add salt to soup\"?",
+      "type": "choice",
+      "options": [
+        "It still exists in the repo, but no branch points to it, so the log no longer lists it",
+        "It was deleted from disk immediately",
+        "It moved to a new branch called HEAD",
+        "It was merged into the previous commit"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    { "label": "Move main back one commit with git reset", "check": { "type": "all", "checks": [
+        { "type": "usedCommand", "matches": "^git reset\\b" },
+        { "type": "refAt", "ref": "main", "target": "@mark:soup" },
+        { "type": "currentBranch", "name": "main" }
+      ] } },
+    { "label": "Keep the salt line in soup.md on disk", "check": { "type": "all", "checks": [
+        { "type": "fileContent", "path": "soup.md", "source": "worktree", "contains": "salt" },
+        { "type": "status", "modified": ["soup.md"], "staged": [], "exact": false }
+      ] } },
+    { "label": "Answer: where main points now", "check": { "type": "answer", "question": "main-now" } },
+    { "label": "Answer: the file on disk", "check": { "type": "answer", "question": "file-on-disk" } },
+    { "label": "Answer: the old commit", "check": { "type": "answer", "question": "old-commit" } }
+  ]
+}

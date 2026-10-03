@@ -1,0 +1,6 @@
+commands: |
+  git status
+  git commit -a -m "Greet the whole world and describe the tool"
+  git status
+answers:
+  why-left-out: 0

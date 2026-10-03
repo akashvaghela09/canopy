@@ -1,0 +1,17 @@
+{
+  "questions": [],
+  "goals": [
+    { "label": "Step back two commits with a soft reset", "check": { "type": "usedCommand", "matches": "^git reset\\b.*--soft" } },
+    { "label": "Replace the two WIP commits with one commit", "check": { "type": "all", "checks": [
+        { "type": "commitCount", "range": "main", "equals": 3 },
+        { "type": "refAt", "ref": "HEAD~1", "target": "@mark:skeleton" },
+        { "type": "not", "check": { "type": "commitMessage", "rev": "HEAD", "contains": "WIP" } }
+      ] } },
+    { "label": "The new commit holds the form and the stylesheet", "check": { "type": "all", "checks": [
+        { "type": "fileContent", "path": "login.html", "source": "HEAD", "contains": "<form" },
+        { "type": "fileInRev", "path": "login.css", "rev": "HEAD", "present": true }
+      ] } },
+    { "label": "Call it \"Add login form\"", "check": { "type": "commitMessage", "rev": "HEAD", "matches": "(?i)^add login form" } },
+    { "label": "Finish with a clean working tree", "check": { "type": "status", "clean": true } }
+  ]
+}

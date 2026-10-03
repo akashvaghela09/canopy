@@ -1,0 +1,139 @@
+{
+  "questions": [
+    {
+      "id": "second-merge",
+      "prompt": "What did git print about config.txt during the second merge?",
+      "type": "choice",
+      "options": [
+        "Resolved 'config.txt' using previous resolution.",
+        "CONFLICT (content): Merge conflict in config.txt, with nothing else",
+        "Already up to date."
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    {
+      "label": "rerere is enabled in this repo",
+      "check": {
+        "type": "config",
+        "key": "rerere.enabled",
+        "value": "true"
+      }
+    },
+    {
+      "label": "A resolution was recorded (inspected with rerere status or diff)",
+      "sticky": true,
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "pathExists",
+            "path": "project/.git/rr-cache"
+          },
+          {
+            "type": "usedCommand",
+            "matches": "^git rerere (status|diff|remaining)\\b"
+          }
+        ]
+      }
+    },
+    {
+      "label": "The first merge was committed, then undone",
+      "sticky": true,
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "pathExists",
+            "path": "project/.git/rr-cache"
+          },
+          {
+            "type": "commitParents",
+            "rev": "HEAD",
+            "count": 1
+          },
+          {
+            "type": "commitMessage",
+            "rev": "HEAD",
+            "equals": "Tune the timeout"
+          },
+          {
+            "type": "operation",
+            "value": null
+          }
+        ]
+      }
+    },
+    {
+      "label": "The second merge came back already resolved by rerere",
+      "sticky": true,
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "usedCommand",
+            "matches": "^git merge\\b",
+            "exitCode": null,
+            "last": true
+          },
+          {
+            "type": "operation",
+            "value": "merge"
+          },
+          {
+            "type": "fileContent",
+            "path": "config.txt",
+            "contains": "timeout = 90"
+          },
+          {
+            "type": "fileContent",
+            "path": "config.txt",
+            "notContains": "<<<<<<<"
+          }
+        ]
+      }
+    },
+    {
+      "label": "The second merge is committed with timeout = 90",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "commitParents",
+            "rev": "main",
+            "count": 2
+          },
+          {
+            "type": "isAncestor",
+            "ancestor": "feature",
+            "descendant": "main"
+          },
+          {
+            "type": "fileContent",
+            "source": "main",
+            "path": "config.txt",
+            "contains": "timeout = 90"
+          },
+          {
+            "type": "fileContent",
+            "source": "main",
+            "path": "config.txt",
+            "notContains": "<<<<<<<"
+          },
+          {
+            "type": "status",
+            "clean": true
+          }
+        ]
+      }
+    },
+    {
+      "label": "What did the second merge say?",
+      "check": {
+        "type": "answer",
+        "question": "second-merge"
+      }
+    }
+  ]
+}

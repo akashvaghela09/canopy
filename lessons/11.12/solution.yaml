@@ -1,0 +1,11 @@
+commands: |
+  git log --diff-filter=D --summary
+  git log --oneline -- docs/usage.md
+  git log --oneline --follow -- docs/usage.md
+  git log --diff-filter=R --summary --oneline
+answers:
+  deleted-file: config/defaults.toml
+  who-deleted: 0
+  delete-commit: "@mark:config-delete"
+  old-name: USAGE.md
+  follow-count: 4

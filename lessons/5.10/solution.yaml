@@ -1,0 +1,6 @@
+commands: |
+  git branch -v
+  git branch -m river-walk
+  git branch -m tmp archive/lake-draft
+  git branch -v
+answers: {}

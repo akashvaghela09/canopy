@@ -1,0 +1,20 @@
+id: "9.26"
+section: 9
+title: Update a published branch safely
+kind: practice
+teaches: [push-force-with-lease]
+requires: [push-rejected, rebase, amend-message]
+flags: []
+minGit: "2.30"
+repo: work
+start: work
+repos:
+  - { path: work, label: "Your clone" }
+  - { path: origin.git, label: "origin" }
+  - { path: teammate, label: "Teammate (Sam)" }
+actions:
+  - { id: teammate-push, label: "Sam pushes a commit to login", script: actions/teammate-push.sh }
+hints:
+  - "After the amend, a normal push is rejected because origin's `login` is not an ancestor of yours. `git push --force-with-lease` replaces it, as long as origin still has what you last fetched."
+  - "After Sam's push, the lease fails on purpose: origin moved. Fetch, fast-forward your `login` to `origin/login` so Sam's commit is in it, rebase onto `origin/main`, then push with the lease again."
+  - "`git push --force-with-lease --force-if-includes` also checks that you integrated the fetched commits, not only that you fetched them."

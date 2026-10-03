@@ -1,0 +1,21 @@
+{
+  "questions": [],
+  "goals": [
+    { "label": "The third commit from the top now reads \"Add parser module\"", "check": { "type": "all", "checks": [
+        { "type": "commitMessage", "rev": "main~2", "equals": "Add parser module" },
+        { "type": "commitChanges", "rev": "main~2", "paths": ["parser.py"], "exact": true }
+      ] } },
+    { "label": "The commits around it are intact: same base below, same messages and files above", "check": { "type": "all", "checks": [
+        { "type": "commitCount", "range": "main", "equals": 4 },
+        { "type": "refAt", "ref": "main~3", "target": "@mark:base" },
+        { "type": "commitMessage", "rev": "main~1", "equals": "Add tokenizer" },
+        { "type": "commitMessage", "rev": "main", "equals": "Add tests" },
+        { "type": "refNotAt", "ref": "main", "target": "@mark:c4" },
+        { "type": "fileInRev", "path": "test_parser.py", "rev": "main", "present": true }
+      ] } },
+    { "label": "Rebase finished, clean working tree", "check": { "type": "all", "checks": [
+        { "type": "operation", "value": null },
+        { "type": "status", "clean": true }
+      ] } }
+  ]
+}

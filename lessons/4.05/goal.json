@@ -1,0 +1,16 @@
+{
+  "questions": [],
+  "goals": [
+    { "label": "Revert with --no-commit", "check": { "type": "usedCommand", "matches": "^git revert\\b.*(--no-commit|\\s-n\\b)" } },
+    { "label": "Undo both commits in a single new commit", "check": { "type": "all", "checks": [
+        { "type": "commitCount", "range": "main", "equals": 5 },
+        { "type": "refAt", "ref": "HEAD~1", "target": "@mark:popup" },
+        { "type": "commitParents", "rev": "HEAD", "count": 1 },
+        { "type": "fileInRev", "path": "ad.html", "rev": "HEAD", "present": false },
+        { "type": "fileInRev", "path": "popup.js", "rev": "HEAD", "present": false },
+        { "type": "fileInRev", "path": "products.md", "rev": "HEAD", "present": true }
+      ] } },
+    { "label": "Give the commit the message \"Remove ads and popup\"", "check": { "type": "commitMessage", "rev": "HEAD", "matches": "(?i)remove ads and popup" } },
+    { "label": "Finish with a clean working tree", "check": { "type": "status", "clean": true } }
+  ]
+}

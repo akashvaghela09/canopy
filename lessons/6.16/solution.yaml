@@ -1,0 +1,11 @@
+commands: |
+  git log --oneline --graph --all
+  git merge --no-edit -X theirs pricing
+  cat prices.txt
+  git merge --no-commit footer
+  git status
+  git diff --staged --stat
+  git commit --no-edit
+  git log --oneline --graph
+answers:
+  x-vs-restore: 0

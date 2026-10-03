@@ -1,0 +1,10 @@
+commands: |
+  git status
+  echo "build/" > .gitignore
+  echo "*.log" >> .gitignore
+  echo '!audit.log' >> .gitignore
+  git status
+  git add -A
+  git commit -m "Ignore build output and logs"
+answers:
+  negation: 1

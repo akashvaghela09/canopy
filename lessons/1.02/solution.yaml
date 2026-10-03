@@ -1,0 +1,9 @@
+commands: |
+  cat recipe.txt
+  mkdir project
+  cd project
+  touch notes.txt
+  echo "hello git" > hello.txt
+  cat hello.txt
+answers:
+  eggs: 3

@@ -1,0 +1,34 @@
+{
+  "questions": [
+    {
+      "id": "after-refusal",
+      "prompt": "Right after the refused `git pull --ff-only`, which statement is true?",
+      "type": "choice",
+      "options": [
+        "origin/main was updated (the fetch ran), but main did not move",
+        "Nothing at all changed in your clone",
+        "main was fast-forwarded anyway, only the merge commit was skipped",
+        "Git created a merge commit and then warned about it"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    { "label": "Fast-forward with pull --ff-only", "sticky": true, "check": { "type": "all", "checks": [
+        { "type": "usedCommand", "matches": "^git pull\\b.*--ff-only" },
+        { "type": "isAncestor", "ancestor": "@mark:river", "descendant": "main" },
+        { "type": "refAt", "ref": "main", "target": "origin/main" },
+        { "type": "currentBranch", "name": "main" }
+      ] } },
+    { "label": "Make a commit of your own on main", "check": { "type": "commitCount", "range": "@mark:river..main", "min": 1 } },
+    { "label": "See pull --ff-only refuse once the branches diverge", "check": { "type": "usedCommand", "matches": "^git pull\\b.*--ff-only", "exitCode": 128 } },
+    { "label": "Integrate Sam's new work into main deliberately", "check": { "type": "all", "checks": [
+        { "type": "fileContent", "path": "trails/lake.md", "source": "main", "contains": "Distance: 6 km" },
+        { "type": "currentBranch", "name": "main" },
+        { "type": "status", "clean": true },
+        { "type": "commitCount", "range": "origin/main..main", "min": 1 },
+        { "type": "isAncestor", "ancestor": "origin/main", "descendant": "main" }
+      ] } },
+    { "label": "Answer: what the refusal left behind", "check": { "type": "answer", "question": "after-refusal" } }
+  ]
+}

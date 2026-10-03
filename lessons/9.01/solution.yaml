@@ -1,0 +1,10 @@
+commands: |
+  git log --oneline -3
+  git commit --amend -m "Add recipe for pancakes"
+  git log --oneline -3
+  git log --oneline --graph --all
+answers:
+  why-new-id: 0
+  old-commit: 0
+  parent: "@mark:list"
+  vs-revert: 0

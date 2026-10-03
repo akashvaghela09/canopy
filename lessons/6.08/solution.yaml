@@ -1,0 +1,10 @@
+commands: |
+  git log --oneline --graph --all
+  git merge new-title
+  git status
+  cat index.html
+  git diff
+answers:
+  ours-text: 0
+  head-side: 0
+  status-word: 0

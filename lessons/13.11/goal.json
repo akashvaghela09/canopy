@@ -1,0 +1,95 @@
+{
+  "goals": [
+    {
+      "label": "canopy is configured as the diff tool and was run",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "config",
+            "key": "diff.tool",
+            "value": "canopy"
+          },
+          {
+            "type": "config",
+            "key": "difftool.canopy.cmd"
+          },
+          {
+            "type": "usedCommand",
+            "matches": "^git difftool\\b"
+          }
+        ]
+      }
+    },
+    {
+      "label": "canopy is configured as the merge tool, trusted, without backups",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "config",
+            "key": "merge.tool",
+            "value": "canopy"
+          },
+          {
+            "type": "config",
+            "key": "mergetool.canopy.cmd"
+          },
+          {
+            "type": "config",
+            "key": "mergetool.canopy.trustExitCode",
+            "value": "true"
+          },
+          {
+            "type": "config",
+            "key": "mergetool.keepBackup",
+            "value": "false"
+          }
+        ]
+      }
+    },
+    {
+      "label": "The conflict was resolved through git mergetool and the merge committed",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "pathExists",
+            "path": "project/.git/canopy-merge.log"
+          },
+          {
+            "type": "commitParents",
+            "rev": "main",
+            "count": 2
+          },
+          {
+            "type": "fileContent",
+            "source": "main",
+            "path": "greeting.txt",
+            "contains": "Tip: tag notes"
+          },
+          {
+            "type": "fileContent",
+            "source": "main",
+            "path": "greeting.txt",
+            "contains": "Run lantern --help"
+          },
+          {
+            "type": "fileContent",
+            "source": "main",
+            "path": "greeting.txt",
+            "notContains": "<<<<<<<"
+          },
+          {
+            "type": "pathAbsent",
+            "path": "project/greeting.txt.orig"
+          },
+          {
+            "type": "status",
+            "clean": true
+          }
+        ]
+      }
+    }
+  ]
+}

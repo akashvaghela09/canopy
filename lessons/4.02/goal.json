@@ -1,0 +1,10 @@
+{
+  "questions": [],
+  "goals": [
+    { "label": "Look at the staged changes", "check": { "type": "usedCommand", "matches": "^git diff\\b.*(--staged|--cached)" } },
+    { "label": "draft.md is no longer staged, post.md still is", "check": { "type": "status", "staged": ["post.md"], "modified": ["draft.md"], "untracked": [], "exact": true } },
+    { "label": "The edits in draft.md are still on disk", "check": { "type": "fileContent", "path": "draft.md", "source": "worktree", "contains": "Rough idea" } },
+    { "label": "The staging area holds the committed version of draft.md", "check": { "type": "fileContent", "path": "draft.md", "source": "index", "notContains": "Rough idea" } },
+    { "label": "Use git restore --staged to do it", "check": { "type": "usedCommand", "matches": "^git restore\\b.*(--staged|\\s-S\\b).*draft\\.md" } }
+  ]
+}

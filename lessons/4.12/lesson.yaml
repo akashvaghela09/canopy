@@ -1,0 +1,19 @@
+id: "4.12"
+section: 4
+title: Choose the right undo
+kind: practice
+teaches: [undo-decision]
+requires: [restore, restore-staged, revert, reset-soft, reset-hard, clean]
+flags: [destructive]
+minGit: "2.23"
+repo: wrong-file
+start: "."
+repos:
+  - { path: wrong-file, label: "1: wrong file committed" }
+  - { path: shared, label: "2: shared commit" }
+  - { path: scrap, label: "3: drop everything" }
+  - { path: too-early, label: "4: staged too early" }
+hints:
+  - "Ask two questions for each case: has the change been committed? Has anyone else seen it? Uncommitted: restore or clean. Committed and private: reset. Committed and shared: revert."
+  - "Case 1: a soft reset brings the commit back into the staging area; then unstage the secret and commit again. Case 3 needs two tools: one for tracked edits, one for untracked files."
+  - "Case 1: `git reset --soft HEAD~1`, `git restore --staged secret.env`, commit. Case 2: `git revert HEAD`. Case 3: `git reset --hard` then `git clean -fd`. Case 4: `git restore --staged report.md`."

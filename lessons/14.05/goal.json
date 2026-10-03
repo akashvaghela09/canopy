@@ -1,0 +1,118 @@
+{
+  "questions": [
+    {
+      "id": "tree",
+      "prompt": "What is the tree id in the HEAD commit? (full id or 7 or more characters)",
+      "type": "text",
+      "accept": [
+        "0d4542a",
+        "0d4542af",
+        "0d4542af4",
+        "0d4542af43",
+        "0d4542af435",
+        "0d4542af435a",
+        "0d4542af435ac",
+        "0d4542af435ac8",
+        "0d4542af435ac87",
+        "0d4542af435ac87c",
+        "0d4542af435ac87c2",
+        "0d4542af435ac87c2e",
+        "0d4542af435ac87c2ef",
+        "0d4542af435ac87c2ef3",
+        "0d4542af435ac87c2ef34",
+        "0d4542af435ac87c2ef34b",
+        "0d4542af435ac87c2ef34b2",
+        "0d4542af435ac87c2ef34b24",
+        "0d4542af435ac87c2ef34b24a",
+        "0d4542af435ac87c2ef34b24a1",
+        "0d4542af435ac87c2ef34b24a16",
+        "0d4542af435ac87c2ef34b24a166",
+        "0d4542af435ac87c2ef34b24a166b",
+        "0d4542af435ac87c2ef34b24a166b7",
+        "0d4542af435ac87c2ef34b24a166b7f",
+        "0d4542af435ac87c2ef34b24a166b7fd",
+        "0d4542af435ac87c2ef34b24a166b7fd7",
+        "0d4542af435ac87c2ef34b24a166b7fd77",
+        "0d4542af435ac87c2ef34b24a166b7fd77f",
+        "0d4542af435ac87c2ef34b24a166b7fd77ff",
+        "0d4542af435ac87c2ef34b24a166b7fd77ffc",
+        "0d4542af435ac87c2ef34b24a166b7fd77ffce",
+        "0d4542af435ac87c2ef34b24a166b7fd77ffce6",
+        "0d4542af435ac87c2ef34b24a166b7fd77ffce68"
+      ]
+    },
+    {
+      "id": "parent",
+      "prompt": "Which commit is the parent of HEAD? (paste its id)",
+      "type": "commit",
+      "answer": "@mark:merge"
+    },
+    {
+      "id": "parents",
+      "prompt": "How many parent lines does the commit at HEAD~1 have?",
+      "type": "number",
+      "answer": 2
+    },
+    {
+      "id": "author-committer",
+      "prompt": "When do author and committer differ?",
+      "type": "choice",
+      "options": [
+        "When someone else applies, rebases or amends the original work",
+        "Never; git always writes the same name in both",
+        "When the commit touches more than one file",
+        "When the commit is on a branch other than main"
+      ],
+      "answer": 0
+    },
+    {
+      "id": "ripple",
+      "prompt": "If the message of the very first commit were changed, which ids would change?",
+      "type": "choice",
+      "options": [
+        "Every commit after it as well, because each commit's text contains its parent's id",
+        "Only the first commit's id",
+        "Only the first commit and its tree",
+        "None; messages are not part of the id"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    {
+      "label": "Read the tree id from the HEAD commit",
+      "check": {
+        "type": "answer",
+        "question": "tree"
+      }
+    },
+    {
+      "label": "Read the parent id from the HEAD commit",
+      "check": {
+        "type": "answer",
+        "question": "parent"
+      }
+    },
+    {
+      "label": "Count the parents of the merge",
+      "check": {
+        "type": "answer",
+        "question": "parents"
+      }
+    },
+    {
+      "label": "Say when author and committer differ",
+      "check": {
+        "type": "answer",
+        "question": "author-committer"
+      }
+    },
+    {
+      "label": "Say which ids a change ripples through",
+      "check": {
+        "type": "answer",
+        "question": "ripple"
+      }
+    }
+  ]
+}

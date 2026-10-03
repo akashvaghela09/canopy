@@ -1,0 +1,14 @@
+id: "14.05"
+section: 14
+title: Commits as objects
+kind: concept
+teaches: [commit-object]
+requires: [ls-tree, relative-refs]
+flags: []
+repo: garden
+start: garden
+panels: [inside-git]
+hints:
+  - "`git cat-file -p HEAD` prints the commit object: tree, parent lines, author, committer, blank line, message."
+  - "A merge commit has two `parent` lines. The one at HEAD~1 is a merge."
+  - "A commit's id is the hash of its text, and that text contains the parent id. Change any ancestor and every descendant's text changes too."

@@ -1,0 +1,12 @@
+id: "9.04"
+section: 9
+title: Cherry-pick a commit
+kind: practice
+teaches: [cherry-pick]
+requires: [switch, show, concept-rewrite, concept-commit-id]
+flags: []
+repo: shop
+start: shop
+hints:
+  - "You are on `checkout`. The fix must land on `main`, so go there first; a cherry-pick copies onto the branch you are on."
+  - "Find the id of \"Fix price rounding in cart\" in the history of `checkout`, then run `git cherry-pick <id>`."

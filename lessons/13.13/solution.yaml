@@ -1,0 +1,9 @@
+commands: |
+  git clone --depth 1 "file://$PWD/origin.git" shallow
+  cd shallow
+  git rev-list --count HEAD
+  git fetch --deepen 3
+  git rev-list --count HEAD
+  git fetch --unshallow
+  git rev-list --count HEAD
+  ls .git/shallow

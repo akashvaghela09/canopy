@@ -1,0 +1,78 @@
+{
+  "questions": [
+    {
+      "id": "missing",
+      "prompt": "Right after the blobless clone, how many objects does --missing=print report as missing?",
+      "type": "number",
+      "answer": 7
+    }
+  ],
+  "goals": [
+    {
+      "label": "blobless is a partial clone with the blob:none filter from a promisor remote",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "repoExists",
+            "path": "blobless",
+            "bare": false
+          },
+          {
+            "type": "config",
+            "key": "remote.origin.promisor",
+            "value": "true"
+          },
+          {
+            "type": "config",
+            "key": "remote.origin.partialclonefilter",
+            "value": "blob:none"
+          },
+          {
+            "type": "commitCount",
+            "range": "HEAD",
+            "equals": 6
+          }
+        ]
+      }
+    },
+    {
+      "label": "Count the missing objects",
+      "check": {
+        "type": "answer",
+        "question": "missing"
+      }
+    },
+    {
+      "label": "The first commit's files were fetched on demand",
+      "check": {
+        "type": "shell",
+        "script": "root=$(git rev-list --max-parents=0 HEAD) && ! git rev-list --objects --missing=print \"$root\" | grep -q '^?'"
+      }
+    },
+    {
+      "label": "treeless is a partial clone with the tree:0 filter",
+      "check": {
+        "type": "all",
+        "repo": "treeless",
+        "checks": [
+          {
+            "type": "repoExists",
+            "path": "treeless",
+            "bare": false
+          },
+          {
+            "type": "config",
+            "key": "remote.origin.partialclonefilter",
+            "value": "tree:0"
+          },
+          {
+            "type": "commitCount",
+            "range": "HEAD",
+            "equals": 6
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+id: "3.13"
+section: 3
+title: "Boss: investigate a mystery repo"
+kind: boss
+teaches: []
+requires: [log-oneline, log-graph, log-filter, log-path, show, concept-commit-id, head, relative-refs, diff-commits, diff-options, blame, describe]
+flags: []
+repo: weather-cli
+start: weather-cli
+hints:
+  - "Start with the graph drawing to get the shape: two tags, one merge, one side branch."
+  - "The wrong constant is on line 2 of weather.py. Blame tells you the last commit that touched it; open that commit to confirm."
+  - "`git diff --name-status v1.0 v1.1` lists what changed between the two releases, with a letter per file. `git show HEAD~4:weather.py` prints the file as it was four commits ago."

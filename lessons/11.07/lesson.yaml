@@ -1,0 +1,13 @@
+id: "11.07"
+section: 11
+title: Bisect vocabulary and edge cases
+kind: practice
+teaches: [bisect-terms]
+requires: [bisect]
+flags: []
+repo: tally
+start: tally
+hints:
+  - "`git bisect start --term-old=broken --term-new=fixed`, then `git bisect fixed` on HEAD and `git bisect broken v2.0`. Test each step with `bash tally.sh -2 5`."
+  - "If tally.sh does not run at all (a syntax error, exit code 2), you cannot say broken or fixed: `git bisect skip` and git picks a neighbour."
+  - "The answer is the \"first fixed commit\" line. Then `git bisect reset`."

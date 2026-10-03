@@ -1,0 +1,34 @@
+{
+  "questions": [
+    {
+      "id": "stopped-at",
+      "prompt": "Which commit did the rebase stop at? (Its id is in the status output.)",
+      "type": "commit",
+      "answer": "@mark:f2"
+    }
+  ],
+  "goals": [
+    { "label": "The rebase pauses on the conflict in config.toml", "sticky": true, "check": { "type": "all", "checks": [
+        { "type": "operation", "value": "rebase" },
+        { "type": "status", "conflicted": ["config.toml"] }
+      ] } },
+    { "label": "Answer: the commit the rebase stopped at", "check": { "type": "answer", "question": "stopped-at" } },
+    { "label": "limits has its three commits on top of main, in order", "check": { "type": "all", "checks": [
+        { "type": "refAt", "ref": "limits~3", "target": "main" },
+        { "type": "refAt", "ref": "main", "target": "@mark:main-tip" },
+        { "type": "commitCount", "range": "main..limits", "equals": 3 },
+        { "type": "commitMessage", "rev": "limits~2", "equals": "Add rate limit docs" },
+        { "type": "commitMessage", "rev": "limits~1", "equals": "Lower default limit and add unit" },
+        { "type": "commitMessage", "rev": "limits", "equals": "Add limit tests" }
+      ] } },
+    { "label": "config.toml keeps limit = 20 and gains the unit line", "check": { "type": "all", "checks": [
+        { "type": "fileContent", "source": "limits~1", "path": "config.toml", "lines": ["[server]", "port = 8080", "limit = 20", "unit = \"requests\""] },
+        { "type": "fileContent", "source": "limits", "path": "config.toml", "lines": ["[server]", "port = 8080", "limit = 20", "unit = \"requests\""] }
+      ] } },
+    { "label": "Rebase finished, on limits, clean working tree", "check": { "type": "all", "checks": [
+        { "type": "operation", "value": null },
+        { "type": "currentBranch", "name": "limits" },
+        { "type": "status", "clean": true }
+      ] } }
+  ]
+}

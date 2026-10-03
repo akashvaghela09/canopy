@@ -1,0 +1,15 @@
+id: "14.16"
+section: 14
+title: How a merge is computed
+kind: practice
+teaches: [merge-internals]
+requires: [merge-three-way, rev-list]
+flags: []
+minGit: "2.38"
+repo: recipes
+start: recipes
+panels: [inside-git]
+hints:
+  - "`git merge-base main spicy` prints the common ancestor."
+  - "`git merge-tree --write-tree main spicy` prints the result tree id first, then the conflicted paths, then messages. The branch stays where it is."
+  - "Read a file out of the result tree with `git ls-tree <tree-id>` and `git show <tree-id>:notes.md`."

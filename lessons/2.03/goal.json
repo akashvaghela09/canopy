@@ -1,0 +1,51 @@
+{
+  "questions": [
+    {
+      "id": "staged-version",
+      "prompt": "Before you stage again, which version of todo.txt is in the staging area?",
+      "type": "choice",
+      "options": [
+        "Only \"buy milk\"",
+        "\"buy milk\" and \"buy bread\"",
+        "Nothing, the file is untracked"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    {
+      "label": "Answer the question",
+      "check": {
+        "type": "answer",
+        "question": "staged-version"
+      }
+    },
+    {
+      "label": "Commit todo.txt with \"buy bread\" in it",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "fileContent",
+            "source": "HEAD",
+            "path": "todo.txt",
+            "contains": "buy milk"
+          },
+          {
+            "type": "fileContent",
+            "source": "HEAD",
+            "path": "todo.txt",
+            "contains": "buy bread"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Finish with a clean working tree",
+      "check": {
+        "type": "status",
+        "clean": true
+      }
+    }
+  ]
+}

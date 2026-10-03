@@ -1,0 +1,124 @@
+{
+  "questions": [
+    {
+      "id": "unresolved-count",
+      "prompt": "How many files are unresolved right after the merge stops?",
+      "type": "number",
+      "answer": 2
+    },
+    {
+      "id": "merge-head",
+      "prompt": "Which commit does .git/MERGE_HEAD name?",
+      "type": "commit",
+      "answer": "@mark:search-tip"
+    },
+    {
+      "id": "log-merge-count",
+      "prompt": "How many commits does git log --merge show?",
+      "type": "number",
+      "answer": 3
+    }
+  ],
+  "goals": [
+    {
+      "label": "List the unresolved paths during the merge",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "usedCommand",
+            "matches": "^git (ls-files\\b.*(-u|--unmerged)|diff\\b.*--diff-filter=U)",
+            "last": true
+          },
+          {
+            "type": "operation",
+            "value": "merge"
+          }
+        ]
+      },
+      "sticky": true
+    },
+    {
+      "label": "Read MERGE_HEAD",
+      "check": {
+        "type": "usedCommand",
+        "matches": "MERGE_HEAD"
+      }
+    },
+    {
+      "label": "Show the commits behind the conflict",
+      "check": {
+        "type": "usedCommand",
+        "matches": "^git log\\b.*--merge\\b"
+      }
+    },
+    {
+      "label": "Answer: unresolved files",
+      "check": {
+        "type": "answer",
+        "question": "unresolved-count"
+      }
+    },
+    {
+      "label": "Answer: the commit in MERGE_HEAD",
+      "check": {
+        "type": "answer",
+        "question": "merge-head"
+      }
+    },
+    {
+      "label": "Answer: commits shown by log --merge",
+      "check": {
+        "type": "answer",
+        "question": "log-merge-count"
+      }
+    },
+    {
+      "label": "Resolve both files and commit the merge",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "currentBranch",
+            "name": "main"
+          },
+          {
+            "type": "operation",
+            "value": null
+          },
+          {
+            "type": "commitParents",
+            "rev": "main",
+            "count": 2
+          },
+          {
+            "type": "refAt",
+            "ref": "main^1",
+            "target": "@mark:main-tip"
+          },
+          {
+            "type": "refAt",
+            "ref": "main^2",
+            "target": "@mark:search-tip"
+          },
+          {
+            "type": "fileContent",
+            "path": "index.html",
+            "source": "main",
+            "notContains": "<<<<<<<"
+          },
+          {
+            "type": "fileContent",
+            "path": "menu.md",
+            "source": "main",
+            "notContains": "<<<<<<<"
+          },
+          {
+            "type": "status",
+            "clean": true
+          }
+        ]
+      }
+    }
+  ]
+}

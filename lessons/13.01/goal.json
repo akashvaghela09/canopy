@@ -1,0 +1,122 @@
+{
+  "questions": [
+    {
+      "id": "origin-name",
+      "prompt": "According to --show-origin, which file provides init.defaultbranch?",
+      "type": "choice",
+      "options": [
+        "The system file",
+        "The global file (Canopy's gitconfig for this lesson)",
+        "This repo's .git/config"
+      ],
+      "answer": 1
+    },
+    {
+      "id": "origin-pull",
+      "prompt": "And which file provides pull.rebase?",
+      "type": "choice",
+      "options": [
+        "The system file",
+        "The global file (Canopy's own gitconfig)",
+        "This repo's .git/config"
+      ],
+      "answer": 2
+    }
+  ],
+  "goals": [
+    {
+      "label": "Where does init.defaultBranch come from?",
+      "check": {
+        "type": "answer",
+        "question": "origin-name"
+      }
+    },
+    {
+      "label": "Where does pull.rebase come from?",
+      "check": {
+        "type": "answer",
+        "question": "origin-pull"
+      }
+    },
+    {
+      "label": "Set core.abbrev to 12 at the system level",
+      "sticky": true,
+      "check": {
+        "type": "config",
+        "key": "core.abbrev",
+        "scope": "system",
+        "value": "12"
+      }
+    },
+    {
+      "label": "Set core.abbrev to 10 at the global level",
+      "sticky": true,
+      "check": {
+        "type": "config",
+        "key": "core.abbrev",
+        "scope": "global",
+        "value": "10"
+      }
+    },
+    {
+      "label": "Set core.abbrev to 8 at the local level",
+      "check": {
+        "type": "config",
+        "key": "core.abbrev",
+        "scope": "local",
+        "value": "8"
+      }
+    },
+    {
+      "label": "Enable worktree config and set core.abbrev to 6 there",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "config",
+            "key": "extensions.worktreeConfig",
+            "scope": "local",
+            "value": "true"
+          },
+          {
+            "type": "config",
+            "key": "core.abbrev",
+            "scope": "worktree",
+            "value": "6"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Remove core.abbrev from system and global, and the local pull.rebase",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "config",
+            "key": "core.abbrev",
+            "scope": "system",
+            "present": false
+          },
+          {
+            "type": "config",
+            "key": "core.abbrev",
+            "scope": "global",
+            "present": false
+          },
+          {
+            "type": "config",
+            "key": "pull.rebase",
+            "scope": "local",
+            "present": false
+          },
+          {
+            "type": "config",
+            "key": "core.abbrev",
+            "value": "6"
+          }
+        ]
+      }
+    }
+  ]
+}

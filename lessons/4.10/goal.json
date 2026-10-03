@@ -1,0 +1,23 @@
+{
+  "questions": [
+    {
+      "id": "why-no-move",
+      "prompt": "Why did `git reset notes-private.md` not move main?",
+      "type": "choice",
+      "options": [
+        "With a path, reset only copies that file from HEAD into the staging area; the branch is left alone",
+        "Because the file was not changed in the last commit",
+        "Because reset never moves branches; only commit does",
+        "It did move main, but the graph does not show single-file moves"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    { "label": "Unstage notes-private.md with git reset", "check": { "type": "usedCommand", "matches": "^git reset( (-q|--quiet))*( (HEAD|@))?( --)? (\\./)?notes-private\\.md\\s*$" } },
+    { "label": "chapter1.md stays staged, notes-private.md is only modified", "check": { "type": "status", "staged": ["chapter1.md"], "modified": ["notes-private.md"], "untracked": [], "exact": true } },
+    { "label": "The edit in notes-private.md is still on disk", "check": { "type": "fileContent", "path": "notes-private.md", "source": "worktree", "contains": "salary" } },
+    { "label": "main did not move", "check": { "type": "refAt", "ref": "main", "target": "@mark:tip" } },
+    { "label": "Answer: why main stayed", "check": { "type": "answer", "question": "why-no-move" } }
+  ]
+}

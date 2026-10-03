@@ -1,0 +1,13 @@
+id: "6.14"
+section: 6
+title: Undo a local merge
+kind: practice
+teaches: [merge-undo-reset]
+requires: [merge-three-way, reset-hard, relative-refs]
+flags: [destructive]
+repo: cafe
+start: cafe
+hints:
+  - "First make the merge: merge `newsletter` into `main`. It merges cleanly."
+  - "The merge commit is HEAD, so HEAD~1 (its first parent) is where main was before. A hard reset to it removes the merge commit from main."
+  - "`git reset --hard HEAD~1`. Afterwards main is back on \"Add contact page\" and newsletter is untouched."

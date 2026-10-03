@@ -1,0 +1,13 @@
+id: "13.01"
+section: 13
+title: Config levels
+kind: practice
+teaches: [config-levels]
+requires: [config-identity]
+flags: []
+repo: project
+start: project
+hints:
+  - "`git config --list --show-origin` prints every value with the file it came from. The narrowest level wins: worktree over local over global over system."
+  - "Set the same key at four levels: `--system`, `--global`, `--local`, then `--worktree` after enabling `extensions.worktreeConfig`. Watch `git log --oneline` change."
+  - "Remove a value with `--unset` at the level it lives: `git config --global --unset core.abbrev`, same with `--system`, and `--local --unset pull.rebase`."

@@ -1,0 +1,16 @@
+id: "15.09"
+section: 15
+title: Bundles
+kind: practice
+teaches: [bundle]
+requires: [clone, fetch, tag-annotated]
+flags: []
+repo: project
+start: project
+repos:
+  - { path: project, label: project }
+  - { path: offline, label: offline (the copy) }
+hints:
+  - "`git bundle create ../full.bundle --all` packs every branch and tag into one file. `git bundle verify` and `list-heads` read it."
+  - "A bundle file works wherever a URL works: clone it into `../offline` the usual way."
+  - "After a new commit: `git bundle create ../update.bundle v1.0..main`, then in offline fetch or pull `main` from `../update.bundle`."

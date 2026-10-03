@@ -1,0 +1,118 @@
+{
+  "questions": [
+    {
+      "id": "count-start",
+      "prompt": "How many entries did the index have before you staged anything?",
+      "type": "number",
+      "answer": 4
+    },
+    {
+      "id": "notes-blob",
+      "prompt": "After staging notes.txt, what blob id does the index record for it? (7 or more characters)",
+      "type": "text",
+      "accept": [
+        "629c02b",
+        "629c02b9",
+        "629c02b91",
+        "629c02b910",
+        "629c02b910a",
+        "629c02b910a1",
+        "629c02b910a11",
+        "629c02b910a119",
+        "629c02b910a119e",
+        "629c02b910a119e4",
+        "629c02b910a119e40",
+        "629c02b910a119e402",
+        "629c02b910a119e4023",
+        "629c02b910a119e40235",
+        "629c02b910a119e402354",
+        "629c02b910a119e4023544",
+        "629c02b910a119e4023544d",
+        "629c02b910a119e4023544dd",
+        "629c02b910a119e4023544ddf",
+        "629c02b910a119e4023544ddf6",
+        "629c02b910a119e4023544ddf69",
+        "629c02b910a119e4023544ddf695",
+        "629c02b910a119e4023544ddf695a",
+        "629c02b910a119e4023544ddf695ae",
+        "629c02b910a119e4023544ddf695ae8",
+        "629c02b910a119e4023544ddf695ae85",
+        "629c02b910a119e4023544ddf695ae85e",
+        "629c02b910a119e4023544ddf695ae85e9",
+        "629c02b910a119e4023544ddf695ae85e98",
+        "629c02b910a119e4023544ddf695ae85e98f",
+        "629c02b910a119e4023544ddf695ae85e98ff",
+        "629c02b910a119e4023544ddf695ae85e98ffd",
+        "629c02b910a119e4023544ddf695ae85e98ffd0",
+        "629c02b910a119e4023544ddf695ae85e98ffd04"
+      ]
+    },
+    {
+      "id": "what-add-does",
+      "prompt": "What does staging a file do, at the object level?",
+      "type": "choice",
+      "options": [
+        "Writes a blob into objects/ and records its id, mode and path in the index",
+        "Copies the file into .git/staging/",
+        "Creates a commit object without a message",
+        "Writes the file name into HEAD"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    {
+      "label": "List the index with git ls-files -s",
+      "check": {
+        "type": "usedCommand",
+        "matches": "\\bgit ls-files\\b.*\\s(-[a-zA-Z]*s[a-zA-Z]*|--stage)\\b"
+      }
+    },
+    {
+      "label": "Count the entries at the start",
+      "check": {
+        "type": "answer",
+        "question": "count-start"
+      }
+    },
+    {
+      "label": "Stage notes.txt",
+      "check": {
+        "type": "status",
+        "staged": [
+          "notes.txt"
+        ]
+      }
+    },
+    {
+      "label": "Read the blob id of notes.txt from the index",
+      "check": {
+        "type": "answer",
+        "question": "notes-blob"
+      }
+    },
+    {
+      "label": "Use git update-index to stage extra.txt",
+      "check": {
+        "type": "usedCommand",
+        "matches": "\\bgit update-index\\b.*extra\\.txt"
+      }
+    },
+    {
+      "label": "extra.txt is in the index",
+      "check": {
+        "type": "status",
+        "staged": [
+          "extra.txt"
+        ]
+      }
+    },
+    {
+      "label": "Say what staging does",
+      "check": {
+        "type": "answer",
+        "question": "what-add-does"
+      }
+    }
+  ]
+}

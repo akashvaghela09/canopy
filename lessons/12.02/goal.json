@@ -1,0 +1,39 @@
+{
+  "questions": [
+    {
+      "id": "commit-count",
+      "prompt": "How many commits does sam/export add on top of main?",
+      "type": "number",
+      "answer": 2
+    },
+    {
+      "id": "new-file",
+      "prompt": "Which new file does sam/export add under src/?",
+      "type": "text",
+      "accept": ["src/export.js", "export.js", "./src/export.js"]
+    },
+    {
+      "id": "merged",
+      "prompt": "Is sam/export already merged into main?",
+      "type": "choice",
+      "options": ["Yes, main already contains its commits", "No, its commits are not in main"],
+      "answer": 1
+    }
+  ],
+  "goals": [
+    { "label": "How many commits does Sam's branch add?", "check": { "type": "answer", "question": "commit-count" } },
+    { "label": "Which file does it add?", "check": { "type": "answer", "question": "new-file" } },
+    { "label": "Is it merged yet?", "check": { "type": "answer", "question": "merged" } },
+    {
+      "label": "Publish import-csv to origin",
+      "check": { "type": "all", "checks": [
+        { "type": "branchExists", "repo": "origin.git", "name": "import-csv" },
+        { "type": "refAt", "ref": "origin/import-csv", "target": "import-csv" }
+      ] }
+    },
+    {
+      "label": "Produce the request with git request-pull",
+      "check": { "type": "usedCommand", "matches": "^git request-pull(\\s+-p)?\\s+(origin/)?main\\s+\\S+\\s+import-csv(:import-csv)?\\s*$" }
+    }
+  ]
+}

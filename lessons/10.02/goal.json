@@ -1,0 +1,77 @@
+{
+  "questions": [
+    {
+      "id": "three-moves",
+      "prompt": "Which commit is main@{3}, three moves ago?",
+      "type": "commit",
+      "answer": "@mark:d"
+    },
+    {
+      "id": "by-date",
+      "prompt": "Which commit was main pointing to on 2024-03-10?",
+      "type": "commit",
+      "answer": "@mark:c"
+    },
+    {
+      "id": "by-date-2",
+      "prompt": "Which commit was main pointing to at midday on 2024-03-13?",
+      "type": "commit",
+      "answer": "@mark:d"
+    },
+    {
+      "id": "head-vs-main",
+      "prompt": "Is HEAD@{3} the same commit as main@{3}?",
+      "type": "choice",
+      "options": [
+        "No: HEAD's reflog also records the switch to notes and back, so its entries are numbered differently",
+        "Yes: HEAD and main always move together, so their reflogs match",
+        "No: main@{3} counts commits while HEAD@{3} counts reflog entries"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    {
+      "label": "Use an @{n} reflog reference",
+      "check": {
+        "type": "usedCommand",
+        "matches": "@\\{\\d+\\}"
+      }
+    },
+    {
+      "label": "Use an @{date} reflog reference",
+      "check": {
+        "type": "usedCommand",
+        "matches": "@\\{[^}]*(\\d{4}|ago|yesterday|today|noon|midnight)[^}]*\\}"
+      }
+    },
+    {
+      "label": "Identify main@{3}",
+      "check": {
+        "type": "answer",
+        "question": "three-moves"
+      }
+    },
+    {
+      "label": "Identify main on 2024-03-10",
+      "check": {
+        "type": "answer",
+        "question": "by-date"
+      }
+    },
+    {
+      "label": "Identify main at midday on 2024-03-13",
+      "check": {
+        "type": "answer",
+        "question": "by-date-2"
+      }
+    },
+    {
+      "label": "Explain HEAD@{n} versus main@{n}",
+      "check": {
+        "type": "answer",
+        "question": "head-vs-main"
+      }
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+commands: |
+  git log --oneline
+  GIT_SEQUENCE_EDITOR="sed -i -e '1{h;d}' -e '2s/^pick/drop/' -e '3{G}'" git rebase -i HEAD~3
+  git status
+  printf '# Pancakes\n\n## Steps\n- Mix flour, eggs and milk\n' > pancakes.md
+  git add pancakes.md
+  git rebase --continue
+  git status
+  printf '# Pancakes\n\n## Steps\n- Mix flour, eggs and milk\n- Fry each side until golden\n' > pancakes.md
+  git add pancakes.md
+  git rebase --continue
+  git log --oneline
+  cat pancakes.md
+answers: {}

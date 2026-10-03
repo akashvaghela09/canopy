@@ -1,0 +1,8 @@
+commands: |
+  git log --oneline main..checkout
+  git show --stat checkout~1
+  git switch main
+  git cherry-pick checkout~1
+  git log --oneline -3
+answers:
+  same-id: 0

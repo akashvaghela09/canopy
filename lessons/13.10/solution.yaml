@@ -1,0 +1,15 @@
+commands: |
+  git config rerere.enabled true
+  git merge feature
+  printf '%s\n' '# Lantern settings' 'timeout = 90' 'limit = 100' > config.txt
+  git add config.txt
+  git rerere status
+  git rerere diff
+  git commit -m "Merge feature: agree on a 90 second timeout"
+  git reset --hard HEAD~1
+  git merge feature
+  cat config.txt
+  git add config.txt
+  git commit -m "Merge feature: agree on a 90 second timeout"
+answers:
+  second-merge: 0

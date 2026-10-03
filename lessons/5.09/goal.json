@@ -1,0 +1,38 @@
+{
+  "questions": [
+    {
+      "id": "merged",
+      "prompt": "Apart from main itself, which branches are fully merged into main? (Select all that apply.)",
+      "type": "choice",
+      "options": ["labels", "pests", "herbs"],
+      "answers": [0, 1]
+    },
+    {
+      "id": "merge-base",
+      "prompt": "Which commit is the merge base of main and herbs?",
+      "type": "commit",
+      "answer": "@mark:watering"
+    },
+    {
+      "id": "three-dot-files",
+      "prompt": "Which files does `git diff --stat main...herbs` list?",
+      "type": "choice",
+      "options": [
+        "Only herbs.md",
+        "herbs.md, compost.md, pests.md and harvest.md",
+        "Only compost.md, pests.md and harvest.md",
+        "Every file in the repo"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    { "label": "List merged branches", "check": { "type": "usedCommand", "matches": "^git branch\\b.*--merged" } },
+    { "label": "List unmerged branches", "check": { "type": "usedCommand", "matches": "^git branch\\b.*--no-merged" } },
+    { "label": "Find the merge base of main and herbs", "check": { "type": "usedCommand", "matches": "^git merge-base\\b.*(main\\b.*herbs|herbs\\b.*main)" } },
+    { "label": "Diff with three dots", "check": { "type": "usedCommand", "matches": "^git diff\\b.*\\.\\.\\." } },
+    { "label": "Answer: merged branches", "check": { "type": "answer", "question": "merged" } },
+    { "label": "Answer: the merge base", "check": { "type": "answer", "question": "merge-base" } },
+    { "label": "Answer: files in the three-dot diff", "check": { "type": "answer", "question": "three-dot-files" } }
+  ]
+}

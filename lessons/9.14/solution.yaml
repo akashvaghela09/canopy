@@ -1,0 +1,12 @@
+commands: |
+  git log --oneline -4
+  git rebase -i HEAD~3
+  git log --oneline -4
+  GIT_SEQUENCE_EDITOR="sed -i '1i break'" git rebase -i HEAD~3
+  git status
+  git rebase --abort
+  git log --oneline -4
+answers:
+  first-line: "@mark:c2"
+  order: 0
+  root: 0

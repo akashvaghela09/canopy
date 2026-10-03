@@ -1,0 +1,9 @@
+commands: |
+  git status
+  git add -u
+  git status
+  git add -A
+  git status
+  git commit -m "Update app, drop old.txt, add notes"
+answers:
+  which-flag: 2

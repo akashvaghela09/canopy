@@ -1,0 +1,6 @@
+commands: |
+  git log --oneline --graph --all
+  git reflog
+  git branch physics-experiment HEAD@{1}
+  git log --oneline --graph --all
+answers: {}

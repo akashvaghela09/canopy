@@ -1,0 +1,14 @@
+id: "2.04"
+section: 2
+title: Stage many files
+kind: practice
+teaches: [add-patterns]
+requires: [add, commit, status]
+flags: []
+repo: project
+start: project
+panels: [three-areas]
+hints:
+  - "For the first goal you want the modified file and the deleted file staged, but not the two new ones. One flag does exactly that."
+  - "`git add -u` stages changes to tracked files only. Then `git add -A` picks up the rest."
+  - "`git add -u`, check the status, `git add -A`, then commit with a message."

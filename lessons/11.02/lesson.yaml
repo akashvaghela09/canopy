@@ -1,0 +1,13 @@
+id: "11.02"
+section: 11
+title: Search history by pattern
+kind: practice
+teaches: [log-pickaxe-g]
+requires: [log-pickaxe-s]
+flags: []
+repo: pricer
+start: pricer
+hints:
+  - "`git log --oneline -G 'TAX_RATE ='` lists every commit whose diff has an added or removed line matching the pattern: three commits."
+  - "Compare with `git log --oneline -S TAX_RATE`: the commit \"Tidy tax constants\" is missing there, because it changed the value but not how many times TAX_RATE appears."
+  - "`git show <id>` on \"Tidy tax constants\" shows 0.20 becoming 0.02."

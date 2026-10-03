@@ -1,0 +1,132 @@
+{
+  "questions": [
+    {
+      "id": "autostash",
+      "prompt": "What happened to your uncommitted README.md edit during the pull?",
+      "type": "choice",
+      "options": [
+        "Git stashed it, rebased your commit onto Sam's, and restored the edit",
+        "Git refused to pull until the edit was committed",
+        "Git committed it as part of the pull"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    {
+      "label": "All five settings are in place",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "config",
+            "key": "pull.rebase",
+            "value": "true"
+          },
+          {
+            "type": "config",
+            "key": "fetch.prune",
+            "value": "true"
+          },
+          {
+            "type": "config",
+            "key": "push.autoSetupRemote",
+            "value": "true"
+          },
+          {
+            "type": "config",
+            "key": "rebase.autoStash",
+            "value": "true"
+          },
+          {
+            "type": "config",
+            "key": "merge.conflictstyle",
+            "value": "zdiff3"
+          }
+        ]
+      }
+    },
+    {
+      "label": "origin/stale was pruned by a fetch",
+      "check": {
+        "type": "not",
+        "check": {
+          "type": "refAt",
+          "ref": "origin/stale",
+          "target": "origin/stale"
+        }
+      }
+    },
+    {
+      "label": "Pull rebases your commit onto Sam's while README.md stays modified (autoStash)",
+      "sticky": true,
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "isAncestor",
+            "ancestor": "@mark:sam-tip",
+            "descendant": "main"
+          },
+          {
+            "type": "commitMessage",
+            "rev": "main",
+            "equals": "Add usage notes"
+          },
+          {
+            "type": "commitCount",
+            "range": "main --merges",
+            "equals": 0
+          },
+          {
+            "type": "status",
+            "modified": [
+              "README.md"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "label": "What did autoStash do?",
+      "check": {
+        "type": "answer",
+        "question": "autostash"
+      }
+    },
+    {
+      "label": "quick-fix is published with tracking set up",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "usedCommand",
+            "matches": "^git push(\\s+(-q|--quiet|-v|--verbose))*\\s*$",
+            "last": true
+          },
+          {
+            "type": "branchExists",
+            "repo": "origin.git",
+            "name": "quick-fix"
+          },
+          {
+            "type": "upstream",
+            "branch": "quick-fix",
+            "upstream": "origin/quick-fix"
+          },
+          {
+            "type": "refAt",
+            "ref": "origin/quick-fix",
+            "target": "quick-fix"
+          },
+          {
+            "type": "isAncestor",
+            "ancestor": "@mark:sam-tip",
+            "descendant": "quick-fix"
+          }
+        ]
+      },
+      "sticky": true
+    }
+  ]
+}

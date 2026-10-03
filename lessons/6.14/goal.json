@@ -1,0 +1,31 @@
+{
+  "questions": [
+    {
+      "id": "ff-trap",
+      "prompt": "Suppose the merge had been a fast-forward instead. Where would git reset --hard HEAD~1 leave main?",
+      "type": "choice",
+      "options": [
+        "One commit below the branch tip, in the middle of newsletter's commits, not where main was before",
+        "Exactly where main was before the merge, the same as with a merge commit",
+        "On the merge base",
+        "Git refuses to reset after a fast-forward"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    { "label": "Merge newsletter into main", "sticky": true, "check": { "type": "all", "checks": [
+        { "type": "currentBranch", "name": "main" },
+        { "type": "commitParents", "rev": "main", "count": 2 },
+        { "type": "refAt", "ref": "main^1", "target": "@mark:before" },
+        { "type": "refAt", "ref": "main^2", "target": "@mark:newsletter-tip" }
+      ] } },
+    { "label": "Undo the merge: main is back on \"Add contact page\"", "check": { "type": "all", "checks": [
+        { "type": "currentBranch", "name": "main" },
+        { "type": "refAt", "ref": "main", "target": "@mark:before" },
+        { "type": "status", "clean": true }
+      ] } },
+    { "label": "newsletter still has its commits", "check": { "type": "refAt", "ref": "newsletter", "target": "@mark:newsletter-tip" } },
+    { "label": "Answer: the fast-forward trap", "check": { "type": "answer", "question": "ff-trap" } }
+  ]
+}

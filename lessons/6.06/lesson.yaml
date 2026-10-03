@@ -1,0 +1,13 @@
+id: "6.06"
+section: 6
+title: Squash merge
+kind: practice
+teaches: [merge-squash]
+requires: [merge-three-way, reset-soft, branch-delete]
+flags: []
+repo: cafe
+start: cafe
+hints:
+  - "`git merge --squash export` stages the branch's combined result but makes no commit. Check the status, then commit with your own message."
+  - "After the squash, main contains the *changes* of export but none of its *commits*, so a normal delete says the branch is not fully merged."
+  - "`git merge --squash export`, commit with the message \"Add CSV export\", then delete the branch with the forced form of the delete command."

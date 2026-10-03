@@ -1,0 +1,5 @@
+commands: |
+  git log --oneline
+  GIT_SEQUENCE_EDITOR="sed -i -e '2s/^pick/squash/' -e '3s/^pick/squash/' -e '5s/^pick/fixup/'" GIT_EDITOR='sed -i "/^Add login form$/!d"' git rebase -i HEAD~5
+  git log --oneline --stat
+answers: {}

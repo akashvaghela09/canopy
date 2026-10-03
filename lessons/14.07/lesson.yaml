@@ -1,0 +1,14 @@
+id: "14.07"
+section: 14
+title: The index is a file
+kind: practice
+teaches: [index-file]
+requires: [ls-tree, concept-staging-area, add]
+flags: []
+repo: garden
+start: garden
+panels: [inside-git]
+hints:
+  - "`git ls-files -s` prints one line per staged entry: mode, blob id, stage number, path."
+  - "Stage `notes.txt` the usual way, then list the index again and find the new line."
+  - "`git update-index --add extra.txt` is the plumbing behind staging a new file."

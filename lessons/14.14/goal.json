@@ -1,0 +1,92 @@
+{
+  "questions": [
+    {
+      "id": "why-kept",
+      "prompt": "Why did the plain gc keep the unreachable objects?",
+      "type": "choice",
+      "options": [
+        "Unreachable objects are kept for a grace period (two weeks by default), measured by file modification time",
+        "gc never removes objects; only git prune does",
+        "Because the scratch branch still existed",
+        "Because they were already in a pack"
+      ],
+      "answer": 0
+    },
+    {
+      "id": "in-pack-after-gc",
+      "prompt": "After the plain gc, how many objects does count-objects report in total (count plus in-pack)?",
+      "type": "number",
+      "answer": 15
+    },
+    {
+      "id": "in-pack-after-prune",
+      "prompt": "After gc --prune=now, how many objects are in-pack?",
+      "type": "number",
+      "answer": 9
+    },
+    {
+      "id": "aggressive",
+      "prompt": "What does gc --aggressive do?",
+      "type": "choice",
+      "options": [
+        "Spends much more time looking for better deltas; rarely worth it",
+        "Deletes unreachable objects without a grace period",
+        "Deletes the reflog",
+        "Rewrites history to remove large files"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    {
+      "label": "Run git gc",
+      "check": {
+        "type": "usedCommand",
+        "matches": "\\bgit gc\\b"
+      }
+    },
+    {
+      "label": "Say why gc kept the objects",
+      "check": {
+        "type": "answer",
+        "question": "why-kept"
+      }
+    },
+    {
+      "label": "Count all objects after gc",
+      "check": {
+        "type": "answer",
+        "question": "in-pack-after-gc"
+      }
+    },
+    {
+      "label": "The unreachable scratch commits are gone",
+      "check": {
+        "type": "shell",
+        "script": "! git cat-file -e bd932dad377c61c4e2bb0ceb29a076258a2383d5 2>/dev/null"
+      }
+    },
+    {
+      "label": "Count packed objects after pruning",
+      "check": {
+        "type": "answer",
+        "question": "in-pack-after-prune"
+      }
+    },
+    {
+      "label": "Say what --aggressive does",
+      "check": {
+        "type": "answer",
+        "question": "aggressive"
+      }
+    },
+    {
+      "label": "main is untouched",
+      "check": {
+        "type": "refAt",
+        "ref": "main",
+        "target": "@mark:tip"
+      }
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+id: "14.08"
+section: 14
+title: rev-parse
+kind: practice
+teaches: [rev-parse]
+requires: [relative-refs, head]
+flags: []
+repo: garden
+start: garden
+panels: [inside-git]
+hints:
+  - "`git rev-parse <anything>` prints the full id. Try it on `HEAD`, `main`, `wip~1` and `v1.0^{}`."
+  - "`--abbrev-ref HEAD` prints the branch name instead of the id."
+  - "`cd docs`, then `git rev-parse --show-toplevel` and `--show-prefix`. Ask for `--git-dir` back at the root (inside `docs/` it prints the full path instead). Come back with `cd ..`."

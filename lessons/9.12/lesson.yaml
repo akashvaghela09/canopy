@@ -1,0 +1,12 @@
+id: "9.12"
+section: 9
+title: Rebase --onto
+kind: practice
+teaches: [rebase-onto]
+requires: [rebase, log-range]
+flags: []
+repo: app
+start: app
+hints:
+  - "List the commits `ui` has that `api` lacks: those two are the ones to move. A plain `git rebase main` would drag the two api commits along."
+  - "`git rebase --onto main api ui`: new base main, old base api, branch ui."

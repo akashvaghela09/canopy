@@ -1,0 +1,16 @@
+id: "13.06"
+section: 13
+title: Different identities for different projects
+kind: practice
+teaches: [config-includes]
+requires: [config-levels]
+flags: []
+repo: work/client-app
+start: "."
+repos:
+  - { path: work/client-app, label: "work/client-app" }
+  - { path: personal/blog, label: "personal/blog" }
+hints:
+  - "The lesson folder's full path comes from `pwd`. Every path in an include must be absolute, and a `gitdir:` pattern must end with `/` to cover everything below that folder."
+  - "`git config --global includeIf.\"gitdir:$PWD/work/\".path \"$PWD/conf/work.gitconfig\"` (run from the lesson folder), and the same for personal/."
+  - "Make a commit inside each repo, then check `git log -1 --format='%an <%ae>'` in both."

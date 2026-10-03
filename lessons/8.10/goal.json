@@ -1,0 +1,39 @@
+{
+  "questions": [],
+  "goals": [
+    { "label": "Get the feature work out of the way with a stash or a second worktree", "sticky": true, "check": { "type": "any", "checks": [
+        { "type": "all", "checks": [
+            { "type": "stash", "count": 1 },
+            { "type": "fileContent", "path": "app.py", "source": "stash@{0}", "contains": "def export_csv" }
+          ] },
+        { "type": "worktreeCount", "equals": 2 }
+      ] } },
+    { "label": "main has a new commit that fixes area in lib.py", "check": { "type": "all", "checks": [
+        { "type": "fileContent", "path": "lib.py", "source": "main", "contains": "3.14 * r * r" },
+        { "type": "refNotAt", "ref": "main", "target": "@mark:base" },
+        { "type": "isAncestor", "ancestor": "@mark:base", "descendant": "main" }
+      ] } },
+    { "label": "That commit touches only lib.py", "check": { "type": "any", "checks": [
+        { "type": "commitChanges", "rev": "main", "paths": ["lib.py"], "exact": true },
+        { "type": "all", "checks": [
+            { "type": "commitParents", "rev": "main", "count": 2 },
+            { "type": "refAt", "ref": "main^1", "target": "@mark:base" },
+            { "type": "commitChanges", "rev": "main^2", "paths": ["lib.py"], "exact": true },
+            { "type": "refAt", "ref": "main^2~1", "target": "@mark:base" }
+          ] }
+      ] } },
+    { "label": "The feature work is not committed anywhere on main", "check": { "type": "all", "checks": [
+        { "type": "fileContent", "path": "app.py", "source": "main", "notContains": "export" },
+        { "type": "fileInRev", "path": "export.py", "rev": "main", "present": false }
+      ] } },
+    { "label": "The feature edits are back in the work folder, uncommitted", "check": { "type": "all", "checks": [
+        { "type": "fileContent", "path": "app.py", "contains": "def export_csv" },
+        { "type": "pathExists", "path": "work/export.py" },
+        { "type": "status", "modified": ["app.py"], "untracked": ["export.py"] }
+      ] } },
+    { "label": "Finish on main in work", "check": { "type": "all", "checks": [
+        { "type": "currentBranch", "name": "main" },
+        { "type": "cwd", "path": "work" }
+      ] } }
+  ]
+}

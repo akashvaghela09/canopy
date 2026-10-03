@@ -1,0 +1,15 @@
+commands: |
+  git log --oneline -2
+  git commit --amend -m "Add login form"
+  git push
+  git push --force-with-lease
+  #action teammate-push
+  git push --force-with-lease
+  git fetch
+  git log --oneline --graph --all
+  git merge --ff-only origin/login
+  git rebase origin/main
+  git push --force-with-lease --force-if-includes
+  git log --oneline --graph --all
+answers:
+  why-not-force: 0

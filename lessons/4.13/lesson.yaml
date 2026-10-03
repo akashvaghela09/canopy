@@ -1,0 +1,14 @@
+id: "4.13"
+section: 4
+title: "Boss: rescue a messy repo"
+kind: boss
+teaches: []
+requires: [status, add, commit, restore, restore-staged, restore-source, revert, revert-options, concept-reset, reset-soft, reset-mixed, reset-hard, reset-path, clean, undo-decision]
+flags: [destructive]
+minGit: "2.23"
+repo: inventory
+start: inventory
+hints:
+  - "Start with the status and the history. Make a list: what is committed, what is staged, what is on disk only, what is ignored."
+  - "Deal with the working tree and staging area first (git will not revert while something is staged): throw away the edit, drop the staged junk, remove the clutter. Then undo the bad commit with a new commit so the history stays intact."
+  - "Useful here: `git restore`, `git restore --staged`, `git clean -nd` then `-fd`, `git revert HEAD`."

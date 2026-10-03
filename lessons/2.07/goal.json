@@ -1,0 +1,57 @@
+{
+  "questions": [
+    {
+      "id": "removed-line",
+      "prompt": "Which line was removed from poem.txt?",
+      "type": "choice",
+      "options": [
+        "Roses are red",
+        "Git is a tool",
+        "And so are you"
+      ],
+      "answer": 1
+    },
+    {
+      "id": "new-port",
+      "prompt": "What is the new port number in config.txt?",
+      "type": "number",
+      "answer": 9090
+    },
+    {
+      "id": "added-config",
+      "prompt": "In the diff of config.txt, how many added lines are there? (Lines marked with a single +, not the +++ header.)",
+      "type": "number",
+      "answer": 2
+    }
+  ],
+  "goals": [
+    {
+      "label": "Run git diff",
+      "check": {
+        "type": "usedCommand",
+        "matches": "git\\s+diff\\b"
+      }
+    },
+    {
+      "label": "Answer: the removed line",
+      "check": {
+        "type": "answer",
+        "question": "removed-line"
+      }
+    },
+    {
+      "label": "Answer: the new port",
+      "check": {
+        "type": "answer",
+        "question": "new-port"
+      }
+    },
+    {
+      "label": "Answer: added lines in config.txt",
+      "check": {
+        "type": "answer",
+        "question": "added-config"
+      }
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+commands: |
+  git log --oneline
+  git notes add -m "Reviewed: looks good" HEAD~1
+  git notes show HEAD~1
+  git notes append -m "Approved for release" HEAD~1
+  git log -2
+  git notes list
+  git push origin refs/notes/commits
+answers:
+  id-change: 0

@@ -1,0 +1,83 @@
+{
+  "questions": [
+    {
+      "id": "merge-count",
+      "prompt": "How many merge commits are in main's history?",
+      "type": "number",
+      "answer": 3
+    },
+    {
+      "id": "last-merged",
+      "prompt": "Which branch was merged most recently? (Type the branch name.)",
+      "type": "text",
+      "accept": [
+        "hotfix",
+        "branch hotfix",
+        "Merge branch 'hotfix'"
+      ]
+    },
+    {
+      "id": "first-parent-count",
+      "prompt": "How many commits does git log --first-parent show from main?",
+      "type": "number",
+      "answer": 9
+    },
+    {
+      "id": "sam-count",
+      "prompt": "How many non-merge commits did Sam Chen make?",
+      "type": "number",
+      "answer": 4
+    }
+  ],
+  "goals": [
+    {
+      "label": "List only the merge commits",
+      "check": {
+        "type": "usedCommand",
+        "matches": "^git log\\b.*--merges\\b"
+      }
+    },
+    {
+      "label": "Follow main with --first-parent",
+      "check": {
+        "type": "usedCommand",
+        "matches": "^git log\\b.*--first-parent\\b"
+      }
+    },
+    {
+      "label": "Count commits without merges",
+      "check": {
+        "type": "usedCommand",
+        "matches": "^git log\\b.*--no-merges\\b"
+      }
+    },
+    {
+      "label": "Answer: number of merge commits",
+      "check": {
+        "type": "answer",
+        "question": "merge-count"
+      }
+    },
+    {
+      "label": "Answer: most recently merged branch",
+      "check": {
+        "type": "answer",
+        "question": "last-merged"
+      }
+    },
+    {
+      "label": "Answer: commits in the first-parent view",
+      "check": {
+        "type": "answer",
+        "question": "first-parent-count"
+      }
+    },
+    {
+      "label": "Answer: Sam's non-merge commits",
+      "check": {
+        "type": "answer",
+        "question": "sam-count"
+      }
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "questions": [
+    {
+      "id": "parents",
+      "prompt": "How many parent commits does this first commit have?",
+      "type": "number",
+      "answer": 0
+    },
+    {
+      "id": "not-stored",
+      "prompt": "Which of these is NOT stored in a commit?",
+      "type": "choice",
+      "options": [
+        "Who made it",
+        "When it was made",
+        "The message",
+        "Which program you used to edit the files"
+      ],
+      "answer": 3
+    }
+  ],
+  "goals": [
+    { "label": "Make the first commit on main", "check": { "type": "commitCount", "range": "main", "equals": 1 } },
+    { "label": "The commit contains both files",
+      "check": { "type": "commitChanges", "rev": "HEAD", "paths": ["README.md", "notes.txt"], "exact": true } },
+    { "label": "Nothing left to commit", "check": { "type": "status", "clean": true } },
+    { "label": "Answer: how many parents", "check": { "type": "answer", "question": "parents" } },
+    { "label": "Answer: what a commit stores", "check": { "type": "answer", "question": "not-stored" } }
+  ]
+}

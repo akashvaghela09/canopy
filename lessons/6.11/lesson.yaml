@@ -1,0 +1,14 @@
+id: "6.11"
+section: 6
+title: Choose a side, and unusual conflicts
+kind: practice
+teaches: [conflict-ours-theirs]
+requires: [conflict-resolve, rm, restore]
+flags: []
+minGit: "2.23"
+repo: cafe
+start: cafe
+hints:
+  - "`git restore --ours <file>` and `git restore --theirs <file>` replace a conflicted file with one whole side. Stage it afterwards."
+  - "A \"deleted by them\" file is still on disk with your version: staging it keeps it. A \"deleted by us\" file is accepted as deleted by removing it with git."
+  - "styles.css: --ours. CHANGELOG.md: --theirs. old-notes.txt: stage it. legacy.py: remove it with git. Then commit."

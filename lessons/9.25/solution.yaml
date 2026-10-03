@@ -1,0 +1,8 @@
+commands: |
+  git log --oneline
+  git push
+  git pull --rebase
+  git log --oneline --graph --all
+  git push
+  git config pull.rebase true
+answers: {}

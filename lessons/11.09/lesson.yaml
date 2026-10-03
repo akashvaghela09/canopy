@@ -1,0 +1,13 @@
+id: "11.09"
+section: 11
+title: Summarize contributions
+kind: practice
+teaches: [shortlog]
+requires: [log-filter]
+flags: []
+repo: pricer
+start: pricer
+hints:
+  - "`git shortlog -sn` prints a count per author, biggest first. Add `-e` to see emails."
+  - "`git shortlog -sn --since=2024-03-10` keeps only commits from that date on."
+  - "For the period question, read the first line of `git shortlog -sn --since=2024-03-10`: one author has two commits, everyone else one."

@@ -1,0 +1,13 @@
+id: "3.08"
+section: 3
+title: Relative references
+kind: practice
+teaches: [relative-refs]
+requires: [head, show]
+flags: []
+repo: bakery
+start: bakery
+hints:
+  - "Open each expression with the command that shows a single commit, and read the id on its first line."
+  - "`HEAD~3` is the merge commit. `^2` after it picks the merge's second parent, the branch that was merged in."
+  - "`git show --stat HEAD~2` and `git show --stat HEAD~3^2`."

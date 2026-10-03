@@ -1,0 +1,12 @@
+commands: |
+  ls .git
+  cat .git/HEAD
+  ls .git/refs/heads
+  ls .git/objects
+answers:
+  head-file: "ref: refs/heads/main"
+  objects: 0
+  index: 0
+  new-branch: 0
+  hooks: 0
+  config: 0

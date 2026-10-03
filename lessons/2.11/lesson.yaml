@@ -1,0 +1,14 @@
+id: "2.11"
+section: 2
+title: Remove files
+kind: practice
+teaches: [rm]
+requires: [commit, status]
+flags: []
+repo: project
+start: project
+panels: [three-areas]
+hints:
+  - "`git rm old-draft.txt` deletes the file and stages the deletion in one step."
+  - "`git rm --cached secrets.env` takes the file out of git but leaves it in your folder."
+  - "After both, check the status, then commit with a message."

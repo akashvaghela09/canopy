@@ -1,0 +1,15 @@
+{
+  "questions": [],
+  "goals": [
+    { "label": "One stash, with a message mentioning export", "check": { "type": "stash", "count": 1, "messageContains": "export" } },
+    { "label": "The stash holds the app.py change and nothing from README.md", "check": { "type": "all", "checks": [
+        { "type": "fileContent", "path": "app.py", "source": "stash@{0}", "contains": "def export" },
+        { "type": "fileContent", "path": "README.md", "source": "stash@{0}", "notContains": "python3" }
+      ] } },
+    { "label": "app.py is back to the committed version", "check": { "type": "fileContent", "path": "app.py", "notContains": "def export" } },
+    { "label": "README.md is still modified and unstashed", "check": { "type": "all", "checks": [
+        { "type": "status", "modified": ["README.md"], "staged": [], "exact": true },
+        { "type": "fileContent", "path": "README.md", "contains": "python3 app.py" }
+      ] } }
+  ]
+}

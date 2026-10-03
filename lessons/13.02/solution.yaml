@@ -1,0 +1,18 @@
+commands: |
+  git config pull.rebase true
+  git config fetch.prune true
+  git config push.autoSetupRemote true
+  git config rebase.autoStash true
+  git config merge.conflictstyle zdiff3
+  git branch -r
+  git fetch
+  git branch -r
+  git pull
+  git status --short
+  git switch -c quick-fix
+  echo "// quick fix" >> src/cli.js
+  git commit -am "Add a comment to the CLI"
+  git push
+  git branch -vv
+answers:
+  autostash: 0

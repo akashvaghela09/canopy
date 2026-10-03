@@ -1,0 +1,11 @@
+commands: |
+  cat test.sh
+  ./test.sh
+  git rebase -i -x ./test.sh HEAD~5
+  git status
+  git log --oneline -1
+  git rebase --abort
+  git log --oneline -1
+answers:
+  culprit: "@mark:broken"
+  all-pass: 0

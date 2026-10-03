@@ -1,0 +1,9 @@
+commands: |
+  git stash list
+  git stash show stash@{0}
+  git stash show stash@{1}
+  git stash show stash@{2}
+  git stash show -p stash@{2}
+answers:
+  which-stash: "@mark:cfg-stash"
+  theme: dark

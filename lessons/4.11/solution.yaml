@@ -1,0 +1,9 @@
+commands: |
+  git status
+  git clean -n
+  git clean -nd
+  git clean -fd
+  git status
+  ls -a
+answers:
+  x-option: 0

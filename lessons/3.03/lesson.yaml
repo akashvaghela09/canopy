@@ -1,0 +1,13 @@
+id: "3.03"
+section: 3
+title: Filter history by who, when and what
+kind: practice
+teaches: [log-filter]
+requires: [log-oneline]
+flags: []
+repo: bakery
+start: bakery
+hints:
+  - "Filters can be combined with the compact one-line form, which makes counting lines easier."
+  - "For the week question use exact dates: `--since=2024-03-11 --until=2024-03-17`."
+  - "`git log --oneline --author=Sam`, `git log --oneline --grep=typo`."

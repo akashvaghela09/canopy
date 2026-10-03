@@ -1,0 +1,7 @@
+commands: |
+  git log -L :total:pricer/cart.py --oneline
+  git log -L 6,12:pricer/cart.py --oneline
+  git log --oneline -- pricer/cart.py
+answers:
+  which: [0, 1, 2, 3]
+  first-change: "@mark:total-round"

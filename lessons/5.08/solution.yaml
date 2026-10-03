@@ -1,0 +1,10 @@
+commands: |
+  git log --oneline --graph --all
+  git log --oneline main..herbs
+  git log --oneline herbs..main
+  git log --oneline --left-right main...herbs
+answers:
+  only-herbs: 2
+  only-main: 4
+  oldest-main-only: "@mark:compost"
+  arrow: 0

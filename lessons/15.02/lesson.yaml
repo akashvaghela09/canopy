@@ -1,0 +1,17 @@
+id: "15.02"
+section: 15
+title: "Submodules: clone and update"
+kind: practice
+teaches: [submodule-update]
+requires: [submodule-add]
+flags: []
+repo: work
+start: work
+repos:
+  - { path: work, label: work (plain clone) }
+  - { path: app.git, label: app origin }
+  - { path: lib.git, label: lib (the library) }
+hints:
+  - "In `work`, `git submodule update --init --recursive` fetches the library and checks out the pinned commit."
+  - "lib.git already has version 1.1, but the project pins 1.0. The pointer wins."
+  - "From the lesson folder: `git clone --recurse-submodules app.git fresh` does the clone and the submodule step in one go."

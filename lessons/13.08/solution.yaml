@@ -1,0 +1,11 @@
+commands: |
+  git push
+  cat ../origin.git/hooks/pre-receive
+  git commit --amend -m "Note that the tag filter needs tests"
+  git push
+  printf '%s\n' '#!/bin/sh' 'while read local_ref local_sha remote_ref remote_sha; do' '  [ "$local_sha" = 0000000000000000000000000000000000000000 ] && continue' '  if git rev-list --format=%s "$local_sha" --not --remotes | grep -qi "^wip"; then' '    echo "pre-push: a wip commit is about to leave this machine" >&2' '    exit 1' '  fi' 'done' 'exit 0' > .git/hooks/pre-push
+  chmod +x .git/hooks/pre-push
+  printf '%s\n' '#!/bin/sh' 'echo "merged $(git rev-parse --short HEAD) at $(date)" >> .merge-log' > .git/hooks/post-merge
+  chmod +x .git/hooks/post-merge
+  git merge origin/feature/colors -m "Merge colour helpers"
+  cat .merge-log

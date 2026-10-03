@@ -1,0 +1,7 @@
+commands: |
+  git log
+  git log --oneline
+  git log --oneline -n 3
+answers:
+  commit-count: 15
+  oldest-of-three: 8357bc7

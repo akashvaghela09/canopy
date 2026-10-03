@@ -1,0 +1,6 @@
+commands: |
+  git log --oneline --graph --all
+  git merge --no-ff -m "Merge branch 'login'" login
+  git log --oneline --graph --all
+answers:
+  why-no-ff: 0

@@ -1,0 +1,14 @@
+id: "14.04"
+section: 14
+title: Trees
+kind: practice
+teaches: [ls-tree]
+requires: [cat-file]
+flags: []
+repo: garden
+start: garden
+panels: [inside-git]
+hints:
+  - "`git ls-tree HEAD` lists the root tree of the latest commit. The `docs` line has type `tree` and its own id."
+  - "Run `git ls-tree` on the id of the docs tree to see what is inside it."
+  - "`git ls-tree -r HEAD` lists every file at once, with the blob id of each."

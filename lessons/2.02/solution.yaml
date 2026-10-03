@@ -1,0 +1,6 @@
+commands: |
+  git add intro.txt
+  git status
+  git commit -m "Add the introduction"
+  git status
+answers: {}

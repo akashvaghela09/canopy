@@ -1,0 +1,11 @@
+commands: |
+  git subtree add --prefix=vendor/lib ../lib.git main --squash
+  git log --oneline --graph
+  #action lib-update
+  git subtree pull --prefix=vendor/lib ../lib.git main --squash -m "Update lib to 1.1"
+  cat vendor/lib/version.txt
+  echo "patched in app" >> vendor/lib/greet.txt
+  git commit -am "Patch the greeting in the vendored lib"
+  git subtree push --prefix=vendor/lib ../lib.git main
+answers:
+  squash: 0

@@ -1,0 +1,84 @@
+{
+  "questions": [
+    {
+      "id": "s-vs-x",
+      "prompt": "What is the difference between `-s ours` and `-X ours`?",
+      "type": "choice",
+      "options": [
+        "-s ours ignores the other branch's content entirely; -X ours merges normally and prefers our side only in conflicts",
+        "They are the same; -s is the old spelling",
+        "-X ours ignores the other branch; -s ours resolves conflicts in our favour",
+        "-s ours works only for fast-forwards"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    {
+      "label": "main has a merge commit with legacy-fix as its second parent",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "commitParents",
+            "rev": "main",
+            "count": 2
+          },
+          {
+            "type": "refAt",
+            "ref": "main^1",
+            "target": "@mark:main-tip"
+          },
+          {
+            "type": "refAt",
+            "ref": "main^2",
+            "target": "@mark:legacy-tip"
+          }
+        ]
+      }
+    },
+    {
+      "label": "config.yaml is exactly as it was on main",
+      "check": {
+        "type": "fileContent",
+        "source": "main",
+        "path": "config.yaml",
+        "lines": [
+          "retries: 3",
+          "timeout: 30",
+          "backend: new-queue"
+        ]
+      }
+    },
+    {
+      "label": "The README is unchanged too",
+      "check": {
+        "type": "fileContent",
+        "source": "main",
+        "path": "README.md",
+        "contains": "on the new queue"
+      }
+    },
+    {
+      "label": "Use the ours strategy",
+      "check": {
+        "type": "usedCommand",
+        "matches": "\\bgit merge\\b.*(-s ?|--strategy[= ])ours\\b"
+      }
+    },
+    {
+      "label": "Clean working tree",
+      "check": {
+        "type": "status",
+        "clean": true
+      }
+    },
+    {
+      "label": "Tell -s ours and -X ours apart",
+      "check": {
+        "type": "answer",
+        "question": "s-vs-x"
+      }
+    }
+  ]
+}

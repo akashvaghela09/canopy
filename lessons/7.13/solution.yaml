@@ -1,0 +1,9 @@
+commands: |
+  git branch -a
+  git ls-remote origin
+  git push origin --delete winter-closures
+  git branch -a
+  git branch -d winter-closures
+  git fetch --prune
+  git branch -a
+answers: {}

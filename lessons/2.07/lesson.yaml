@@ -1,0 +1,13 @@
+id: "2.07"
+section: 2
+title: See what changed
+kind: practice
+teaches: [diff]
+requires: [status, concept-three-areas]
+flags: []
+repo: project
+start: project
+panels: [diff]
+hints:
+  - "`git diff` with no arguments shows the changes in every modified file."
+  - "A changed line shows up twice: the old text with a `-` and the new text with a `+`. Count only the `+` lines for the config question."

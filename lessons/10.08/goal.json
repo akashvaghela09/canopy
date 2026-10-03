@@ -1,0 +1,75 @@
+{
+  "questions": [],
+  "goals": [
+    {
+      "label": "Look at the commit as it was before the amend",
+      "check": {
+        "type": "usedCommand",
+        "matches": "^git\\s+((show|diff|log|restore|checkout)\\b.*@\\{1\\}|reflog\\b|log\\b.*\\s(-g|--walk-reflogs)\\b)"
+      }
+    },
+    {
+      "label": "docs/export.md is back in the latest commit",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "fileInRev",
+            "path": "docs/export.md",
+            "rev": "HEAD",
+            "present": true
+          },
+          {
+            "type": "fileContent",
+            "source": "HEAD",
+            "path": "docs/export.md",
+            "contains": "write all rows as CSV"
+          }
+        ]
+      }
+    },
+    {
+      "label": "export.py is still in the latest commit",
+      "check": {
+        "type": "fileInRev",
+        "path": "export.py",
+        "rev": "HEAD",
+        "present": true
+      }
+    },
+    {
+      "label": "The improved message \"(closes #12)\" is kept in the history",
+      "check": {
+        "type": "any",
+        "checks": [
+          {
+            "type": "commitMessage",
+            "rev": "HEAD",
+            "contains": "closes #12"
+          },
+          {
+            "type": "commitMessage",
+            "rev": "HEAD~1",
+            "contains": "closes #12"
+          }
+        ]
+      }
+    },
+    {
+      "label": "You are on main with a clean working tree",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "currentBranch",
+            "name": "main"
+          },
+          {
+            "type": "status",
+            "clean": true
+          }
+        ]
+      }
+    }
+  ]
+}

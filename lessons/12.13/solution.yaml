@@ -1,0 +1,24 @@
+commands: |
+  git fetch
+  git switch feature/export
+  git log -p main..
+  sed -i "/DEBUG/d" src/export.js
+  git commit -am "Remove debug output from export"
+  git rebase origin/main
+  git switch main
+  git pull --ff-only
+  git merge --no-ff feature/export -m "Merge branch 'feature/export'"
+  git push
+  git branch -D feature/export
+  git push origin --delete feature/export
+  git tag -a v1.1.0 -m "Lantern 1.1.0"
+  git push origin v1.1.0
+  git switch -c hotfix/1.0.1 v1.0.0
+  sed -i 's/notes.slice(0, LIMIT)/notes.slice(-LIMIT)/' src/store.js
+  git commit -am "Keep the most recent notes when trimming"
+  git tag -a v1.0.1 -m "Lantern 1.0.1"
+  git push origin v1.0.1
+  git switch main
+  git cherry-pick hotfix/1.0.1
+  git push
+  git branch -D hotfix/1.0.1

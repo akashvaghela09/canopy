@@ -1,0 +1,17 @@
+id: "10.04"
+section: 10
+title: ORIG_HEAD
+kind: practice
+teaches: [orig-head]
+requires: [recover-reset, merge-undo-reset, pull, rebase]
+flags: []
+repo: work
+start: work
+repos:
+  - { path: work, label: Your clone }
+  - { path: origin.git, label: origin }
+  - { path: teammate, label: Teammate (Sam) }
+hints:
+  - "Pull first. The log then shows Sam's two commits on top of yours and `cat .git/ORIG_HEAD` holds the id of your old tip."
+  - "`git reset --hard ORIG_HEAD` undoes the pull. Then merge `experiment` into main (a real merge commit) and run the same reset again."
+  - "After both undos `git log --oneline` ends with \"Add logging\", `experiment` still has its two commits, and the status is clean."

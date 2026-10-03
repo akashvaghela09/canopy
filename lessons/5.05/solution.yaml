@@ -1,0 +1,14 @@
+commands: |
+  git switch -c river
+  echo "# River walk" > trails/river.md
+  git add trails/river.md
+  git commit -m "Add river walk"
+  git switch main
+  ls trails
+  echo "- water filter" >> gear.md
+  git add gear.md
+  git commit -m "Add water filter to gear list"
+  git log --oneline --graph --all
+answers:
+  fork-point: "@mark:gear"
+  parents: 0

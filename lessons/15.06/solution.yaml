@@ -1,0 +1,10 @@
+commands: |
+  git submodule add ../icons.git icons
+  git commit -m "Pin the icon set as a submodule"
+  git subtree add --prefix=vendor/utils ../utils.git main --squash
+  git subtree add --prefix=vendor/fonts ../fonts.git main --squash
+  git status
+answers:
+  q-icons: 0
+  q-utils: 0
+  q-fonts: 0

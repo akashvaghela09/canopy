@@ -1,0 +1,11 @@
+commands: |
+  cat seeds-a.txt seeds-b.txt seeds-c.txt
+  git hash-object seeds-a.txt seeds-b.txt
+  git hash-object seeds-c.txt
+  git hash-object -w seeds-a.txt
+  ls .git/objects/7d
+  git hash-object -w seeds-c.txt
+answers:
+  id-a: "7d79c12d924770449edb2bdf68f1ec75380a6608"
+  same: 0
+  folder: "7d"

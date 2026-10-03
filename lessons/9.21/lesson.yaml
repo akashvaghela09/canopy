@@ -1,0 +1,12 @@
+id: "9.21"
+section: 9
+title: Fixup commits and autosquash
+kind: practice
+teaches: [autosquash]
+requires: [rebase-i-squash, commit]
+flags: []
+repo: mvc
+start: mvc
+hints:
+  - "Stage one file at a time and commit it with `--fixup=<id of the commit it fixes>`. The history will show three `fixup!` commits."
+  - "`git rebase -i --autosquash <base>` opens the todo list with the fixups already moved and marked `fixup`; save it unchanged."

@@ -1,0 +1,30 @@
+{
+  "questions": [
+    {
+      "id": "sam-count",
+      "prompt": "How many commits did Sam Chen make?",
+      "type": "number",
+      "answer": 5
+    },
+    {
+      "id": "week-count",
+      "prompt": "How many commits were made between March 11 and March 17, 2024 (inclusive)?",
+      "type": "number",
+      "answer": 3
+    },
+    {
+      "id": "typo-commit",
+      "prompt": "Which commit has a message that mentions a typo?",
+      "type": "commit",
+      "answer": "@mark:typo"
+    }
+  ],
+  "goals": [
+    { "label": "Filter by author", "check": { "type": "usedCommand", "matches": "^git log\\b.*--author" } },
+    { "label": "Filter by date", "check": { "type": "usedCommand", "matches": "^git log\\b.*--(since|until|after|before)" } },
+    { "label": "Filter by message text", "check": { "type": "usedCommand", "matches": "^git log\\b.*--grep" } },
+    { "label": "Answer: Sam's commits", "check": { "type": "answer", "question": "sam-count" } },
+    { "label": "Answer: commits that week", "check": { "type": "answer", "question": "week-count" } },
+    { "label": "Answer: the typo commit", "check": { "type": "answer", "question": "typo-commit" } }
+  ]
+}

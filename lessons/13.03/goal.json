@@ -1,0 +1,67 @@
+{
+  "questions": [
+    {
+      "id": "date",
+      "prompt": "On which date was \"Add watering schedule\" authored? (YYYY-MM-DD)",
+      "type": "text",
+      "accept": [
+        "2024-04-09"
+      ]
+    },
+    {
+      "id": "tag-author",
+      "prompt": "Who authored the commit tagged v0.2?",
+      "type": "text",
+      "accept": [
+        "Priya Patel",
+        "Priya"
+      ]
+    }
+  ],
+  "goals": [
+    {
+      "label": "Build a format with id, date, author, decorations and subject",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "usedCommand",
+            "matches": "^git log\\b.*(--pretty[= ]['\"]?t?format:|--format[= ]).*%h.*%a[ds].*%an.*%d.*%s"
+          },
+          {
+            "type": "usedCommand",
+            "matches": "^git log\\b.*(--date[= ]short|%as)"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Which date?",
+      "check": {
+        "type": "answer",
+        "question": "date"
+      }
+    },
+    {
+      "label": "Who made the tagged commit?",
+      "check": {
+        "type": "answer",
+        "question": "tag-author"
+      }
+    },
+    {
+      "label": "Show the graph with decorations for all branches",
+      "check": {
+        "type": "usedCommand",
+        "matches": "^git log\\b(?:.*--graph.*--all|.*--all.*--graph)"
+      }
+    },
+    {
+      "label": "Filter your format to Priya's commits",
+      "check": {
+        "type": "usedCommand",
+        "matches": "^git log\\b.*--author[= ].*[Pp]riya|^git log\\b.*[Pp]riya.*--author|^git log\\b.*--author[= ].*[Pp]riya"
+      }
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+commands: |
+  git count-objects -v
+  ls .git/objects
+  git gc
+  git count-objects -v
+  ls .git/objects/pack
+  git verify-pack -v .git/objects/pack/*.idx
+answers:
+  loose-before: 37
+  loose-after: 0
+  delta-line: 0
+  why-delta: 0

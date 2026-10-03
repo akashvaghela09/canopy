@@ -1,0 +1,37 @@
+{
+  "questions": [
+    {
+      "id": "dark-mode-tip",
+      "prompt": "Which commit is the tip of the branch `dark-mode`?",
+      "type": "commit",
+      "answer": "@mark:dark"
+    },
+    {
+      "id": "merge-commit",
+      "prompt": "Which commit is the merge commit, where two lines of history join?",
+      "type": "commit",
+      "answer": "@mark:merge"
+    },
+    {
+      "id": "head-branch",
+      "prompt": "Which branch is HEAD on right now?",
+      "type": "choice",
+      "options": ["main", "seasonal-menu", "dark-mode", "HEAD is not on any branch"],
+      "answer": 0
+    },
+    {
+      "id": "seasonal-count",
+      "prompt": "How many commits are on the `seasonal-menu` side of the merge (the commits that are not on the main line)?",
+      "type": "number",
+      "answer": 2
+    }
+  ],
+  "goals": [
+    { "label": "Draw the history with --graph", "check": { "type": "usedCommand", "matches": "^git log\\b.*--graph" } },
+    { "label": "Include every branch with --all", "check": { "type": "usedCommand", "matches": "^git log\\b.*--all" } },
+    { "label": "Answer: tip of dark-mode", "check": { "type": "answer", "question": "dark-mode-tip" } },
+    { "label": "Answer: the merge commit", "check": { "type": "answer", "question": "merge-commit" } },
+    { "label": "Answer: which branch HEAD is on", "check": { "type": "answer", "question": "head-branch" } },
+    { "label": "Answer: commits on the seasonal-menu side", "check": { "type": "answer", "question": "seasonal-count" } }
+  ]
+}

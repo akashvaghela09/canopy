@@ -1,0 +1,10 @@
+commands: |
+  git diff --stat v0.1 v1.0
+  git diff HEAD~5 HEAD~3
+  git diff -w HEAD~5 HEAD~3
+  git diff --name-status HEAD~7 HEAD~6
+  git diff --color-words v1.0 HEAD
+answers:
+  not-changed: 0
+  whitespace-file: 0
+  rename-letter: 0

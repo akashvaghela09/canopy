@@ -1,0 +1,20 @@
+{
+  "questions": [],
+  "goals": [
+    { "label": "Start the merge of experiment and reach the conflict", "sticky": true, "check": { "type": "all", "checks": [
+        { "type": "operation", "value": "merge" },
+        { "type": "status", "conflicted": ["menu.md"] }
+      ] } },
+    { "label": "Abort the merge", "check": { "type": "usedCommand", "matches": "^git merge\\b.*--abort\\b" } },
+    { "label": "No merge in progress and a clean working tree", "check": { "type": "all", "checks": [
+        { "type": "operation", "value": null },
+        { "type": "status", "clean": true }
+      ] } },
+    { "label": "main is back where it was, with experiment untouched", "check": { "type": "all", "checks": [
+        { "type": "currentBranch", "name": "main" },
+        { "type": "refAt", "ref": "main", "target": "@mark:main-tip" },
+        { "type": "refAt", "ref": "experiment", "target": "@mark:experiment-tip" },
+        { "type": "fileContent", "path": "menu.md", "source": "worktree", "notContains": "<<<<<<<" }
+      ] } }
+  ]
+}

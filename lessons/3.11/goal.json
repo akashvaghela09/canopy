@@ -1,0 +1,37 @@
+{
+  "questions": [
+    {
+      "id": "who",
+      "prompt": "Who last changed the baguette line in pages/menu.md?",
+      "type": "choice",
+      "options": ["Jordan Lee", "Sam Chen", "Priya Patel", "Alex Rivera"],
+      "answer": 0
+    },
+    {
+      "id": "which",
+      "prompt": "Which commit made that change?",
+      "type": "commit",
+      "answer": "@mark:prices"
+    },
+    {
+      "id": "scope",
+      "prompt": "Open that commit. Besides the baguette, what else did it change?",
+      "type": "choice",
+      "options": [
+        "The prices of the sourdough and the croissant",
+        "Nothing; it touched only the baguette line",
+        "It added the pumpkin loaf",
+        "It renamed the menu file"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    { "label": "Run blame on the menu", "check": { "type": "usedCommand", "matches": "^git blame\\b.*pages/menu\\.md" } },
+    { "label": "Limit blame to a line range with -L", "check": { "type": "usedCommand", "matches": "^git blame\\b.*-L ?\\S" } },
+    { "label": "Open the commit blame points to", "check": { "type": "usedCommand", "matches": "^git (show|log)\\b.*\\b(8357[0-9a-f]*|HEAD~2)(\\s|$)" } },
+    { "label": "Answer: who changed the line", "check": { "type": "answer", "question": "who" } },
+    { "label": "Answer: which commit", "check": { "type": "answer", "question": "which" } },
+    { "label": "Answer: what else the commit changed", "check": { "type": "answer", "question": "scope" } }
+  ]
+}

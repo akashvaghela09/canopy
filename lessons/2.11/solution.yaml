@@ -1,0 +1,7 @@
+commands: |
+  git rm old-draft.txt
+  git status
+  git rm --cached secrets.env
+  git status
+  git commit -m "Drop the old draft and stop tracking secrets"
+answers: {}

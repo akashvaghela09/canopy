@@ -1,0 +1,18 @@
+{
+  "questions": [],
+  "goals": [
+    { "label": "ui has exactly its own two commits, directly on main", "check": { "type": "all", "checks": [
+        { "type": "refAt", "ref": "ui~2", "target": "main" },
+        { "type": "refAt", "ref": "main", "target": "@mark:main-tip" },
+        { "type": "commitCount", "range": "main..ui", "equals": 2 },
+        { "type": "commitMessage", "rev": "ui~1", "equals": "Add settings page" },
+        { "type": "commitMessage", "rev": "ui", "equals": "Add settings styles" },
+        { "type": "fileInRev", "path": "api.js", "rev": "ui", "present": false }
+      ] } },
+    { "label": "api is untouched", "check": { "type": "refAt", "ref": "api", "target": "@mark:a2" } },
+    { "label": "Nothing in progress, clean working tree", "check": { "type": "all", "checks": [
+        { "type": "operation", "value": null },
+        { "type": "status", "clean": true }
+      ] } }
+  ]
+}

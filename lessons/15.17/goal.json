@@ -1,0 +1,78 @@
+{
+  "questions": [
+    {
+      "id": "no-match",
+      "prompt": "Which commit on feature has no equivalent on feature-v2? (paste its id)",
+      "type": "commit",
+      "answer": "@mark:f3"
+    },
+    {
+      "id": "matched",
+      "prompt": "How many commits on feature have an equivalent on feature-v2?",
+      "type": "number",
+      "answer": 2
+    },
+    {
+      "id": "counterpart",
+      "prompt": "Which commit on feature-v2 has the same patch id as \"Add parser\"? (paste its id)",
+      "type": "commit",
+      "answer": "@mark:v1"
+    },
+    {
+      "id": "ignores",
+      "prompt": "What does patch-id ignore when hashing a change?",
+      "type": "choice",
+      "options": [
+        "The commit message, author, date, whitespace and line numbers; only the changed content counts",
+        "Only the commit date",
+        "The file names, so moves count as equal",
+        "Nothing; it is the commit id in a different base"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    {
+      "label": "Compare the branches with git cherry",
+      "check": {
+        "type": "usedCommand",
+        "matches": "\\bgit cherry\\b"
+      }
+    },
+    {
+      "label": "Compute a patch id",
+      "check": {
+        "type": "usedCommand",
+        "matches": "\\bgit patch-id\\b"
+      }
+    },
+    {
+      "label": "Find the commit without an equivalent",
+      "check": {
+        "type": "answer",
+        "question": "no-match"
+      }
+    },
+    {
+      "label": "Count the matched commits",
+      "check": {
+        "type": "answer",
+        "question": "matched"
+      }
+    },
+    {
+      "label": "Match Add parser to its rebased copy",
+      "check": {
+        "type": "answer",
+        "question": "counterpart"
+      }
+    },
+    {
+      "label": "Say what patch-id ignores",
+      "check": {
+        "type": "answer",
+        "question": "ignores"
+      }
+    }
+  ]
+}

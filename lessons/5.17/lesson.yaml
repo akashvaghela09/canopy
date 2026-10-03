@@ -1,0 +1,14 @@
+id: "5.17"
+section: 5
+title: "Boss: parallel work"
+kind: boss
+teaches: []
+requires: [branch-create, switch-create, switch, commit, branch-rename, branch-delete, branch-merged, tag-annotated, log-graph]
+flags: []
+minGit: "2.23"
+repo: shop
+start: shop
+hints:
+  - "Start with the graph, all branches included, and the list of merged branches. Then work through the goals one by one."
+  - "To start a branch at an older commit, name that commit when you create it: an id from the log or something like `main~2`."
+  - "Useful here: `git switch -c <name> <start>`, `git branch -m <old> <new>`, `git branch -d`, `git tag -a <name> -m <message>`, and `git switch` to finish on the right branch."

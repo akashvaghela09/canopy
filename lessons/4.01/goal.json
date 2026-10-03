@@ -1,0 +1,13 @@
+{
+  "questions": [],
+  "goals": [
+    { "label": "Read the diff before discarding anything", "sticky": true, "check": { "type": "all", "checks": [
+        { "type": "usedCommand", "matches": "^git diff\\b" },
+        { "type": "fileContent", "path": "notes.txt", "source": "worktree", "contains": "pasted by mistake" }
+      ] } },
+    { "label": "notes.txt matches the last commit again", "check": { "type": "fileContent", "path": "notes.txt", "source": "worktree", "lines": ["# Meeting notes", "", "- Launch moved to Friday", "- Priya owns the release checklist"] } },
+    { "label": "The edits in todo.txt are still there", "check": { "type": "fileContent", "path": "todo.txt", "source": "worktree", "contains": "Book the venue" } },
+    { "label": "Only todo.txt is still modified", "check": { "type": "status", "modified": ["todo.txt"], "staged": [], "untracked": [], "exact": true } },
+    { "label": "Use git restore to do it", "check": { "type": "usedCommand", "matches": "^git restore( (--worktree|-W|--))* (\\./)?notes\\.txt\\s*$" } }
+  ]
+}

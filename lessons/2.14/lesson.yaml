@@ -1,0 +1,14 @@
+id: "2.14"
+section: 2
+title: "Boss: build a small project history"
+kind: boss
+teaches: []
+requires: [add, add-patterns, commit, commit-message, log, gitignore, rm, mv, status]
+flags: []
+repo: shop
+start: shop
+panels: [three-areas]
+hints:
+  - "Start with the status, then deal with one goal per commit: ignore rules, the rename, the removal, the new file."
+  - "A rename and a removal both have their own git command; plain `mv` or `rm` plus staging works too."
+  - "The last commit you make needs a subject and a body. Two `-m` flags do that."

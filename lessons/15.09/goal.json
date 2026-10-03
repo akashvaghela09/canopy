@@ -1,0 +1,102 @@
+{
+  "questions": [],
+  "goals": [
+    {
+      "label": "A full bundle exists",
+      "check": {
+        "type": "any",
+        "checks": [
+          {
+            "type": "pathExists",
+            "path": "full.bundle"
+          },
+          {
+            "type": "pathExists",
+            "path": "project/full.bundle"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Verify the bundle",
+      "check": {
+        "type": "usedCommand",
+        "matches": "\\bgit bundle verify\\b"
+      }
+    },
+    {
+      "label": "List the bundle's heads",
+      "check": {
+        "type": "usedCommand",
+        "matches": "\\bgit bundle list-heads\\b"
+      }
+    },
+    {
+      "label": "offline is a clone of full.bundle with the tag v1.0",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "repoExists",
+            "path": "offline"
+          },
+          {
+            "type": "tag",
+            "repo": "offline",
+            "name": "v1.0",
+            "present": true,
+            "annotated": true
+          },
+          {
+            "type": "remote",
+            "repo": "offline",
+            "name": "origin",
+            "url": "full.bundle"
+          }
+        ]
+      }
+    },
+    {
+      "label": "project has a new commit after setup",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "refNotAt",
+            "ref": "main",
+            "target": "@mark:tip"
+          },
+          {
+            "type": "isAncestor",
+            "ancestor": "@mark:tip",
+            "descendant": "main"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Bundle only the new commits with a range",
+      "check": {
+        "type": "usedCommand",
+        "matches": "\\bgit (-C \\S+ )?bundle create\\b.*(\\S\\.\\.\\S|\\s\\^\\S)"
+      }
+    },
+    {
+      "label": "offline main is level with project main, via update.bundle",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "shell",
+            "script": "test \"$(git rev-parse main)\" = \"$(git -C \"$LESSON_ROOT/project\" rev-parse main)\"",
+            "repo": "offline"
+          },
+          {
+            "type": "usedCommand",
+            "matches": "\\bgit (-C \\S+ )?(fetch|pull)\\b.*\\.bundle\\b"
+          }
+        ]
+      }
+    }
+  ]
+}

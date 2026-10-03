@@ -1,0 +1,14 @@
+commands: |
+  git log --oneline main..fixes
+  git cherry-pick fixes~2
+  git status
+  printf 'timeout = 60\nretries = 4\nlog = warn\n' > settings.conf
+  git add settings.conf
+  git cherry-pick --continue
+  git cherry-pick fixes~1
+  git cherry-pick --skip
+  git cherry-pick fixes
+  git cherry-pick --abort
+  git status
+  git log --oneline
+answers: {}

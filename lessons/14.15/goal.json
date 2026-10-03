@@ -1,0 +1,47 @@
+{
+  "questions": [
+    {
+      "id": "which-file",
+      "prompt": "Which file's content was the corrupt blob?",
+      "type": "text",
+      "accept": [
+        "data.csv",
+        "project/data.csv",
+        "./data.csv"
+      ]
+    }
+  ],
+  "goals": [
+    {
+      "label": "Check the repository with git fsck",
+      "check": {
+        "type": "usedCommand",
+        "matches": "\\bgit fsck\\b",
+        "exitCode": null
+      }
+    },
+    {
+      "label": "Name the damaged file",
+      "check": {
+        "type": "answer",
+        "question": "which-file"
+      }
+    },
+    {
+      "label": "data.csv can be read from HEAD again",
+      "check": {
+        "type": "fileContent",
+        "source": "HEAD",
+        "path": "data.csv",
+        "contains": "strawberries"
+      }
+    },
+    {
+      "label": "git fsck --full reports no errors",
+      "check": {
+        "type": "shell",
+        "script": "git fsck --full >/dev/null 2>&1"
+      }
+    }
+  ]
+}

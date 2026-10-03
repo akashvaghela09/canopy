@@ -1,0 +1,17 @@
+id: "12.02"
+section: 12
+title: Pull requests, without a platform
+kind: practice
+teaches: [pr-concept]
+requires: [log-range, branch-merged, push-branch]
+flags: []
+repo: work
+start: work
+repos:
+  - { path: work, label: Your clone }
+  - { path: origin.git, label: origin }
+  - { path: teammate, label: Teammate }
+hints:
+  - "Sam's branch is already in your clone as `origin/sam/export`. List the commits that are on it but not on main, and diff main against it."
+  - "To see which remote branches are not merged yet, ask for the remote branches that are not merged into main."
+  - "Publish `import-csv` first, then run `git request-pull main origin import-csv`."

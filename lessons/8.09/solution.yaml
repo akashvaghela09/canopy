@@ -1,0 +1,10 @@
+commands: |
+  git worktree list
+  git worktree add ../again main
+  git worktree prune
+  git worktree list
+  git worktree remove ../review
+  git worktree list
+  git branch
+answers:
+  why-refused: 0

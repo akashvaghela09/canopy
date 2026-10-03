@@ -1,0 +1,29 @@
+{
+  "questions": [
+    {
+      "id": "mm-meaning",
+      "prompt": "What does MM in front of c.txt mean?",
+      "type": "choice",
+      "options": [
+        "It was modified twice in the same commit",
+        "A change is staged, and the file was changed again after that",
+        "It is modified on two branches"
+      ],
+      "answer": 1
+    },
+    {
+      "id": "untracked-file",
+      "prompt": "Which file is untracked?",
+      "type": "text",
+      "accept": ["d.txt", "d"]
+    }
+  ],
+  "goals": [
+    { "label": "Run the short status", "check": { "type": "usedCommand", "matches": "git\\s+status\\b.*\\s(-s\\w*|-\\w*s\\w*|--short)(\\s|$)" } },
+    { "label": "Answer: what MM means", "check": { "type": "answer", "question": "mm-meaning" } },
+    { "label": "Answer: the untracked file", "check": { "type": "answer", "question": "untracked-file" } },
+    { "label": "Reproduce the target status: a, b, c and e staged, d untracked, nothing unstaged",
+      "check": { "type": "status", "staged": ["a.txt", "b.txt", "c.txt", "e.txt"], "modified": [], "untracked": ["d.txt"], "exact": true } },
+    { "label": "Do not commit", "check": { "type": "commitCount", "range": "main", "equals": 1 } }
+  ]
+}

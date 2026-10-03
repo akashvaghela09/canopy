@@ -1,0 +1,16 @@
+id: "12.11"
+section: 12
+title: Avoid conflicts before they happen
+kind: practice
+teaches: [conflict-avoidance]
+requires: [conflict-resolve, branch-sync]
+flags: []
+repo: work
+start: work
+repos:
+  - { path: work, label: Your clone }
+  - { path: origin.git, label: origin }
+hints:
+  - "Start on `narrow`: `git diff --check` reports trailing whitespace in unstaged changes; fix README.md, then commit it there."
+  - "Merge `main` into `wide` and resolve the conflict by hand: keep the four-space indentation, Sam's new usage line and the search command. Then merge `main` into `narrow`."
+  - "The conflict comes from the reformat: a commit that touches every line will collide with any other change to that file."

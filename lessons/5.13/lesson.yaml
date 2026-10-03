@@ -1,0 +1,14 @@
+id: "5.13"
+section: 5
+title: Detached HEAD
+kind: practice
+teaches: [detached-head]
+requires: [switch, head, relative-refs, switch-create, log-graph, commit]
+flags: []
+minGit: "2.23"
+repo: trail-guide
+start: trail-guide
+hints:
+  - "\"Add ridge trail\" is two commits below the tip of main. `git switch --detach HEAD~2` takes you there; the status then says \"HEAD detached at ...\"."
+  - "A commit made while detached has no branch pointing at it. Create one with the same command you use to create and switch in one step; the new branch starts at HEAD, which is your new commit."
+  - "`git switch --detach HEAD~2`, write ideas.md, stage and commit, `git switch -c ideas`, then `git switch main`."

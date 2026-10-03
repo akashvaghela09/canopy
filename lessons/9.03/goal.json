@@ -1,0 +1,15 @@
+{
+  "questions": [],
+  "goals": [
+    { "label": "The last commit contains contact.html and contact.css", "check": { "type": "all", "checks": [
+        { "type": "commitChanges", "rev": "HEAD", "paths": ["contact.html", "contact.css"], "exact": true },
+        { "type": "fileContent", "source": "HEAD", "path": "contact.css", "contains": "color" }
+      ] } },
+    { "label": "Its message is still \"Add contact page\" and it still sits on \"Add styles\"", "check": { "type": "all", "checks": [
+        { "type": "commitMessage", "rev": "HEAD", "equals": "Add contact page" },
+        { "type": "refAt", "ref": "HEAD~1", "target": "@mark:styles" },
+        { "type": "commitCount", "range": "main", "equals": 3 }
+      ] } },
+    { "label": "Finish with a clean working tree", "check": { "type": "status", "clean": true } }
+  ]
+}

@@ -1,0 +1,6 @@
+#!/bin/sh
+# canopy-diff LOCAL REMOTE
+# A tiny diff tool for the lesson: a side-by-side view of the two versions.
+echo "canopy-diff: old version on the left, new version on the right"
+diff -y -W 100 "$1" "$2"
+exit 0

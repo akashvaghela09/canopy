@@ -1,0 +1,32 @@
+{
+  "goals": [
+    {
+      "label": "hotfix/1.0.1 starts at v1.0.0, not at main",
+      "sticky": true,
+      "check": { "type": "all", "checks": [
+        { "type": "branchExists", "name": "hotfix/1.0.1" },
+        { "type": "isAncestor", "ancestor": "@mark:release", "descendant": "hotfix/1.0.1" },
+        { "type": "not", "check": { "type": "isAncestor", "ancestor": "@mark:main-tip", "descendant": "hotfix/1.0.1" } }
+      ] }
+    },
+    {
+      "label": "The release line is patched: v1.0.1 is annotated and keeps the most recent notes",
+      "check": { "type": "all", "checks": [
+        { "type": "tag", "name": "v1.0.1", "annotated": true },
+        { "type": "fileContent", "source": "v1.0.1", "path": "src/store.js", "contains": "slice(-LIMIT)" },
+        { "type": "fileContent", "source": "v1.0.1", "path": "VERSION", "equals": "1.0.1" },
+        { "type": "fileInRev", "rev": "v1.0.1", "path": "src/search.js", "present": false },
+        { "type": "isAncestor", "ancestor": "@mark:release", "descendant": "v1.0.1" }
+      ] }
+    },
+    {
+      "label": "main has the fix and keeps its newer work",
+      "check": { "type": "all", "checks": [
+        { "type": "fileContent", "source": "main", "path": "src/store.js", "contains": "slice(-LIMIT)" },
+        { "type": "isAncestor", "ancestor": "@mark:main-tip", "descendant": "main" },
+        { "type": "fileInRev", "rev": "main", "path": "src/export.js", "present": true }
+      ] }
+    },
+    { "label": "Leave the working tree clean", "check": { "type": "status", "clean": true } }
+  ]
+}

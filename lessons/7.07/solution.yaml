@@ -1,0 +1,9 @@
+commands: |
+  printf '# Meadow trail\n\nDistance: 2 km\n' > trails/meadow.md
+  git add trails/meadow.md
+  git commit -m "Add meadow trail"
+  git log --oneline --graph --all
+  git push
+  git log --oneline --graph --all
+  #action teammate-pull
+answers: {}

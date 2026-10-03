@@ -1,0 +1,15 @@
+{
+  "questions": [],
+  "goals": [
+    { "label": "Create trail-maps and commit maps/README.md on it", "check": { "type": "all", "checks": [
+        { "type": "branchExists", "name": "trail-maps" },
+        { "type": "fileInRev", "path": "maps/README.md", "rev": "trail-maps", "present": true }
+      ] } },
+    { "label": "The branch exists on origin with your commit", "check": { "type": "all", "checks": [
+        { "type": "branchExists", "repo": "origin.git", "name": "trail-maps" },
+        { "type": "fileInRev", "repo": "origin.git", "path": "maps/README.md", "rev": "trail-maps", "present": true }
+      ] } },
+    { "label": "trail-maps tracks origin/trail-maps", "check": { "type": "upstream", "branch": "trail-maps", "upstream": "origin/trail-maps" } },
+    { "label": "main on origin is untouched", "check": { "type": "refAt", "repo": "origin.git", "ref": "main", "target": "@mark:lake" } }
+  ]
+}

@@ -1,0 +1,14 @@
+commands: |
+  cd lib
+  git status
+  git switch main
+  echo "hello there" > greet.txt
+  git commit -am "Friendlier greeting"
+  git push origin main
+  cd ..
+  git status
+  git add lib
+  git commit -m "Update lib to the friendlier greeting"
+  git push origin main
+answers:
+  remote: 0

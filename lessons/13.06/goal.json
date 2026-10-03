@@ -1,0 +1,107 @@
+{
+  "goals": [
+    {
+      "label": "conf/shared.gitconfig is included unconditionally (git st works everywhere)",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "config",
+            "key": "include.path",
+            "scope": "global"
+          },
+          {
+            "type": "config",
+            "repo": "personal/blog",
+            "key": "alias.st",
+            "value": "status -sb"
+          }
+        ]
+      }
+    },
+    {
+      "label": "A new commit in work/client-app is authored as Alex Rivera <alex@acme.example>",
+      "check": {
+        "type": "all",
+        "repo": "work/client-app",
+        "checks": [
+          {
+            "type": "commitCount",
+            "range": "HEAD",
+            "min": 2
+          },
+          {
+            "type": "commitAuthor",
+            "rev": "HEAD",
+            "name": "Alex Rivera",
+            "email": "alex@acme.example"
+          },
+          {
+            "type": "fileInRev",
+            "rev": "HEAD",
+            "path": "TODO.md",
+            "present": true
+          },
+          {
+            "type": "config",
+            "key": "user.email",
+            "scope": "local",
+            "present": false
+          }
+        ]
+      }
+    },
+    {
+      "label": "A new commit in personal/blog is authored as Alex <alex@home.example>",
+      "check": {
+        "type": "all",
+        "repo": "personal/blog",
+        "checks": [
+          {
+            "type": "commitCount",
+            "range": "HEAD",
+            "min": 2
+          },
+          {
+            "type": "commitAuthor",
+            "rev": "HEAD",
+            "name": "Alex",
+            "email": "alex@home.example"
+          },
+          {
+            "type": "fileInRev",
+            "rev": "HEAD",
+            "path": "posts/hello.md",
+            "present": true
+          },
+          {
+            "type": "config",
+            "key": "user.email",
+            "scope": "local",
+            "present": false
+          }
+        ]
+      }
+    },
+    {
+      "label": "The identities come from conditional includes in the global config",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "config",
+            "repo": "work/client-app",
+            "key": "user.email",
+            "value": "alex@acme.example"
+          },
+          {
+            "type": "config",
+            "repo": "personal/blog",
+            "key": "user.email",
+            "value": "alex@home.example"
+          }
+        ]
+      }
+    }
+  ]
+}

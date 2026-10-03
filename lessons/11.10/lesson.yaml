@@ -1,0 +1,13 @@
+id: "11.10"
+section: 11
+title: Which branches or tags contain this
+kind: practice
+teaches: [contains-queries]
+requires: [branch-merged, tag-lightweight]
+flags: []
+repo: pricer
+start: pricer
+hints:
+  - "Find the fix first: it is the commit with the message \"Fix tax rate\". Then `git tag --contains <id>` and `git branch --contains <id>`."
+  - "`git merge-base --is-ancestor <id> v1.0; echo $?` prints 0 when the fix is inside v1.0 and 1 when it is not."
+  - "`git name-rev <id>` describes the commit relative to the nearest ref, for example tags/v3.2~4 (four commits before tag v3.2)."

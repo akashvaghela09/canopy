@@ -1,0 +1,13 @@
+id: "15.13"
+section: 15
+title: The "ours" strategy
+kind: practice
+teaches: [merge-strategy-ours]
+requires: [merge-options, merge-three-way]
+flags: []
+repo: project
+start: project
+hints:
+  - "`git merge -s ours legacy-fix -m 'Close legacy-fix without taking its changes'` records the merge and keeps main's tree exactly."
+  - "Compare config.yaml before and after: identical. `git branch --merged` now lists legacy-fix."
+  - "`-X ours` is different: it still merges, and only picks our side where lines conflict."

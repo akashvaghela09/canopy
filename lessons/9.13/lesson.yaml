@@ -1,0 +1,12 @@
+id: "9.13"
+section: 9
+title: More uses of --onto
+kind: practice
+teaches: [rebase-onto-uses]
+requires: [rebase-onto]
+flags: [destructive]
+repo: tool
+start: tool
+hints:
+  - "Count back from the tip: \"Add README\" is HEAD, \"Add version flag\" HEAD~1, the two debug commits HEAD~2 and HEAD~3, \"Add help text\" HEAD~4."
+  - "`git rebase --onto HEAD~4 HEAD~2`: replay everything after HEAD~2 (the last bad commit) onto HEAD~4 (the last good one)."

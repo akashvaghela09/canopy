@@ -1,0 +1,13 @@
+id: "4.08"
+section: 4
+title: Reset mixed
+kind: practice
+teaches: [reset-mixed]
+requires: [reset-soft]
+flags: []
+repo: tool
+start: tool
+panels: [three-areas]
+hints:
+  - "Plain `git reset HEAD~1` moves main back one commit and unstages everything. Both files are still on disk."
+  - "Stage only settings.json, then commit. debug.log should stay untracked."

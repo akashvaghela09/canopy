@@ -1,0 +1,71 @@
+{
+  "questions": [
+    {
+      "id": "top",
+      "prompt": "On main, who has the most commits?",
+      "type": "choice",
+      "options": [
+        "Alex Rivera",
+        "Sam Chen",
+        "Priya Patel",
+        "Jordan Lee"
+      ],
+      "answer": 0
+    },
+    {
+      "id": "sam-count",
+      "prompt": "How many commits on main are by Sam Chen?",
+      "type": "number",
+      "answer": 7
+    },
+    {
+      "id": "top-since",
+      "prompt": "Who has the most commits on main since 2024-03-10?",
+      "type": "choice",
+      "options": [
+        "Jordan Lee",
+        "Priya Patel",
+        "Alex Rivera",
+        "Sam Chen"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    {
+      "label": "Use shortlog",
+      "check": {
+        "type": "usedCommand",
+        "matches": "^git(\\s+(--no-pager|-C\\s+\\S+|-c\\s+\\S+))*\\s+shortlog\\b"
+      }
+    },
+    {
+      "label": "Limit shortlog to a period",
+      "check": {
+        "type": "usedCommand",
+        "matches": "^git(\\s+(--no-pager|-C\\s+\\S+|-c\\s+\\S+))*\\s+shortlog\\b.*--(since|after|until|before)\\b"
+      }
+    },
+    {
+      "label": "Top contributor overall",
+      "check": {
+        "type": "answer",
+        "question": "top"
+      }
+    },
+    {
+      "label": "Sam's commit count",
+      "check": {
+        "type": "answer",
+        "question": "sam-count"
+      }
+    },
+    {
+      "label": "Top contributor since 10 March",
+      "check": {
+        "type": "answer",
+        "question": "top-since"
+      }
+    }
+  ]
+}

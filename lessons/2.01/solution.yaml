@@ -1,0 +1,5 @@
+commands: |
+  git status
+  git add intro.txt
+  git status
+answers: {}

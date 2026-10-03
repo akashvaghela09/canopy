@@ -1,0 +1,132 @@
+{
+  "questions": [],
+  "goals": [
+    {
+      "label": "Make each change its own commit (ignore rules, rename, removal, new file)",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "commitCount",
+            "range": "main",
+            "min": 5
+          },
+          {
+            "type": "shell",
+            "script": "set -e; f(){ git log --no-renames --format=%H --diff-filter=$1 -- \"$2\" | tail -n 1; }; a=$(f A .gitignore); b=$(f A utils.py); c=$(f D old_notes.txt); d=$(f A cart.py); test -n \"$a\" -a -n \"$b\" -a -n \"$c\" -a -n \"$d\"; test $(printf '%s\\n' $a $b $c $d | sort -u | wc -l) -eq 4"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Commit a .gitignore that hides build/ and debug.log, and keep both on disk",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "fileInRev",
+            "path": ".gitignore",
+            "rev": "HEAD",
+            "present": true
+          },
+          {
+            "type": "fileInRev",
+            "path": "build/app.bin",
+            "rev": "HEAD",
+            "present": false
+          },
+          {
+            "type": "fileInRev",
+            "path": "debug.log",
+            "rev": "HEAD",
+            "present": false
+          },
+          {
+            "type": "status",
+            "ignored": [
+              "build/",
+              "debug.log"
+            ]
+          },
+          {
+            "type": "pathExists",
+            "path": "shop/build/app.bin"
+          },
+          {
+            "type": "pathExists",
+            "path": "shop/debug.log"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Rename helpers.py to utils.py (same content)",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "fileContent",
+            "source": "HEAD",
+            "path": "utils.py",
+            "contains": "def money"
+          },
+          {
+            "type": "fileInRev",
+            "path": "helpers.py",
+            "rev": "HEAD",
+            "present": false
+          }
+        ]
+      }
+    },
+    {
+      "label": "Remove old_notes.txt from the project and from disk",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "fileInRev",
+            "path": "old_notes.txt",
+            "rev": "HEAD",
+            "present": false
+          },
+          {
+            "type": "pathAbsent",
+            "path": "shop/old_notes.txt"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Add cart.py with some code and commit it",
+      "check": {
+        "type": "fileContent",
+        "source": "HEAD",
+        "path": "cart.py",
+        "matches": "\\S"
+      }
+    },
+    {
+      "label": "Your latest commit has a short subject line, a blank line and a body",
+      "check": {
+        "type": "commitMessage",
+        "rev": "HEAD",
+        "matches": "^[^\\n]{1,50}\\n\\n\\S"
+      }
+    },
+    {
+      "label": "Read the history",
+      "check": {
+        "type": "usedCommand",
+        "matches": "git\\s+log\\b"
+      }
+    },
+    {
+      "label": "Finish with a clean working tree",
+      "check": {
+        "type": "status",
+        "clean": true
+      }
+    }
+  ]
+}

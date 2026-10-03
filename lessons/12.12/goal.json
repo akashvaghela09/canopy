@@ -1,0 +1,33 @@
+{
+  "goals": [
+    {
+      "label": "A remote named upstream points at upstream.git",
+      "check": { "type": "remote", "name": "upstream", "url": "upstream.git" }
+    },
+    {
+      "label": "Your main is synced with upstream/main",
+      "check": { "type": "refAt", "ref": "main", "target": "@mark:upstream-tip" }
+    },
+    {
+      "label": "The fork's main is synced too",
+      "check": { "type": "refAt", "repo": "fork.git", "ref": "main", "target": "@mark:upstream-tip" }
+    },
+    {
+      "label": "fix-typo starts from the synced main and fixes README.md",
+      "check": { "type": "all", "checks": [
+        { "type": "branchExists", "name": "fix-typo" },
+        { "type": "isAncestor", "ancestor": "@mark:upstream-tip", "descendant": "fix-typo" },
+        { "type": "fileContent", "source": "fix-typo", "path": "README.md", "contains": "terminal" },
+        { "type": "fileContent", "source": "fix-typo", "path": "README.md", "notContains": "termnal" }
+      ] }
+    },
+    {
+      "label": "fix-typo is published to origin (the fork) with tracking, and not to upstream",
+      "check": { "type": "all", "checks": [
+        { "type": "refAt", "ref": "origin/fix-typo", "target": "fix-typo" },
+        { "type": "upstream", "branch": "fix-typo", "upstream": "origin/fix-typo" },
+        { "type": "branchExists", "repo": "upstream.git", "name": "fix-typo", "present": false }
+      ] }
+    }
+  ]
+}

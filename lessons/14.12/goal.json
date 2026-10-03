@@ -1,0 +1,149 @@
+{
+  "questions": [
+    {
+      "id": "len",
+      "prompt": "How many characters long is a full id in sha-repo?",
+      "type": "number",
+      "answer": 64
+    },
+    {
+      "id": "blob256",
+      "prompt": "What id does `echo hello | git hash-object --stdin` print inside sha-repo? (first 7 or more characters)",
+      "type": "text",
+      "accept": [
+        "2cf8d83",
+        "2cf8d83d",
+        "2cf8d83d9",
+        "2cf8d83d9e",
+        "2cf8d83d9ee",
+        "2cf8d83d9ee2",
+        "2cf8d83d9ee29",
+        "2cf8d83d9ee295",
+        "2cf8d83d9ee2954",
+        "2cf8d83d9ee29543",
+        "2cf8d83d9ee29543b",
+        "2cf8d83d9ee29543b3",
+        "2cf8d83d9ee29543b34",
+        "2cf8d83d9ee29543b34a",
+        "2cf8d83d9ee29543b34a8",
+        "2cf8d83d9ee29543b34a87",
+        "2cf8d83d9ee29543b34a877",
+        "2cf8d83d9ee29543b34a8772",
+        "2cf8d83d9ee29543b34a87727",
+        "2cf8d83d9ee29543b34a877274",
+        "2cf8d83d9ee29543b34a8772742",
+        "2cf8d83d9ee29543b34a87727421",
+        "2cf8d83d9ee29543b34a87727421f",
+        "2cf8d83d9ee29543b34a87727421fd",
+        "2cf8d83d9ee29543b34a87727421fde",
+        "2cf8d83d9ee29543b34a87727421fdec",
+        "2cf8d83d9ee29543b34a87727421fdecb",
+        "2cf8d83d9ee29543b34a87727421fdecb7",
+        "2cf8d83d9ee29543b34a87727421fdecb7e",
+        "2cf8d83d9ee29543b34a87727421fdecb7e3",
+        "2cf8d83d9ee29543b34a87727421fdecb7e3f",
+        "2cf8d83d9ee29543b34a87727421fdecb7e3f3",
+        "2cf8d83d9ee29543b34a87727421fdecb7e3f3a",
+        "2cf8d83d9ee29543b34a87727421fdecb7e3f3a1",
+        "2cf8d83d9ee29543b34a87727421fdecb7e3f3a18",
+        "2cf8d83d9ee29543b34a87727421fdecb7e3f3a183",
+        "2cf8d83d9ee29543b34a87727421fdecb7e3f3a183d",
+        "2cf8d83d9ee29543b34a87727421fdecb7e3f3a183d3",
+        "2cf8d83d9ee29543b34a87727421fdecb7e3f3a183d33",
+        "2cf8d83d9ee29543b34a87727421fdecb7e3f3a183d337",
+        "2cf8d83d9ee29543b34a87727421fdecb7e3f3a183d3376",
+        "2cf8d83d9ee29543b34a87727421fdecb7e3f3a183d33763",
+        "2cf8d83d9ee29543b34a87727421fdecb7e3f3a183d337639",
+        "2cf8d83d9ee29543b34a87727421fdecb7e3f3a183d3376390",
+        "2cf8d83d9ee29543b34a87727421fdecb7e3f3a183d33763902",
+        "2cf8d83d9ee29543b34a87727421fdecb7e3f3a183d337639025",
+        "2cf8d83d9ee29543b34a87727421fdecb7e3f3a183d337639025d",
+        "2cf8d83d9ee29543b34a87727421fdecb7e3f3a183d337639025de",
+        "2cf8d83d9ee29543b34a87727421fdecb7e3f3a183d337639025de5",
+        "2cf8d83d9ee29543b34a87727421fdecb7e3f3a183d337639025de57",
+        "2cf8d83d9ee29543b34a87727421fdecb7e3f3a183d337639025de576",
+        "2cf8d83d9ee29543b34a87727421fdecb7e3f3a183d337639025de576d",
+        "2cf8d83d9ee29543b34a87727421fdecb7e3f3a183d337639025de576db",
+        "2cf8d83d9ee29543b34a87727421fdecb7e3f3a183d337639025de576db9",
+        "2cf8d83d9ee29543b34a87727421fdecb7e3f3a183d337639025de576db9e",
+        "2cf8d83d9ee29543b34a87727421fdecb7e3f3a183d337639025de576db9eb",
+        "2cf8d83d9ee29543b34a87727421fdecb7e3f3a183d337639025de576db9ebb",
+        "2cf8d83d9ee29543b34a87727421fdecb7e3f3a183d337639025de576db9ebb4"
+      ]
+    },
+    {
+      "id": "interop",
+      "prompt": "Can a SHA-256 repository push to a SHA-1 remote?",
+      "type": "choice",
+      "options": [
+        "No. The two formats do not interoperate; history has to be re-imported",
+        "Yes, git converts the ids on the fly",
+        "Yes, as long as both sides run git 2.29 or newer",
+        "Only with --force"
+      ],
+      "answer": 0
+    },
+    {
+      "id": "hardened",
+      "prompt": "What does \"hardened SHA-1\" do?",
+      "type": "choice",
+      "options": [
+        "Detects objects crafted with the known collision attack and refuses them",
+        "Makes ids 64 characters long",
+        "Encrypts the object store",
+        "Signs every commit automatically"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    {
+      "label": "Create sha-repo with the SHA-256 object format",
+      "check": {
+        "type": "config",
+        "repo": "sha-repo",
+        "key": "extensions.objectformat",
+        "value": "sha256",
+        "scope": "local"
+      }
+    },
+    {
+      "label": "Commit README.md containing hello in sha-repo",
+      "check": {
+        "type": "fileContent",
+        "repo": "sha-repo",
+        "source": "HEAD",
+        "path": "README.md",
+        "contains": "hello"
+      }
+    },
+    {
+      "label": "Report the id length",
+      "check": {
+        "type": "answer",
+        "question": "len"
+      }
+    },
+    {
+      "label": "Report the SHA-256 id of hello",
+      "check": {
+        "type": "answer",
+        "question": "blob256"
+      }
+    },
+    {
+      "label": "Say whether the formats interoperate",
+      "check": {
+        "type": "answer",
+        "question": "interop"
+      }
+    },
+    {
+      "label": "Say what hardened SHA-1 does",
+      "check": {
+        "type": "answer",
+        "question": "hardened"
+      }
+    }
+  ]
+}

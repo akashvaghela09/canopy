@@ -1,0 +1,14 @@
+id: "14.06"
+section: 14
+title: Tags as objects
+kind: concept
+teaches: [tag-object]
+requires: [commit-object, tag-annotated]
+flags: []
+repo: garden
+start: garden
+panels: [inside-git]
+hints:
+  - "`git cat-file -t v0.1` and `git cat-file -t v1.0` give different types."
+  - "Print the annotated tag with `git cat-file -p v1.0`: its `object` line names the commit it tags."
+  - "Compare `cat .git/refs/tags/v1.0` with the id of the tag object and with the id of the commit."

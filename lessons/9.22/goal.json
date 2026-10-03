@@ -1,0 +1,93 @@
+{
+  "questions": [
+    {
+      "id": "culprit",
+      "prompt": "Which commit broke the test?",
+      "type": "commit",
+      "answer": "@mark:broken"
+    },
+    {
+      "id": "all-pass",
+      "prompt": "What happens when the command succeeds after every commit?",
+      "type": "choice",
+      "options": [
+        "The rebase runs through to the end without stopping",
+        "The rebase stops after the last commit so you can confirm",
+        "Git drops the commits whose test passed",
+        "Git refuses to finish because nothing changed"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    {
+      "label": "Run a rebase that executes the test after each commit (it stops when the test fails)",
+      "check": {
+        "type": "usedCommand",
+        "matches": "\\bgit rebase\\b.*(\\s-x|--exec|\\s-i\\b|--interactive)",
+        "exitCode": 1
+      }
+    },
+    {
+      "label": "The rebase stops at the failing step",
+      "sticky": true,
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "operation",
+            "value": "rebase"
+          },
+          {
+            "type": "refAt",
+            "ref": "HEAD",
+            "target": "@mark:broken"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Answer: the commit that broke the test",
+      "check": {
+        "type": "answer",
+        "question": "culprit"
+      }
+    },
+    {
+      "label": "Abort the rebase; main is unchanged",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "usedCommand",
+            "matches": "\\bgit rebase\\b.*--abort"
+          },
+          {
+            "type": "operation",
+            "value": null
+          },
+          {
+            "type": "refAt",
+            "ref": "main",
+            "target": "@mark:c5"
+          },
+          {
+            "type": "currentBranch",
+            "name": "main"
+          },
+          {
+            "type": "status",
+            "clean": true
+          }
+        ]
+      }
+    },
+    {
+      "label": "Answer: when every step passes",
+      "check": {
+        "type": "answer",
+        "question": "all-pass"
+      }
+    }
+  ]
+}

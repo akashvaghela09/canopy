@@ -1,0 +1,19 @@
+{
+  "questions": [],
+  "goals": [
+    { "label": "main has four commits: the two debug commits are gone, the later two remain in order", "check": { "type": "all", "checks": [
+        { "type": "commitCount", "range": "main", "equals": 4 },
+        { "type": "refAt", "ref": "main~2", "target": "@mark:c2" },
+        { "type": "commitMessage", "rev": "main~1", "equals": "Add version flag" },
+        { "type": "commitMessage", "rev": "main", "equals": "Add README" },
+        { "type": "fileInRev", "path": "debug.py", "rev": "main", "present": false },
+        { "type": "fileContent", "source": "main", "path": "cli.py", "contains": "VERSION" },
+        { "type": "fileInRev", "path": "README.md", "rev": "main", "present": true }
+      ] } },
+    { "label": "Nothing in progress, clean working tree on main", "check": { "type": "all", "checks": [
+        { "type": "operation", "value": null },
+        { "type": "currentBranch", "name": "main" },
+        { "type": "status", "clean": true }
+      ] } }
+  ]
+}

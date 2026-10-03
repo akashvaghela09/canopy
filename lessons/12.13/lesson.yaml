@@ -1,0 +1,17 @@
+id: "12.13"
+section: 12
+title: "Boss: ship a release"
+kind: boss
+teaches: []
+requires: [section]
+flags: []
+repo: work
+start: work
+repos:
+  - { path: work, label: Your clone }
+  - { path: origin.git, label: origin }
+  - { path: teammate, label: Teammate }
+hints:
+  - "Review with a log of the branch's patches or the three-dot diff against main. Remove the DEBUG line with a new commit or by rewriting the branch."
+  - "If deleting feature/export locally refuses, git is comparing it with the old copy on origin. Delete the branch on origin first, or force-delete once main has the work."
+  - "The patch release starts at the tag: branch from v1.0.0, fix, tag v1.0.1, push the tag, then carry the fix commit to main and push."

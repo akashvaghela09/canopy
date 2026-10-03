@@ -1,0 +1,42 @@
+{
+  "questions": [
+    {
+      "id": "nearest-tag",
+      "prompt": "Which tag does `git describe` name for HEAD?",
+      "type": "text",
+      "accept": ["v1.0", "1.0"]
+    },
+    {
+      "id": "ahead",
+      "prompt": "How many commits is HEAD ahead of that tag, according to `git describe`?",
+      "type": "number",
+      "answer": 3
+    },
+    {
+      "id": "g-meaning",
+      "prompt": "What does the `g` in front of the short id mean?",
+      "type": "choice",
+      "options": [
+        "It stands for git and marks what follows as a commit id",
+        "The commit is on a branch named g",
+        "The tag is signed with GPG",
+        "The commit is a merge"
+      ],
+      "answer": 0
+    },
+    {
+      "id": "on-tag",
+      "prompt": "What does `git describe v1.0` print?",
+      "type": "text",
+      "accept": ["v1.0"]
+    }
+  ],
+  "goals": [
+    { "label": "Describe HEAD", "check": { "type": "usedCommand", "matches": "^git describe( --tags)?( (HEAD|@|main))?\\s*$" } },
+    { "label": "Describe the tagged commit itself", "check": { "type": "usedCommand", "matches": "^git describe\\b.*(v1\\.0|HEAD~3|3ad9[0-9a-f]*)" } },
+    { "label": "Answer: the nearest tag", "check": { "type": "answer", "question": "nearest-tag" } },
+    { "label": "Answer: commits ahead of the tag", "check": { "type": "answer", "question": "ahead" } },
+    { "label": "Answer: the meaning of g", "check": { "type": "answer", "question": "g-meaning" } },
+    { "label": "Answer: describe on the tag itself", "check": { "type": "answer", "question": "on-tag" } }
+  ]
+}

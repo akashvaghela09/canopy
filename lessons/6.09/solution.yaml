@@ -1,0 +1,10 @@
+commands: |
+  git merge tagline
+  git status
+  cat tagline.txt
+  echo "Fresh bread and pastries every morning" > tagline.txt
+  git add tagline.txt
+  git status
+  git commit --no-edit
+  git log --oneline --graph
+answers: {}

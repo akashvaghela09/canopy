@@ -1,0 +1,20 @@
+id: "15.05"
+section: 15
+title: Subtree
+kind: practice
+teaches: [subtree]
+requires: [remote-manage, fetch, merge-squash]
+flags: []
+tools: [git-subtree]
+repo: app
+start: app
+repos:
+  - { path: app, label: app (your project) }
+  - { path: lib.git, label: lib (the library) }
+  - { path: upstream, label: Library maintainer }
+actions:
+  - { id: lib-update, label: "Sam publishes lib 1.1", script: actions/lib-update.sh }
+hints:
+  - "`git subtree add --prefix=vendor/lib ../lib.git main --squash` copies the library in as one commit."
+  - "After Sam's update: `git subtree pull --prefix=vendor/lib ../lib.git main --squash`. The editor opens for the merge message."
+  - "Commit your change under vendor/lib, then `git subtree push --prefix=vendor/lib ../lib.git main` sends it back."

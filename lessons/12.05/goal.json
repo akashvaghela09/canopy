@@ -1,0 +1,311 @@
+{
+  "goals": [
+    {
+      "label": "cleanup has exactly three commits on top of main, none of them still called stuff, more or fix",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "commitCount",
+            "range": "main..cleanup",
+            "equals": 3
+          },
+          {
+            "type": "not",
+            "check": {
+              "type": "commitMessage",
+              "rev": "cleanup",
+              "matches": "^(stuff|more|fix)$"
+            }
+          },
+          {
+            "type": "not",
+            "check": {
+              "type": "commitMessage",
+              "rev": "cleanup~1",
+              "matches": "^(stuff|more|fix)$"
+            }
+          },
+          {
+            "type": "not",
+            "check": {
+              "type": "commitMessage",
+              "rev": "cleanup~2",
+              "matches": "^(stuff|more|fix)$"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "label": "One commit changes only README.md",
+      "check": {
+        "type": "any",
+        "checks": [
+          {
+            "type": "all",
+            "checks": [
+              {
+                "type": "commitChanges",
+                "rev": "cleanup",
+                "paths": [
+                  "README.md"
+                ],
+                "exact": true
+              },
+              {
+                "type": "fileContent",
+                "source": "cleanup",
+                "path": "README.md",
+                "contains": "## Usage"
+              }
+            ]
+          },
+          {
+            "type": "all",
+            "checks": [
+              {
+                "type": "commitChanges",
+                "rev": "cleanup~1",
+                "paths": [
+                  "README.md"
+                ],
+                "exact": true
+              },
+              {
+                "type": "fileContent",
+                "source": "cleanup~1",
+                "path": "README.md",
+                "contains": "## Usage"
+              }
+            ]
+          },
+          {
+            "type": "all",
+            "checks": [
+              {
+                "type": "commitChanges",
+                "rev": "cleanup~2",
+                "paths": [
+                  "README.md"
+                ],
+                "exact": true
+              },
+              {
+                "type": "fileContent",
+                "source": "cleanup~2",
+                "path": "README.md",
+                "contains": "## Usage"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "label": "One commit adds src/config.js and nothing else, already with DEFAULT_LIMIT = 100",
+      "check": {
+        "type": "any",
+        "checks": [
+          {
+            "type": "all",
+            "checks": [
+              {
+                "type": "commitChanges",
+                "rev": "cleanup",
+                "paths": [
+                  "src/config.js"
+                ],
+                "exact": true
+              },
+              {
+                "type": "fileContent",
+                "source": "cleanup",
+                "path": "src/config.js",
+                "contains": "DEFAULT_LIMIT = 100"
+              },
+              {
+                "type": "fileInRev",
+                "rev": "cleanup~1",
+                "path": "src/config.js",
+                "present": false
+              }
+            ]
+          },
+          {
+            "type": "all",
+            "checks": [
+              {
+                "type": "commitChanges",
+                "rev": "cleanup~1",
+                "paths": [
+                  "src/config.js"
+                ],
+                "exact": true
+              },
+              {
+                "type": "fileContent",
+                "source": "cleanup~1",
+                "path": "src/config.js",
+                "contains": "DEFAULT_LIMIT = 100"
+              },
+              {
+                "type": "fileInRev",
+                "rev": "cleanup~1~1",
+                "path": "src/config.js",
+                "present": false
+              }
+            ]
+          },
+          {
+            "type": "all",
+            "checks": [
+              {
+                "type": "commitChanges",
+                "rev": "cleanup~2",
+                "paths": [
+                  "src/config.js"
+                ],
+                "exact": true
+              },
+              {
+                "type": "fileContent",
+                "source": "cleanup~2",
+                "path": "src/config.js",
+                "contains": "DEFAULT_LIMIT = 100"
+              },
+              {
+                "type": "fileInRev",
+                "rev": "cleanup~2~1",
+                "path": "src/config.js",
+                "present": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "label": "One commit adds only test/config.test.js, after the config module, with a proper subject",
+      "check": {
+        "type": "any",
+        "checks": [
+          {
+            "type": "all",
+            "checks": [
+              {
+                "type": "commitChanges",
+                "rev": "cleanup",
+                "paths": [
+                  "test/config.test.js"
+                ],
+                "exact": true
+              },
+              {
+                "type": "fileInRev",
+                "rev": "cleanup",
+                "path": "src/config.js",
+                "present": true
+              },
+              {
+                "type": "commitMessage",
+                "rev": "cleanup",
+                "matches": "^[A-Z]"
+              }
+            ]
+          },
+          {
+            "type": "all",
+            "checks": [
+              {
+                "type": "commitChanges",
+                "rev": "cleanup~1",
+                "paths": [
+                  "test/config.test.js"
+                ],
+                "exact": true
+              },
+              {
+                "type": "fileInRev",
+                "rev": "cleanup~1",
+                "path": "src/config.js",
+                "present": true
+              },
+              {
+                "type": "commitMessage",
+                "rev": "cleanup~1",
+                "matches": "^[A-Z]"
+              }
+            ]
+          },
+          {
+            "type": "all",
+            "checks": [
+              {
+                "type": "commitChanges",
+                "rev": "cleanup~2",
+                "paths": [
+                  "test/config.test.js"
+                ],
+                "exact": true
+              },
+              {
+                "type": "fileInRev",
+                "rev": "cleanup~2",
+                "path": "src/config.js",
+                "present": true
+              },
+              {
+                "type": "commitMessage",
+                "rev": "cleanup~2",
+                "matches": "^[A-Z]"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "label": "Every subject is capitalised, 50 characters or fewer, and no fixup! markers remain",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "commitMessage",
+            "rev": "cleanup",
+            "matches": "^[A-Z][^\\n]{0,49}(\\n|$)",
+            "notContains": "fixup!"
+          },
+          {
+            "type": "commitMessage",
+            "rev": "cleanup~1",
+            "matches": "^[A-Z][^\\n]{0,49}(\\n|$)",
+            "notContains": "fixup!"
+          },
+          {
+            "type": "commitMessage",
+            "rev": "cleanup~2",
+            "matches": "^[A-Z][^\\n]{0,49}(\\n|$)",
+            "notContains": "fixup!"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Finish on cleanup with a clean working tree",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "currentBranch",
+            "name": "cleanup"
+          },
+          {
+            "type": "status",
+            "clean": true
+          }
+        ]
+      }
+    }
+  ]
+}

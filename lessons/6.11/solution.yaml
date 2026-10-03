@@ -1,0 +1,12 @@
+commands: |
+  git merge cleanup
+  git status
+  git restore --ours styles.css
+  git add styles.css
+  git restore --theirs CHANGELOG.md
+  git add CHANGELOG.md
+  git add old-notes.txt
+  git rm legacy.py
+  git status
+  git commit --no-edit
+answers: {}

@@ -1,0 +1,13 @@
+id: "10.08"
+section: 10
+title: Find the pre-amend version
+kind: practice
+teaches: [recover-amend]
+requires: [amend-message, reflog-refs, cherry-pick, restore-source]
+flags: []
+repo: exporter
+start: exporter
+hints:
+  - "`git show --stat HEAD@{1}` lists the files of the commit as it was before the amend. Compare it with `git show --stat HEAD`."
+  - "Bring the file back from that commit: `git restore --source=HEAD@{1} docs/export.md`, then commit it (a new commit or another amend, your choice)."
+  - "Finish with docs/export.md in HEAD's tree, the message \"(closes #12)\" still in history, and a clean status."

@@ -1,0 +1,35 @@
+{
+  "questions": [
+    {
+      "id": "merge-again",
+      "prompt": "After reverting the merge, what happened when you merged promo again?",
+      "type": "choice",
+      "options": [
+        "Nothing: promo's commits are already ancestors of main, so git reported \"Already up to date\"",
+        "A new merge commit brought promo.html back",
+        "A conflict in promo.html",
+        "Git refused because the branch was reverted"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    { "label": "Revert the merge commit with -m 1", "check": { "type": "usedCommand", "matches": "^git revert\\b.*(-m ?1|--mainline[ =]1)\\b" } },
+    { "label": "promo.html disappears from main", "sticky": true, "check": { "type": "all", "checks": [
+        { "type": "fileInRev", "path": "promo.html", "rev": "main", "present": false },
+        { "type": "commitMessage", "rev": "main", "matches": "^Revert \"Merge branch 'promo'\"" },
+        { "type": "isAncestor", "ancestor": "@mark:tip", "descendant": "main" }
+      ] } },
+    { "label": "Merge promo again and see that nothing arrives", "check": { "type": "usedCommand", "matches": "^git merge\\b.*\\bpromo\\b" } },
+    { "label": "Answer: what the second merge did", "check": { "type": "answer", "question": "merge-again" } },
+    { "label": "Revert the revert: promo.html is back on main", "check": { "type": "all", "checks": [
+        { "type": "currentBranch", "name": "main" },
+        { "type": "fileInRev", "path": "promo.html", "rev": "main", "present": true },
+        { "type": "fileContent", "path": "index.html", "source": "main", "contains": "promo.html" },
+        { "type": "commitMessage", "rev": "main", "matches": "^(Reapply \"Merge branch 'promo'\"|Revert \"Revert \"Merge branch 'promo'\"\")" },
+        { "type": "commitParents", "rev": "main", "count": 1 },
+        { "type": "commitCount", "range": "@mark:tip..main", "equals": 2 },
+        { "type": "status", "clean": true }
+      ] } }
+  ]
+}

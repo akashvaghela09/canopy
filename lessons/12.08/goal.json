@@ -1,0 +1,45 @@
+{
+  "questions": [
+    {
+      "id": "describe-count",
+      "prompt": "After the two changelog commits, how many commits after v1.0.0 does describe report?",
+      "type": "number",
+      "answer": 2
+    }
+  ],
+  "goals": [
+    {
+      "label": "v1.0.0 is an annotated tag on a commit whose VERSION is 1.0.0",
+      "check": { "type": "all", "checks": [
+        { "type": "tag", "name": "v1.0.0", "annotated": true },
+        { "type": "fileContent", "source": "v1.0.0", "path": "VERSION", "equals": "1.0.0" },
+        { "type": "isAncestor", "ancestor": "@mark:before-release", "descendant": "v1.0.0" }
+      ] }
+    },
+    { "label": "v1.0.0 is on origin", "check": { "type": "tag", "repo": "origin.git", "name": "v1.0.0", "annotated": true } },
+    {
+      "label": "Two changelog commits follow v1.0.0",
+      "check": { "type": "all", "checks": [
+        { "type": "fileContent", "source": "main", "path": "CHANGELOG.md", "contains": "- search notes" },
+        { "type": "fileContent", "source": "main", "path": "CHANGELOG.md", "contains": "- due reminders" },
+        { "type": "commitCount", "range": "v1.0.0..main", "min": 3 }
+      ] }
+    },
+    { "label": "Read describe between releases", "check": { "type": "answer", "question": "describe-count" } },
+    {
+      "label": "v1.1.0 is an annotated tag at the tip of main, with VERSION 1.1.0",
+      "check": { "type": "all", "checks": [
+        { "type": "tag", "name": "v1.1.0", "annotated": true, "target": "main" },
+        { "type": "fileContent", "source": "v1.1.0", "path": "VERSION", "equals": "1.1.0" },
+        { "type": "isAncestor", "ancestor": "v1.0.0", "descendant": "v1.1.0" }
+      ] }
+    },
+    {
+      "label": "Commits and v1.1.0 are on origin",
+      "check": { "type": "all", "repo": "origin.git", "checks": [
+        { "type": "tag", "name": "v1.1.0", "annotated": true, "target": "main" },
+        { "type": "fileContent", "source": "main", "path": "VERSION", "equals": "1.1.0" }
+      ] }
+    }
+  ]
+}

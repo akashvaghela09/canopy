@@ -1,0 +1,88 @@
+{
+  "questions": [
+    {
+      "id": "nodiff",
+      "prompt": "After vendor/lib.min.js is marked -diff, what does git diff show when the file changes?",
+      "type": "choice",
+      "options": [
+        "A one-line notice that binary files differ, without the content",
+        "The full line-by-line diff as before",
+        "Nothing at all; the change is ignored by git"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    {
+      "label": ".gitattributes is committed and gives the five files the right attributes",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "fileInRev",
+            "rev": "HEAD",
+            "path": ".gitattributes",
+            "present": true
+          },
+          {
+            "type": "fileContent",
+            "source": "HEAD",
+            "path": ".gitattributes",
+            "matches": "text=auto"
+          },
+          {
+            "type": "shell",
+            "script": "a=$(git check-attr -a -- notes.txt scripts/build.sh assets/logo.png vendor/lib.min.js docs/internal.md) && grep -qxE 'notes.txt: text: (auto|set)' <<<\"$a\" && grep -qx 'scripts/build.sh: eol: lf' <<<\"$a\" && grep -qx 'assets/logo.png: text: unset' <<<\"$a\" && grep -qx 'assets/logo.png: diff: unset' <<<\"$a\" && grep -qx 'vendor/lib.min.js: diff: unset' <<<\"$a\" && grep -qx 'docs/internal.md: export-ignore: set' <<<\"$a\""
+          }
+        ]
+      }
+    },
+    {
+      "label": "notes.txt and scripts/build.sh are stored with LF endings",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "fileContent",
+            "source": "HEAD",
+            "path": "notes.txt",
+            "notContains": "\r"
+          },
+          {
+            "type": "fileContent",
+            "source": "HEAD",
+            "path": "notes.txt",
+            "contains": "- bread"
+          },
+          {
+            "type": "fileContent",
+            "source": "HEAD",
+            "path": "scripts/build.sh",
+            "notContains": "\r"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Inspect attributes with check-attr",
+      "check": {
+        "type": "usedCommand",
+        "matches": "^git check-attr\\b"
+      }
+    },
+    {
+      "label": "What does -diff change?",
+      "check": {
+        "type": "answer",
+        "question": "nodiff"
+      }
+    },
+    {
+      "label": "Leave the working tree clean",
+      "check": {
+        "type": "status",
+        "clean": true
+      }
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "questions": [
+    {
+      "id": "head-2",
+      "prompt": "Which commit is HEAD~2?",
+      "type": "commit",
+      "answer": "@mark:prices"
+    },
+    {
+      "id": "head-3-2",
+      "prompt": "Which commit is HEAD~3^2?",
+      "type": "commit",
+      "answer": "@mark:seasonal-2"
+    },
+    {
+      "id": "same-commit",
+      "prompt": "HEAD~4 and HEAD~3^1 are:",
+      "type": "choice",
+      "options": [
+        "The same commit, because ~ follows the first parent",
+        "Different commits, one on each side of the merge",
+        "Both the merge commit itself",
+        "Invalid, because ^1 only works on HEAD"
+      ],
+      "answer": 0
+    },
+    {
+      "id": "tilde-vs-caret",
+      "prompt": "What is the difference between ~ and ^?",
+      "type": "choice",
+      "options": [
+        "~N goes back N generations along first parents; ^N picks the Nth parent of one commit",
+        "~ counts forward in time and ^ counts backward",
+        "There is none; they are two spellings of the same thing",
+        "^ only works with tags and ~ only works with branches"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    { "label": "Show a commit using ~", "check": { "type": "usedCommand", "matches": "^git (show|log)\\b.*\\S~\\d*" } },
+    { "label": "Show the merge's second parent using ^2", "check": { "type": "usedCommand", "matches": "^git (show|log)\\b.*\\^2" } },
+    { "label": "Answer: HEAD~2", "check": { "type": "answer", "question": "head-2" } },
+    { "label": "Answer: HEAD~3^2", "check": { "type": "answer", "question": "head-3-2" } },
+    { "label": "Answer: HEAD~4 vs HEAD~3^1", "check": { "type": "answer", "question": "same-commit" } },
+    { "label": "Answer: ~ vs ^", "check": { "type": "answer", "question": "tilde-vs-caret" } }
+  ]
+}

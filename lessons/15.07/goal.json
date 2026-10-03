@@ -1,0 +1,65 @@
+{
+  "questions": [],
+  "goals": [
+    {
+      "label": "Three numbered patch files in project/patches",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "pathExists",
+            "path": "project/patches/0001-Add-search-box.patch"
+          },
+          {
+            "type": "pathExists",
+            "path": "project/patches/0002-Filter-the-list-as-you-type.patch"
+          },
+          {
+            "type": "pathExists",
+            "path": "project/patches/0003-Document-the-search-box.patch"
+          }
+        ]
+      }
+    },
+    {
+      "label": "The patches apply cleanly to the colleague's main",
+      "check": {
+        "type": "shell",
+        "script": "git apply --check \"$LESSON_ROOT\"/project/patches/000[1-9]-*.patch",
+        "repo": "colleague"
+      }
+    },
+    {
+      "label": "Summarise the patches with git apply --stat",
+      "check": {
+        "type": "usedCommand",
+        "matches": "\\bgit apply\\b.*--stat"
+      }
+    },
+    {
+      "label": "Test the patches with git apply --check",
+      "check": {
+        "type": "usedCommand",
+        "matches": "\\bgit apply\\b.*--check"
+      }
+    },
+    {
+      "label": "feature and main are unchanged",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "refAt",
+            "ref": "feature",
+            "target": "@mark:f3"
+          },
+          {
+            "type": "refAt",
+            "ref": "main",
+            "target": "@mark:main-tip"
+          }
+        ]
+      }
+    }
+  ]
+}

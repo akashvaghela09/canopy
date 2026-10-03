@@ -1,0 +1,13 @@
+id: "9.05"
+section: 9
+title: Cherry-pick options
+kind: practice
+teaches: [cherry-pick-options]
+requires: [cherry-pick]
+flags: []
+repo: parser
+start: parser
+hints:
+  - "List the commits `wip` has that `main` lacks. The crash fix is the oldest of the three."
+  - "`-x` appends a \"(cherry picked from commit ...)\" line. `-n` applies the change and stages it but does not commit; a second `-n` pick stacks on top."
+  - "After two `-n` picks, make one commit of your own, for example `git commit -m \"Add changelog\"`."

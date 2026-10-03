@@ -1,0 +1,13 @@
+id: "5.15"
+section: 5
+title: Annotated tags
+kind: practice
+teaches: [tag-annotated]
+requires: [tag-lightweight, commit-message]
+flags: []
+repo: trail-guide
+start: trail-guide
+hints:
+  - "`-a` makes the tag annotated and `-m` gives it a message, like a commit message. Without `-m` the editor opens."
+  - "Compare the first lines of `git show v1.0` and `git show v0.1`: only one of them starts with a tag header."
+  - "`git tag -a v1.0 -m \"Trail guide 1.0\"`, then `git show v1.0`, `git show v0.1`, `git describe`."

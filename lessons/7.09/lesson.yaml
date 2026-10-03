@@ -1,0 +1,17 @@
+id: "7.09"
+section: 7
+title: Upstream branches
+kind: practice
+teaches: [upstream]
+requires: [push, switch, concept-remote-tracking, status-short]
+flags: []
+minGit: "2.23"
+repo: work
+start: work
+repos:
+  - { path: work, label: Your clone }
+  - { path: origin.git, label: origin }
+  - { path: teammate, label: Teammate }
+hints:
+  - "`git branch -vv` prints [ahead N, behind M] next to main. `git status -sb` shows the same counts on its first line."
+  - "Switch to `signage`, then `git branch --set-upstream-to=origin/signage`. Check with `git branch -vv` again."

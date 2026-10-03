@@ -1,0 +1,30 @@
+{
+  "questions": [
+    {
+      "id": "plain-count",
+      "prompt": "How many commits does `git log --oneline -- pages/menu.md` list (without --follow)?",
+      "type": "number",
+      "answer": 5
+    },
+    {
+      "id": "follow-count",
+      "prompt": "How many commits are listed with `--follow`?",
+      "type": "number",
+      "answer": 7
+    },
+    {
+      "id": "rename-commit",
+      "prompt": "Which commit moved the menu into the pages folder?",
+      "type": "commit",
+      "answer": "@mark:rename"
+    }
+  ],
+  "goals": [
+    { "label": "Log the history of pages/menu.md", "check": { "type": "usedCommand", "matches": "^git log\\b.*menu\\.md" } },
+    { "label": "Read the patches with -p (or the summary with --stat)", "check": { "type": "usedCommand", "matches": "^git log\\b.*(\\s-p\\b|--patch|--stat).*menu\\.md" } },
+    { "label": "Follow the file across its rename", "check": { "type": "usedCommand", "matches": "^git log\\b.*--follow.*menu\\.md" } },
+    { "label": "Answer: commits without --follow", "check": { "type": "answer", "question": "plain-count" } },
+    { "label": "Answer: commits with --follow", "check": { "type": "answer", "question": "follow-count" } },
+    { "label": "Answer: the rename commit", "check": { "type": "answer", "question": "rename-commit" } }
+  ]
+}

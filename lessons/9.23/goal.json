@@ -1,0 +1,24 @@
+{
+  "questions": [],
+  "goals": [
+    { "label": "All three branches now build on main's tip, one commit apart", "check": { "type": "all", "checks": [
+        { "type": "refAt", "ref": "main", "target": "@mark:main-tip" },
+        { "type": "refAt", "ref": "part1~1", "target": "main" },
+        { "type": "refAt", "ref": "part2~1", "target": "part1" },
+        { "type": "refAt", "ref": "part3~1", "target": "part2" },
+        { "type": "commitMessage", "rev": "part1", "equals": "Add database layer" },
+        { "type": "commitMessage", "rev": "part2", "equals": "Add API layer" },
+        { "type": "commitMessage", "rev": "part3", "equals": "Add UI layer" }
+      ] } },
+    { "label": "The commits are copies: none of the branches points at its old commit", "check": { "type": "all", "checks": [
+        { "type": "refNotAt", "ref": "part1", "target": "@mark:p1" },
+        { "type": "refNotAt", "ref": "part2", "target": "@mark:p2" },
+        { "type": "refNotAt", "ref": "part3", "target": "@mark:p3" }
+      ] } },
+    { "label": "Finish on part3, nothing in progress, clean working tree", "check": { "type": "all", "checks": [
+        { "type": "currentBranch", "name": "part3" },
+        { "type": "operation", "value": null },
+        { "type": "status", "clean": true }
+      ] } }
+  ]
+}

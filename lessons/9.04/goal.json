@@ -1,0 +1,31 @@
+{
+  "questions": [
+    {
+      "id": "same-id",
+      "prompt": "The fix on main and the fix on checkout are:",
+      "type": "choice",
+      "options": [
+        "Two commits with the same change and message but different ids, because their parents differ",
+        "The same commit, now reachable from both branches",
+        "Two commits with the same id, because the content is identical",
+        "One commit on main; the one on checkout was moved there"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    { "label": "Copy \"Fix price rounding in cart\" onto main", "check": { "type": "all", "checks": [
+        { "type": "commitMessage", "rev": "main", "matches": "^Fix price rounding in cart(\n|$)" },
+        { "type": "refAt", "ref": "main~1", "target": "@mark:main-tip" },
+        { "type": "refNotAt", "ref": "main", "target": "@mark:fix" },
+        { "type": "fileContent", "source": "main", "path": "cart.js", "contains": "toFixed(2)" },
+        { "type": "fileInRev", "path": "checkout.html", "rev": "main", "present": false }
+      ] } },
+    { "label": "Leave checkout as it was", "check": { "type": "refAt", "ref": "checkout", "target": "@mark:c3" } },
+    { "label": "Finish on main with a clean working tree", "check": { "type": "all", "checks": [
+        { "type": "currentBranch", "name": "main" },
+        { "type": "status", "clean": true }
+      ] } },
+    { "label": "Answer: original and copy", "check": { "type": "answer", "question": "same-id" } }
+  ]
+}

@@ -1,0 +1,6 @@
+commands: |
+  git status
+  git add contact.css
+  git commit --amend --no-edit
+  git show --stat HEAD
+answers: {}

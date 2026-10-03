@@ -1,0 +1,14 @@
+commands: |
+  git status
+  git stash
+  git status
+  git stash pop
+  git stash -u
+  git status
+  ls
+  git stash pop
+  git add config.toml
+  git stash push --keep-index
+  git status
+  git stash list
+answers: {}

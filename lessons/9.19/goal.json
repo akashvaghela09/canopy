@@ -1,0 +1,18 @@
+{
+  "questions": [],
+  "goals": [
+    { "label": "Stage hunks with git add -p", "check": { "type": "usedCommand", "matches": "\\bgit add\\b.*(\\s-p\\b|--patch|\\s-i\\b|--interactive)" } },
+    { "label": "One new commit holds both rounding fixes and no DEBUG line", "check": { "type": "all", "checks": [
+        { "type": "commitCount", "range": "main", "equals": 2 },
+        { "type": "commitMessage", "rev": "main", "equals": "Fix rounding in report" },
+        { "type": "fileContent", "source": "main", "path": "report.py", "contains": "total = 0.0" },
+        { "type": "fileContent", "source": "main", "path": "report.py", "contains": "round(avg, 2)" },
+        { "type": "fileContent", "source": "main", "path": "report.py", "notContains": "DEBUG" }
+      ] } },
+    { "label": "The DEBUG lines are still in the working tree, unstaged", "check": { "type": "all", "checks": [
+        { "type": "fileContent", "source": "worktree", "path": "report.py", "contains": "DEBUG count" },
+        { "type": "fileContent", "source": "worktree", "path": "report.py", "contains": "DEBUG rows" },
+        { "type": "status", "modified": ["report.py"], "staged": [], "exact": true }
+      ] } }
+  ]
+}

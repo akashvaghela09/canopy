@@ -1,0 +1,72 @@
+{
+  "questions": [
+    {
+      "id": "why-old",
+      "prompt": "lib.git has version 1.1. Why did work/lib get 1.0?",
+      "type": "choice",
+      "options": [
+        "The project records a commit id; update checks out exactly that commit",
+        "The clone was made before 1.1 existed",
+        "Submodules always use the oldest tag",
+        "The --init flag skips newer commits"
+      ],
+      "answer": 0
+    },
+    {
+      "id": "head-state",
+      "prompt": "Inside work/lib after the update, what is HEAD?",
+      "type": "choice",
+      "options": [
+        "Detached, at the pinned commit",
+        "On the branch main",
+        "On a branch named after the project",
+        "Unset; the submodule has no HEAD"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    {
+      "label": "work/lib holds the pinned version 1.0",
+      "check": {
+        "type": "fileContent",
+        "path": "lib/version.txt",
+        "lines": [
+          "1.0"
+        ]
+      }
+    },
+    {
+      "label": "work/lib is checked out at the commit the project pins",
+      "check": {
+        "type": "shell",
+        "script": "test \"$(git -C lib rev-parse HEAD)\" = \"$(git rev-parse HEAD:lib)\""
+      }
+    },
+    {
+      "label": "A second clone named fresh has its submodule filled",
+      "check": {
+        "type": "fileContent",
+        "repo": "fresh",
+        "path": "lib/version.txt",
+        "lines": [
+          "1.0"
+        ]
+      }
+    },
+    {
+      "label": "Explain why lib is at 1.0",
+      "check": {
+        "type": "answer",
+        "question": "why-old"
+      }
+    },
+    {
+      "label": "Describe HEAD inside the submodule",
+      "check": {
+        "type": "answer",
+        "question": "head-state"
+      }
+    }
+  ]
+}

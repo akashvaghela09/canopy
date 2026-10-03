@@ -1,0 +1,11 @@
+commands: |
+  git log --oneline --grep 'Fix tax rate'
+  git tag --contains $(git log --format=%h --grep 'Fix tax rate')
+  git branch --contains $(git log --format=%h --grep 'Fix tax rate')
+  git merge-base --is-ancestor $(git log --format=%h --grep 'Fix tax rate') v1.0 ; echo $?
+  git name-rev $(git log --format=%h --grep 'Fix tax rate')
+answers:
+  tags: [3]
+  branches: [0, 3]
+  ancestor: 0
+  name-rev: 0

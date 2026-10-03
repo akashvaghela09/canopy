@@ -1,0 +1,29 @@
+commands: |
+  git config --global includeIf."gitdir:$PWD/work/".path "$PWD/conf/work.gitconfig"
+  git config --global includeIf."gitdir:$PWD/personal/".path "$PWD/conf/personal.gitconfig"
+  git config --global alias.lg "log --oneline --graph --decorate --all"
+  printf '%s\n' '*.swp' > ignore-everywhere
+  git config --global core.excludesFile "$PWD/ignore-everywhere"
+  cd personal/blog
+  git add posts/first.md
+  git commit -m "Add first post"
+  git lg
+  cd ../../work/app
+  printf '%s\n' '#!/bin/sh' "if git diff --cached -- '*.js' | grep -q '^+.*FIXME'; then" '  echo "pre-commit: FIXME in staged .js changes" >&2' '  exit 1' 'fi' > .git/hooks/pre-commit
+  chmod +x .git/hooks/pre-commit
+  git add src/notes.js
+  git commit -m "Add notes module"
+  sed -i '/FIXME/d' src/notes.js
+  git add src/notes.js
+  git commit -m "Add notes module"
+  printf '%s\n' '* text=auto' > .gitattributes
+  git add --renormalize .
+  git add .gitattributes
+  git commit -m "Normalize line endings"
+  git status --short
+  cd ../..
+  git clone --filter=blob:none --sparse "file://$PWD/big.git" mono
+  cd mono
+  git sparse-checkout set api
+  ls
+  cd ..

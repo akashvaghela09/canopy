@@ -1,0 +1,5 @@
+commands: |
+  git log --oneline -3
+  git commit --amend -m "Add contact page"
+  git log --oneline -3
+answers: {}

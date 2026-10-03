@@ -1,0 +1,131 @@
+{
+  "questions": [
+    {
+      "id": "base",
+      "prompt": "Which commit is the merge base of main and spicy? (paste its id)",
+      "type": "commit",
+      "answer": "@mark:base"
+    },
+    {
+      "id": "conflict-file",
+      "prompt": "Which file would conflict?",
+      "type": "text",
+      "accept": [
+        "chili.md",
+        "./chili.md"
+      ]
+    },
+    {
+      "id": "notes-blob",
+      "prompt": "What is the blob id of notes.md in the result tree? (first 7 or more characters)",
+      "type": "text",
+      "accept": [
+        "ae87540",
+        "ae875408",
+        "ae8754082",
+        "ae8754082f",
+        "ae8754082fa",
+        "ae8754082fad",
+        "ae8754082fad7",
+        "ae8754082fad74",
+        "ae8754082fad74b",
+        "ae8754082fad74bc",
+        "ae8754082fad74bcb",
+        "ae8754082fad74bcbb",
+        "ae8754082fad74bcbb2",
+        "ae8754082fad74bcbb24",
+        "ae8754082fad74bcbb240",
+        "ae8754082fad74bcbb240e",
+        "ae8754082fad74bcbb240e1",
+        "ae8754082fad74bcbb240e1c",
+        "ae8754082fad74bcbb240e1cd",
+        "ae8754082fad74bcbb240e1cd6",
+        "ae8754082fad74bcbb240e1cd64",
+        "ae8754082fad74bcbb240e1cd644",
+        "ae8754082fad74bcbb240e1cd6440",
+        "ae8754082fad74bcbb240e1cd6440f",
+        "ae8754082fad74bcbb240e1cd6440f2",
+        "ae8754082fad74bcbb240e1cd6440f23",
+        "ae8754082fad74bcbb240e1cd6440f23d",
+        "ae8754082fad74bcbb240e1cd6440f23d3",
+        "ae8754082fad74bcbb240e1cd6440f23d3d",
+        "ae8754082fad74bcbb240e1cd6440f23d3d6",
+        "ae8754082fad74bcbb240e1cd6440f23d3d66",
+        "ae8754082fad74bcbb240e1cd6440f23d3d668",
+        "ae8754082fad74bcbb240e1cd6440f23d3d6684",
+        "ae8754082fad74bcbb240e1cd6440f23d3d66848"
+      ]
+    },
+    {
+      "id": "side-effects",
+      "prompt": "After merge-tree --write-tree, what changed in the repository?",
+      "type": "choice",
+      "options": [
+        "Only new objects in the object store; the branch, index and working tree are unchanged",
+        "main now points at a merge commit",
+        "The working tree has conflict markers in chili.md",
+        "A merge is in progress and must be aborted"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    {
+      "label": "Find the merge base",
+      "check": {
+        "type": "answer",
+        "question": "base"
+      }
+    },
+    {
+      "label": "Preview the merge with git merge-tree",
+      "check": {
+        "type": "usedCommand",
+        "matches": "\\bgit merge-tree\\b.*--write-tree",
+        "exitCode": null
+      }
+    },
+    {
+      "label": "Name the conflicted file",
+      "check": {
+        "type": "answer",
+        "question": "conflict-file"
+      }
+    },
+    {
+      "label": "Read notes.md out of the result tree",
+      "check": {
+        "type": "answer",
+        "question": "notes-blob"
+      }
+    },
+    {
+      "label": "Say what changed",
+      "check": {
+        "type": "answer",
+        "question": "side-effects"
+      }
+    },
+    {
+      "label": "main did not move and no merge is in progress",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "refAt",
+            "ref": "main",
+            "target": "@mark:main-tip"
+          },
+          {
+            "type": "operation",
+            "value": null
+          },
+          {
+            "type": "status",
+            "clean": true
+          }
+        ]
+      }
+    }
+  ]
+}

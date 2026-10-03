@@ -1,0 +1,9 @@
+commands: |
+  git log --oneline
+  git stash list
+  git stash show -p
+  git stash branch retry-limit
+  git log --oneline --graph --all
+  git status
+  git commit -am "Retry failed forecast requests"
+answers: {}

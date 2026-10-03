@@ -1,0 +1,14 @@
+id: "14.02"
+section: 14
+title: Content-addressable storage
+kind: practice
+teaches: [hash-object]
+requires: [concept-commit-id, term-files]
+flags: []
+repo: garden
+start: garden
+panels: [inside-git]
+hints:
+  - "`git hash-object` takes file names. Give it two files at once and compare the two lines."
+  - "Without `-w` nothing is stored. Run it again with `-w` and then look in `.git/objects`."
+  - "The object lands in `.git/objects/<first two characters>/<remaining 38 characters>`."

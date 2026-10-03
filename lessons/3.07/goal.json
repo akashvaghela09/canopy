@@ -1,0 +1,36 @@
+{
+  "questions": [
+    {
+      "id": "head-before",
+      "prompt": "Before you make any commit: which commit does HEAD point to?",
+      "type": "commit",
+      "answer": "@mark:newsletter"
+    },
+    {
+      "id": "head-meaning",
+      "prompt": "Which sentence describes HEAD best?",
+      "type": "choice",
+      "options": [
+        "The commit you are on right now, usually reached through the branch you are on",
+        "The newest commit in the whole repository, on any branch",
+        "The very first commit of the repository",
+        "Another name for the staging area"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    { "label": "Look at the commit HEAD points to", "check": { "type": "usedCommand", "matches": "^git (show(\\s*$|\\b.*\\b(HEAD|@))|log\\b.*(-1|-n ?1)\\b)" } },
+    { "label": "Answer: HEAD before your commit", "check": { "type": "answer", "question": "head-before" } },
+    { "label": "Make a commit so HEAD moves", "check": { "type": "all", "checks": [
+        { "type": "refNotAt", "ref": "HEAD", "target": "@mark:newsletter" },
+        { "type": "isAncestor", "ancestor": "@mark:newsletter", "descendant": "HEAD" },
+        { "type": "currentBranch", "name": "main" }
+      ] } },
+    { "label": "Commit the change to README.md", "check": { "type": "all", "checks": [
+        { "type": "commitChanges", "rev": "HEAD", "paths": ["README.md"], "exact": false },
+        { "type": "status", "clean": true }
+      ] } },
+    { "label": "Answer: what HEAD means", "check": { "type": "answer", "question": "head-meaning" } }
+  ]
+}

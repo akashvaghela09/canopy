@@ -1,0 +1,13 @@
+id: "5.08"
+section: 5
+title: Compare branches by commits
+kind: practice
+teaches: [log-range]
+requires: [log-graph, diff-commits, branch-list]
+flags: []
+repo: garden
+start: garden
+hints:
+  - "Read `A..B` as \"reachable from B but not from A\". Swap the names to get the other side."
+  - "Three dots with `--left-right` show both sides at once; `<` marks commits from the left name, `>` from the right."
+  - "`git log --oneline main..herbs`, `git log --oneline herbs..main`, `git log --oneline --left-right main...herbs`."

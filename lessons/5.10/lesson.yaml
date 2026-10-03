@@ -1,0 +1,13 @@
+id: "5.10"
+section: 5
+title: Rename a branch
+kind: practice
+teaches: [branch-rename]
+requires: [branch-create, branch-list, switch]
+flags: []
+repo: trail-guide
+start: trail-guide
+hints:
+  - "With one name, `git branch -m` renames the branch you are on. With two names it renames the first to the second."
+  - "Renaming changes only the label. Check with `git branch -v` that the short ids did not change."
+  - "`git branch -m river-walk` (you are on new-stuff), then `git branch -m tmp archive/lake-draft`."

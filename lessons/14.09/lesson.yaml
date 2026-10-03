@@ -1,0 +1,14 @@
+id: "14.09"
+section: 14
+title: Refs by hand
+kind: practice
+teaches: [refs-plumbing]
+requires: [concept-refs-files, rev-parse, branch-create]
+flags: []
+repo: garden
+start: garden
+panels: [inside-git]
+hints:
+  - "`git update-ref refs/heads/experiment HEAD~2` creates the branch; the same command with a new target moves it."
+  - "`git update-ref -d refs/heads/old-idea` deletes a ref. `git symbolic-ref HEAD` shows which ref HEAD names."
+  - "`git pack-refs --all` moves the loose ref files into `.git/packed-refs`."

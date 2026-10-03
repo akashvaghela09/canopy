@@ -1,0 +1,14 @@
+id: "6.09"
+section: 6
+title: Resolve a conflict
+kind: practice
+teaches: [conflict-resolve]
+requires: [conflict-read, add, commit]
+flags: []
+repo: cafe
+start: cafe
+panels: [diff]
+hints:
+  - "Edit tagline.txt so it reads exactly: Fresh bread and pastries every morning. Delete the marker lines too."
+  - "Staging the file tells git the conflict is resolved. Then commit; git has a merge message ready."
+  - "After editing: `git add tagline.txt`, then `git commit` (or `git merge --continue`), and save the prepared message."

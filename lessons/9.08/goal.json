@@ -1,0 +1,33 @@
+{
+  "questions": [
+    {
+      "id": "m1-meaning",
+      "prompt": "What does -m 1 select?",
+      "type": "choice",
+      "options": [
+        "The first parent as the base, so the applied change is what the merge brought in from the other side",
+        "The first commit on the merged branch",
+        "Only the first file the merge changed",
+        "The merge's second parent, so the applied change is what main did on its own"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    { "label": "Try the pick without -m and read git's refusal", "sticky": true,
+      "check": { "type": "usedCommand", "matches": "^git cherry-pick( +-(-[a-ln-z][a-z-]*|[a-ln-z]+))* +[^ -][^ ]* *$", "exitCode": 128 } },
+    { "label": "Cherry-pick the merge with -m 1", "check": { "type": "usedCommand", "matches": "\\bgit cherry-pick\\b.*(\\s-m\\s*1|--mainline[= ]1)(\\s|$)" } },
+    { "label": "release gains the effect of the merge as one ordinary commit", "check": { "type": "all", "checks": [
+        { "type": "currentBranch", "name": "release" },
+        { "type": "commitCount", "range": "@mark:rel..release", "equals": 1 },
+        { "type": "commitParents", "rev": "release", "count": 1 },
+        { "type": "fileInRev", "path": "export.js", "rev": "release", "present": true },
+        { "type": "fileContent", "source": "release", "path": "README.md", "notContains": "docs/" }
+      ] } },
+    { "label": "Clean working tree, nothing in progress", "check": { "type": "all", "checks": [
+        { "type": "status", "clean": true },
+        { "type": "operation", "value": null }
+      ] } },
+    { "label": "Answer: what -m 1 selects", "check": { "type": "answer", "question": "m1-meaning" } }
+  ]
+}

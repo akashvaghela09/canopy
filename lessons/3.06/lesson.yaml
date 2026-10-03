@@ -1,0 +1,12 @@
+id: "3.06"
+section: 3
+title: Commit ids
+kind: concept
+teaches: [concept-commit-id]
+requires: [show]
+flags: []
+repo: bakery
+start: bakery
+hints:
+  - "Copy the first four characters of any id from the compact log and show that commit. Then try only three characters and read the error."
+  - "The merge commit is the one tag v1.0 points to. Its id starts with the characters shown next to the tag in the compact log."

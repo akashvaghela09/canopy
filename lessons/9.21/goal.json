@@ -1,0 +1,140 @@
+{
+  "questions": [],
+  "goals": [
+    {
+      "label": "Make fixup commits with --fixup",
+      "check": {
+        "type": "usedCommand",
+        "matches": "\\bgit commit\\b.*--fixup"
+      }
+    },
+    {
+      "label": "Three fixup! commits exist on top of the history",
+      "sticky": true,
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "commitMessage",
+            "rev": "main",
+            "matches": "^fixup! "
+          },
+          {
+            "type": "commitMessage",
+            "rev": "main~1",
+            "matches": "^fixup! "
+          },
+          {
+            "type": "commitMessage",
+            "rev": "main~2",
+            "matches": "^fixup! "
+          }
+        ]
+      }
+    },
+    {
+      "label": "Fold them in: three commits on top of the skeleton, original messages, no fixup! left",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "commitCount",
+            "range": "@mark:base..main",
+            "equals": 3
+          },
+          {
+            "type": "refAt",
+            "ref": "main~3",
+            "target": "@mark:base"
+          },
+          {
+            "type": "commitMessage",
+            "rev": "main~2",
+            "equals": "Add model"
+          },
+          {
+            "type": "commitMessage",
+            "rev": "main~1",
+            "equals": "Add view"
+          },
+          {
+            "type": "commitMessage",
+            "rev": "main",
+            "equals": "Add controller"
+          },
+          {
+            "type": "refNotAt",
+            "ref": "main",
+            "target": "@mark:ctrl"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Each commit carries its fix",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "fileContent",
+            "source": "main~2",
+            "path": "model.py",
+            "contains": "return item"
+          },
+          {
+            "type": "commitChanges",
+            "rev": "main~2",
+            "paths": [
+              "model.py"
+            ],
+            "exact": true
+          },
+          {
+            "type": "fileContent",
+            "source": "main~1",
+            "path": "view.py",
+            "contains": "return len(items)"
+          },
+          {
+            "type": "commitChanges",
+            "rev": "main~1",
+            "paths": [
+              "view.py"
+            ],
+            "exact": true
+          },
+          {
+            "type": "fileContent",
+            "source": "main",
+            "path": "controller.py",
+            "contains": "return self.view.render"
+          },
+          {
+            "type": "commitChanges",
+            "rev": "main",
+            "paths": [
+              "controller.py"
+            ],
+            "exact": true
+          }
+        ]
+      }
+    },
+    {
+      "label": "Rebase finished, clean working tree",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "operation",
+            "value": null
+          },
+          {
+            "type": "status",
+            "clean": true
+          }
+        ]
+      }
+    }
+  ]
+}

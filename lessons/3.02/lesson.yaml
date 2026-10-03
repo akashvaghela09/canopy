@@ -1,0 +1,13 @@
+id: "3.02"
+section: 3
+title: See the shape of history
+kind: practice
+teaches: [log-graph]
+requires: [log-oneline]
+flags: []
+repo: bakery
+start: bakery
+hints:
+  - "Names in parentheses after a commit are labels: branch names, tags and `HEAD`. A branch label sits on the newest commit of that branch, its tip."
+  - "A merge commit is where two lines of the drawing join into one. Look for the `|\\` shape."
+  - "`git log --oneline --graph --all --decorate` shows the drawing with all branches and labels."

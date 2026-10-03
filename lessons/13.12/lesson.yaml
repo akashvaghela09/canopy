@@ -1,0 +1,17 @@
+id: "13.12"
+section: 13
+title: Sparse checkout
+kind: practice
+teaches: [sparse-checkout]
+requires: [clone, switch]
+flags: []
+minGit: "2.25"
+repo: mono
+start: "."
+repos:
+  - { path: mono, label: Your clone }
+  - { path: big.git, label: big.git }
+hints:
+  - "Clone `big.git` into `mono` as usual, go inside, then `git sparse-checkout init --cone` followed by `git sparse-checkout set api`."
+  - "`git sparse-checkout list` shows the chosen folders. Switching branches keeps the selection."
+  - "Add a second folder with `git sparse-checkout set api docs` (set replaces the whole list)."

@@ -1,0 +1,18 @@
+commands: |
+  git log --oneline --decorate --graph --all
+  git bisect start v2.1 v2.0
+  git bisect run bash tests/balance.sh
+  git bisect reset
+  git blame -L '/balance=/,+1' ledger.sh
+  git blame -w -L '/balance=/,+1' ledger.sh
+  git tag --contains $(git log --format=%h --grep 'Fix cents')
+  git branch --contains $(git log --format=%h --grep 'Fix cents')
+  git log --diff-filter=R --summary --oneline
+  git log --diff-filter=D --summary
+answers:
+  regression: "@mark:bug"
+  who-balance: 0
+  releases: [2, 3]
+  maint: 0
+  export: 0
+  notes: 0

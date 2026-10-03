@@ -1,0 +1,72 @@
+{
+  "goals": [
+    {
+      "label": "A global alias lg exists and was run",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "config",
+            "key": "alias.lg",
+            "scope": "global"
+          },
+          {
+            "type": "usedCommand",
+            "matches": "^git lg\\b"
+          }
+        ]
+      }
+    },
+    {
+      "label": "A global alias wip runs a shell command",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "config",
+            "key": "alias.wip",
+            "scope": "global"
+          },
+          {
+            "type": "usedCommand",
+            "matches": "^git config\\b.*\\balias\\.wip\\s+['\"]?!"
+          }
+        ]
+      }
+    },
+    {
+      "label": "git wip committed notes/today.md with the message \"wip\"",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "usedCommand",
+            "matches": "^git wip\\b"
+          },
+          {
+            "type": "commitMessage",
+            "rev": "HEAD",
+            "equals": "wip"
+          },
+          {
+            "type": "fileInRev",
+            "rev": "HEAD",
+            "path": "notes/today.md",
+            "present": true
+          },
+          {
+            "type": "status",
+            "clean": true
+          }
+        ]
+      }
+    },
+    {
+      "label": "List your aliases",
+      "check": {
+        "type": "usedCommand",
+        "matches": "^git config\\b.*(--get-regexp\\s+['\"]?\\^?alias|--list|-l\\b)"
+      }
+    }
+  ]
+}

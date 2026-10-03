@@ -1,0 +1,8 @@
+commands: |
+  git log --oneline -S TAX_RATE
+  git log --oneline -G 'TAX_RATE ='
+  git log -p -G 'TAX_RATE =' -- pricer/cart.py
+answers:
+  bug: "@mark:bug"
+  g-count: 3
+  why: 0

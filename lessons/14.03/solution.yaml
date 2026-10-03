@@ -1,0 +1,12 @@
+commands: |
+  git cat-file -t 0d4542a
+  git cat-file -t 5ce004c
+  git cat-file -t ec5cadf
+  git cat-file -s ec5cadf
+  wc -c README.md
+  git cat-file -p 7aec562
+answers:
+  type-tree: 0
+  type-commit: 0
+  size: 77
+  third-line: mint

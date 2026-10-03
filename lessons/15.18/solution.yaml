@@ -1,0 +1,12 @@
+commands: |
+  git subtree add --prefix=vendor/lib ../lib.git main --squash
+  git format-patch main..search -o ../outbox
+  git config gpg.format ssh
+  git config user.signingkey "$PWD/../keys/release-key.pub"
+  echo "$(git config user.email) $(cat ../keys/release-key.pub)" > ../keys/allowed_signers
+  git config gpg.ssh.allowedSignersFile "$PWD/../keys/allowed_signers"
+  git tag -s v2.0 -m "Lantern 2.0"
+  git verify-tag v2.0
+  git archive --format=tar.gz --prefix=release-2.0/ -o ../release-2.0.tar.gz v2.0
+  git bundle create ../app.bundle main v2.0
+  git bundle verify ../app.bundle

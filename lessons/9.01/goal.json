@@ -1,0 +1,103 @@
+{
+  "questions": [
+    {
+      "id": "why-new-id",
+      "prompt": "Why does the fixed commit have a different id?",
+      "type": "choice",
+      "options": [
+        "The id is a hash of the commit's content, including the message. A commit cannot change, so git made a new commit and moved main to it",
+        "Git renumbers every commit in the repository whenever history changes",
+        "Only the date changed; fixing the message alone would have kept the id",
+        "Ids are random and change on every git command"
+      ],
+      "answer": 0
+    },
+    {
+      "id": "old-commit",
+      "prompt": "What happened to the commit with the typo?",
+      "type": "choice",
+      "options": [
+        "It still exists, but no branch points to it, so the log no longer lists it",
+        "Git deleted it the moment the amend finished",
+        "It became the parent of the new commit",
+        "It was moved onto a backup branch"
+      ],
+      "answer": 0
+    },
+    {
+      "id": "parent",
+      "prompt": "Which commit is the parent of the new commit?",
+      "type": "commit",
+      "answer": "@mark:list"
+    },
+    {
+      "id": "vs-revert",
+      "prompt": "How does this differ from reverting the typo commit?",
+      "type": "choice",
+      "options": [
+        "A revert adds a new commit on top and keeps the old one in history; the amend replaced the tip with a new commit",
+        "There is no difference; revert and amend both edit the old commit",
+        "A revert would have fixed the message without changing any id",
+        "A revert deletes the old commit; the amend keeps it"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    {
+      "label": "Replace the last commit with git commit --amend, keeping its parent",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "usedCommand",
+            "matches": "\\bgit commit\\b.*--amend"
+          },
+          {
+            "type": "commitMessage",
+            "rev": "HEAD",
+            "equals": "Add recipe for pancakes"
+          },
+          {
+            "type": "refNotAt",
+            "ref": "HEAD",
+            "target": "@mark:typo"
+          },
+          {
+            "type": "refAt",
+            "ref": "HEAD~1",
+            "target": "@mark:list"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Answer: why the id changed",
+      "check": {
+        "type": "answer",
+        "question": "why-new-id"
+      }
+    },
+    {
+      "label": "Answer: the old commit",
+      "check": {
+        "type": "answer",
+        "question": "old-commit"
+      }
+    },
+    {
+      "label": "Answer: the parent of the new commit",
+      "check": {
+        "type": "answer",
+        "question": "parent"
+      }
+    },
+    {
+      "label": "Answer: amend vs revert",
+      "check": {
+        "type": "answer",
+        "question": "vs-revert"
+      }
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+id: "5.01"
+section: 5
+title: What a branch is
+kind: concept
+teaches: [concept-branch, branch-list]
+requires: [head, log-graph, concept-reset]
+flags: []
+repo: trail-guide
+start: trail-guide
+hints:
+  - "Draw the graph with every branch included, then compare it with `git branch -v`: the short id next to each name is the commit that branch points to."
+  - "`git branch --show-current` prints only the name of the branch HEAD is on."
+  - "`git branch`, `git branch -v`, `git branch --show-current`. The branch that is not main sits one commit below it."

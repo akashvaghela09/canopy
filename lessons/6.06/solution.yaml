@@ -1,0 +1,10 @@
+commands: |
+  git log --oneline --graph --all
+  git merge --squash export
+  git status
+  git commit -m "Add CSV export"
+  git branch -d export
+  git branch -D export
+  git log --oneline --graph --all
+answers:
+  why-unmerged: 0

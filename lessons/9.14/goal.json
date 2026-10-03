@@ -1,0 +1,125 @@
+{
+  "questions": [
+    {
+      "id": "first-line",
+      "prompt": "Which commit is on the first line of the todo list for `git rebase -i HEAD~3`?",
+      "type": "commit",
+      "answer": "@mark:c2"
+    },
+    {
+      "id": "order",
+      "prompt": "In what order does the todo list show commits?",
+      "type": "choice",
+      "options": [
+        "Oldest first, newest last: the order in which git will replay them",
+        "Newest first, like git log",
+        "Alphabetical by message",
+        "Random; the order does not matter"
+      ],
+      "answer": 0
+    },
+    {
+      "id": "root",
+      "prompt": "What does `git rebase -i --root` do?",
+      "type": "choice",
+      "options": [
+        "Puts every commit of the branch in the todo list, including the very first one",
+        "Rebases onto the root folder of the repository",
+        "Runs the rebase with administrator rights",
+        "Only rebases the first commit"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    {
+      "label": "Run an interactive rebase of the last three commits and save the list unchanged",
+      "sticky": true,
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "usedCommand",
+            "matches": "\\bgit rebase\\b.*(\\s-i\\b|--interactive)",
+            "last": true
+          },
+          {
+            "type": "operation",
+            "value": null
+          },
+          {
+            "type": "refAt",
+            "ref": "main",
+            "target": "@mark:c4"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Pause the rebase (with break)",
+      "sticky": true,
+      "check": {
+        "type": "operation",
+        "value": "rebase"
+      }
+    },
+    {
+      "label": "Abort the paused rebase",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "usedCommand",
+            "matches": "\\bgit rebase\\b.*--abort"
+          },
+          {
+            "type": "operation",
+            "value": null
+          }
+        ]
+      }
+    },
+    {
+      "label": "main is unchanged: same four commits, same ids",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "refAt",
+            "ref": "main",
+            "target": "@mark:c4"
+          },
+          {
+            "type": "currentBranch",
+            "name": "main"
+          },
+          {
+            "type": "status",
+            "clean": true
+          }
+        ]
+      }
+    },
+    {
+      "label": "Answer: the first line",
+      "check": {
+        "type": "answer",
+        "question": "first-line"
+      }
+    },
+    {
+      "label": "Answer: the order",
+      "check": {
+        "type": "answer",
+        "question": "order"
+      }
+    },
+    {
+      "label": "Answer: --root",
+      "check": {
+        "type": "answer",
+        "question": "root"
+      }
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+commands: |
+  git status
+  echo "learn git" > plan.txt
+  git status
+answers:
+  heading: 0

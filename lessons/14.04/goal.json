@@ -1,0 +1,141 @@
+{
+  "questions": [
+    {
+      "id": "entries",
+      "prompt": "How many entries does the root tree of HEAD have?",
+      "type": "number",
+      "answer": 3
+    },
+    {
+      "id": "docs-tree",
+      "prompt": "What is the id of the docs tree? (full id or its first 7 or more characters)",
+      "type": "text",
+      "accept": [
+        "8ebbc49",
+        "8ebbc492",
+        "8ebbc492e",
+        "8ebbc492e9",
+        "8ebbc492e94",
+        "8ebbc492e94f",
+        "8ebbc492e94f1",
+        "8ebbc492e94f13",
+        "8ebbc492e94f139",
+        "8ebbc492e94f1395",
+        "8ebbc492e94f13950",
+        "8ebbc492e94f13950f",
+        "8ebbc492e94f13950f2",
+        "8ebbc492e94f13950f28",
+        "8ebbc492e94f13950f281",
+        "8ebbc492e94f13950f2818",
+        "8ebbc492e94f13950f2818e",
+        "8ebbc492e94f13950f2818e6",
+        "8ebbc492e94f13950f2818e6d",
+        "8ebbc492e94f13950f2818e6d9",
+        "8ebbc492e94f13950f2818e6d9d",
+        "8ebbc492e94f13950f2818e6d9d9",
+        "8ebbc492e94f13950f2818e6d9d97",
+        "8ebbc492e94f13950f2818e6d9d975",
+        "8ebbc492e94f13950f2818e6d9d975f",
+        "8ebbc492e94f13950f2818e6d9d975f6",
+        "8ebbc492e94f13950f2818e6d9d975f69",
+        "8ebbc492e94f13950f2818e6d9d975f69f",
+        "8ebbc492e94f13950f2818e6d9d975f69f9",
+        "8ebbc492e94f13950f2818e6d9d975f69f9e",
+        "8ebbc492e94f13950f2818e6d9d975f69f9e6",
+        "8ebbc492e94f13950f2818e6d9d975f69f9e6e",
+        "8ebbc492e94f13950f2818e6d9d975f69f9e6ed",
+        "8ebbc492e94f13950f2818e6d9d975f69f9e6ed6"
+      ]
+    },
+    {
+      "id": "guide-blob",
+      "prompt": "What is the id of the blob holding docs/guide.md?",
+      "type": "text",
+      "accept": [
+        "323741b",
+        "323741b6",
+        "323741b66",
+        "323741b661",
+        "323741b661f",
+        "323741b661fc",
+        "323741b661fc6",
+        "323741b661fc6f",
+        "323741b661fc6fe",
+        "323741b661fc6fe5",
+        "323741b661fc6fe51",
+        "323741b661fc6fe51f",
+        "323741b661fc6fe51f1",
+        "323741b661fc6fe51f13",
+        "323741b661fc6fe51f13f",
+        "323741b661fc6fe51f13f1",
+        "323741b661fc6fe51f13f13",
+        "323741b661fc6fe51f13f13b",
+        "323741b661fc6fe51f13f13b7",
+        "323741b661fc6fe51f13f13b77",
+        "323741b661fc6fe51f13f13b77f",
+        "323741b661fc6fe51f13f13b77fe",
+        "323741b661fc6fe51f13f13b77fea",
+        "323741b661fc6fe51f13f13b77feaa",
+        "323741b661fc6fe51f13f13b77feaa8",
+        "323741b661fc6fe51f13f13b77feaa82",
+        "323741b661fc6fe51f13f13b77feaa827",
+        "323741b661fc6fe51f13f13b77feaa8275",
+        "323741b661fc6fe51f13f13b77feaa8275b",
+        "323741b661fc6fe51f13f13b77feaa8275bd",
+        "323741b661fc6fe51f13f13b77feaa8275bdd",
+        "323741b661fc6fe51f13f13b77feaa8275bdd2",
+        "323741b661fc6fe51f13f13b77feaa8275bdd29",
+        "323741b661fc6fe51f13f13b77feaa8275bdd299"
+      ]
+    },
+    {
+      "id": "mode",
+      "prompt": "In a tree listing, what does the mode 040000 mean?",
+      "type": "choice",
+      "options": [
+        "The entry is a subfolder (another tree)",
+        "The entry is an executable file",
+        "The entry is a symbolic link",
+        "The entry is empty"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    {
+      "label": "List a tree with git ls-tree",
+      "check": {
+        "type": "usedCommand",
+        "matches": "\\bgit ls-tree\\b"
+      }
+    },
+    {
+      "label": "Count the root tree's entries",
+      "check": {
+        "type": "answer",
+        "question": "entries"
+      }
+    },
+    {
+      "label": "Find the docs tree",
+      "check": {
+        "type": "answer",
+        "question": "docs-tree"
+      }
+    },
+    {
+      "label": "Find the blob of docs/guide.md",
+      "check": {
+        "type": "answer",
+        "question": "guide-blob"
+      }
+    },
+    {
+      "label": "Say what mode 040000 means",
+      "check": {
+        "type": "answer",
+        "question": "mode"
+      }
+    }
+  ]
+}

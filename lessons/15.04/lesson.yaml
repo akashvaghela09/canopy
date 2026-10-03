@@ -1,0 +1,16 @@
+id: "15.04"
+section: 15
+title: "Submodules: remove"
+kind: practice
+teaches: [submodule-remove]
+requires: [submodule-add, rm]
+flags: [destructive]
+repo: work
+start: work
+repos:
+  - { path: work, label: work (your clone) }
+  - { path: lib.git, label: lib (the library) }
+hints:
+  - "`git submodule deinit lib` empties the folder and forgets the submodule in .git/config."
+  - "Then remove `lib` from the project the way you remove any tracked path; git also drops the entry from .gitmodules. Commit."
+  - "The library's clone is still cached in `.git/modules/lib`; delete that folder by hand: `rm -rf .git/modules/lib`."

@@ -1,0 +1,12 @@
+id: "4.04"
+section: 4
+title: Revert a commit
+kind: practice
+teaches: [revert]
+requires: [commit, relative-refs, log]
+flags: []
+repo: site
+start: site
+hints:
+  - "Read the history: the tracking script is the commit one step below HEAD, so its name is HEAD~1."
+  - "`git revert HEAD~1`. Git opens an editor with a prepared message; save it as it is."

@@ -1,0 +1,70 @@
+{
+  "questions": [
+    {
+      "id": "added",
+      "prompt": "Which commit added legacy_total?",
+      "type": "commit",
+      "answer": "@mark:legacy-add"
+    },
+    {
+      "id": "removed",
+      "prompt": "Which commit removed legacy_total?",
+      "type": "commit",
+      "answer": "@mark:legacy-remove"
+    },
+    {
+      "id": "introduced",
+      "prompt": "Which commit introduced apply_discount?",
+      "type": "commit",
+      "answer": "@mark:discounts-add"
+    },
+    {
+      "id": "what-s",
+      "prompt": "What does `git log -S<text>` list?",
+      "type": "choice",
+      "options": [
+        "Commits where the number of occurrences of the text changed in some file",
+        "Commits whose message mentions the text",
+        "Commits whose diff contains the text anywhere, even on unchanged context lines"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    {
+      "label": "Search the history with -S",
+      "check": {
+        "type": "usedCommand",
+        "matches": "^git(\\s+(--no-pager|-C\\s+\\S+|-c\\s+\\S+))*\\s+log\\b.*\\s-S"
+      }
+    },
+    {
+      "label": "Find the commit that added legacy_total",
+      "check": {
+        "type": "answer",
+        "question": "added"
+      }
+    },
+    {
+      "label": "Find the commit that removed it",
+      "check": {
+        "type": "answer",
+        "question": "removed"
+      }
+    },
+    {
+      "label": "Find the commit that introduced apply_discount",
+      "check": {
+        "type": "answer",
+        "question": "introduced"
+      }
+    },
+    {
+      "label": "Say what -S matches",
+      "check": {
+        "type": "answer",
+        "question": "what-s"
+      }
+    }
+  ]
+}

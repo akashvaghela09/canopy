@@ -1,0 +1,69 @@
+{
+  "questions": [
+    {
+      "id": "culprit",
+      "prompt": "Who changed KELVIN_OFFSET in weather.py to the wrong value 273.51?",
+      "type": "choice",
+      "options": ["Jordan Lee", "Priya Patel", "Alex Rivera", "Sam Chen"],
+      "answer": 0
+    },
+    {
+      "id": "bug-commit",
+      "prompt": "Which commit introduced the wrong value?",
+      "type": "commit",
+      "answer": "@mark:bug"
+    },
+    {
+      "id": "renamed",
+      "prompt": "Which file was renamed between v1.0 and v1.1?",
+      "type": "choice",
+      "options": [
+        "config.ini became settings.ini",
+        "weather.py became main.py",
+        "tests/test_weather.py became tests/weather_test.py",
+        "README.md became CHANGELOG.md"
+      ],
+      "answer": 0
+    },
+    {
+      "id": "added",
+      "prompt": "Which file was added between v1.0 and v1.1?",
+      "type": "choice",
+      "options": ["CHANGELOG.md", "settings.ini", "tests/test_weather.py", "weather.py"],
+      "answer": 0
+    },
+    {
+      "id": "city-head4",
+      "prompt": "What did weather.py look like at HEAD~4?",
+      "type": "choice",
+      "options": [
+        "KELVIN_OFFSET = 273.51, and there is no to_fahrenheit function yet",
+        "KELVIN_OFFSET = 273.51, and to_fahrenheit is already there",
+        "KELVIN_OFFSET = 273.15, and to_fahrenheit is already there",
+        "KELVIN_OFFSET = 273.15, and there is no to_fahrenheit function yet"
+      ],
+      "answer": 0
+    },
+    {
+      "id": "merged-tip",
+      "prompt": "Which commit is the second parent of the merge commit (the tip of the branch that was merged in)?",
+      "type": "commit",
+      "answer": "@mark:units-2"
+    },
+    {
+      "id": "priya-count",
+      "prompt": "How many commits did Priya Patel make in this repo?",
+      "type": "number",
+      "answer": 4
+    }
+  ],
+  "goals": [
+    { "label": "Who introduced the bug", "check": { "type": "answer", "question": "culprit" } },
+    { "label": "Which commit introduced it", "check": { "type": "answer", "question": "bug-commit" } },
+    { "label": "Which file was renamed between the releases", "check": { "type": "answer", "question": "renamed" } },
+    { "label": "Which file was added between the releases", "check": { "type": "answer", "question": "added" } },
+    { "label": "What weather.py looked like at HEAD~4", "check": { "type": "answer", "question": "city-head4" } },
+    { "label": "The tip of the merged branch", "check": { "type": "answer", "question": "merged-tip" } },
+    { "label": "How many commits Priya made", "check": { "type": "answer", "question": "priya-count" } }
+  ]
+}

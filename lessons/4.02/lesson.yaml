@@ -1,0 +1,14 @@
+id: "4.02"
+section: 4
+title: Unstage a file
+kind: practice
+teaches: [restore-staged]
+requires: [add, diff-staged]
+flags: []
+minGit: "2.23"
+repo: blog
+start: blog
+panels: [three-areas]
+hints:
+  - "Compare what is staged with what is on disk: both files are staged, and both are also edited on disk."
+  - "`git restore --staged draft.md` takes draft.md out of the staging area. The file on disk is not touched."

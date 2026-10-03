@@ -1,0 +1,10 @@
+commands: |
+  git log --oneline --graph --all --decorate
+  git describe
+  git describe v1.0
+  git describe HEAD~1
+answers:
+  nearest-tag: v1.0
+  ahead: 3
+  g-meaning: 0
+  on-tag: v1.0

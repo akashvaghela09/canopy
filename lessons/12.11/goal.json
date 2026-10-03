@@ -1,0 +1,167 @@
+{
+  "questions": [
+    {
+      "id": "why-conflict",
+      "prompt": "Why did merging main into wide conflict, while narrow merged cleanly?",
+      "type": "choice",
+      "options": [
+        "wide re-indented every line of src/cli.js, so Sam's one-line change collided with it",
+        "Sam pushed to main before wide was merged, which always causes a conflict",
+        "wide and narrow cannot both add the same command"
+      ],
+      "answer": 0
+    },
+    {
+      "id": "habits",
+      "prompt": "Which habits reduce conflicts? Choose all that apply.",
+      "type": "choice",
+      "options": [
+        "Keep reformatting in its own commit and merge it quickly",
+        "Sync with main often and keep commits small",
+        "Leave lines you do not need to change alone",
+        "Force-push main after resolving a conflict",
+        "Avoid branches and commit straight to main without pulling"
+      ],
+      "answers": [
+        0,
+        1,
+        2
+      ]
+    }
+  ],
+  "goals": [
+    {
+      "label": "wide contains main and the conflict is resolved: four-space indent, search command, Sam's usage text",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "isAncestor",
+            "ancestor": "@mark:main-tip",
+            "descendant": "wide"
+          },
+          {
+            "type": "fileContent",
+            "source": "wide",
+            "path": "src/cli.js",
+            "notContains": "<<<<<<<"
+          },
+          {
+            "type": "fileContent",
+            "source": "wide",
+            "path": "src/cli.js",
+            "notContains": ">>>>>>>"
+          },
+          {
+            "type": "fileContent",
+            "source": "wide",
+            "path": "src/cli.js",
+            "contains": "    } else if (command === 'search') {"
+          },
+          {
+            "type": "fileContent",
+            "source": "wide",
+            "path": "src/cli.js",
+            "contains": "(notes live in notes.json)"
+          }
+        ]
+      }
+    },
+    {
+      "label": "narrow contains main and still has the search command",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "isAncestor",
+            "ancestor": "@mark:main-tip",
+            "descendant": "narrow"
+          },
+          {
+            "type": "fileContent",
+            "source": "narrow",
+            "path": "src/cli.js",
+            "contains": "  } else if (command === 'search') {"
+          },
+          {
+            "type": "fileContent",
+            "source": "narrow",
+            "path": "src/cli.js",
+            "contains": "(notes live in notes.json)"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Run git diff --check before committing the README edit",
+      "sticky": true,
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "usedCommand",
+            "matches": "^git diff\\b.*--check",
+            "exitCode": null,
+            "last": true
+          },
+          {
+            "type": "fileContent",
+            "source": "narrow",
+            "path": "README.md",
+            "notContains": "## Search"
+          }
+        ]
+      }
+    },
+    {
+      "label": "README.md on narrow has the Search section with no trailing whitespace",
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "fileContent",
+            "source": "narrow",
+            "path": "README.md",
+            "contains": "## Search"
+          },
+          {
+            "type": "fileContent",
+            "source": "narrow",
+            "path": "README.md",
+            "contains": "lantern search <word>"
+          },
+          {
+            "type": "not",
+            "check": {
+              "type": "fileContent",
+              "source": "narrow",
+              "path": "README.md",
+              "matches": "[ \\t]+\\n"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "label": "Explain the conflict",
+      "check": {
+        "type": "answer",
+        "question": "why-conflict"
+      }
+    },
+    {
+      "label": "Name the habits that avoid it",
+      "check": {
+        "type": "answer",
+        "question": "habits"
+      }
+    },
+    {
+      "label": "Leave the working tree clean",
+      "check": {
+        "type": "status",
+        "clean": true
+      }
+    }
+  ]
+}

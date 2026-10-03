@@ -1,0 +1,30 @@
+{
+  "questions": [
+    {
+      "id": "why-refused",
+      "prompt": "Why did git allow the first switch but refuse the second?",
+      "type": "choice",
+      "options": [
+        "README.md is the same on both branches, so the edit was not in the way; trails/lake.md differs, so switching would have overwritten the edit",
+        "Git allows one switch with uncommitted changes per session, then refuses",
+        "Edits to Markdown files in a folder are always blocked",
+        "The second switch was refused because winter has more commits than main"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    { "label": "Scenario 1: the README edit travels to winter", "sticky": true, "check": { "type": "all", "checks": [
+        { "type": "currentBranch", "name": "winter" },
+        { "type": "status", "modified": ["README.md"] }
+      ] } },
+    { "label": "Scenario 2: git refuses to switch to main over the lake edit", "sticky": true,
+      "check": { "type": "usedCommand", "matches": "^git (switch|checkout)\\s+(main|-)\\s*$", "exitCode": 1 } },
+    { "label": "Scenario 3: back on main after a safe fix, with no conflict left", "check": { "type": "all", "checks": [
+        { "type": "currentBranch", "name": "main" },
+        { "type": "usedCommand", "matches": "^git (switch|checkout)\\b.*\\s(main|-)\\s*$", "exitCode": 0 },
+        { "type": "not", "check": { "type": "status", "conflicted": ["trails/lake.md"] } }
+      ] } },
+    { "label": "Answer: why git refused", "check": { "type": "answer", "question": "why-refused" } }
+  ]
+}

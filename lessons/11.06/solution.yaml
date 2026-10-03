@@ -1,0 +1,11 @@
+commands: |
+  bash fmt.sh 1205
+  echo '[ "$(bash fmt.sh 1205)" = "12.05" ]' > check-fmt.sh
+  bash check-fmt.sh; echo $?
+  git bisect start HEAD v2.0
+  git bisect run bash check-fmt.sh
+  git bisect reset
+answers:
+  fmt-bug: "@mark:fmt-bug"
+  exit-125: 0
+  exit-bad: 0

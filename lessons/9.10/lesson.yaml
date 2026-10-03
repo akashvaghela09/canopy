@@ -1,0 +1,15 @@
+id: "9.10"
+section: 9
+title: Rebase or merge
+kind: concept
+teaches: [concept-rebase-vs-merge]
+requires: [rebase, merge-ff, log-merges]
+flags: []
+repo: rebase-way
+start: "."
+repos:
+  - { path: merge-way, label: "merge-way" }
+  - { path: rebase-way, label: "rebase-way" }
+hints:
+  - "In `merge-way`, stay on `main` and merge `feature`. In `rebase-way`, go to `feature`, rebase it onto `main`, then go back to `main` and merge `feature`: that merge is a fast-forward."
+  - "Compare both with the graph view of the log, and count merge commits with the log's merges-only filter."

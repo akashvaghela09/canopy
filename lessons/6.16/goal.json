@@ -1,0 +1,38 @@
+{
+  "questions": [
+    {
+      "id": "x-vs-restore",
+      "prompt": "What is the difference between merging with -X ours and running git restore --ours on a conflicted file?",
+      "type": "choice",
+      "options": [
+        "-X ours decides only the conflicting hunks and keeps the other side's clean changes; restore --ours replaces the whole file with your version",
+        "They are the same; -X ours is a shortcut that applies restore --ours to every file",
+        "-X ours keeps the other branch's version; restore --ours keeps yours",
+        "restore --ours works during a merge; -X ours works only after it"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    { "label": "Merge pricing, letting -X theirs settle the conflict", "check": { "type": "usedCommand", "matches": "^git merge\\b.*((-X ?theirs|--strategy-option[= ]theirs)\\b.*\\bpricing\\b|\\bpricing\\b.*(-X ?theirs|--strategy-option[= ]theirs)\\b)" } },
+    { "label": "prices.txt has pricing's coffee line, main's toast line and the cake line", "check": { "type": "all", "checks": [
+        { "type": "isAncestor", "ancestor": "@mark:pricing-tip", "descendant": "main" },
+        { "type": "fileContent", "path": "prices.txt", "source": "main", "contains": "Coffee 2.80" },
+        { "type": "fileContent", "path": "prices.txt", "source": "main", "contains": "Toast 3.20" },
+        { "type": "fileContent", "path": "prices.txt", "source": "main", "contains": "Cake 3.50" },
+        { "type": "fileContent", "path": "prices.txt", "source": "main", "notContains": "<<<<<<<" }
+      ] } },
+    { "label": "Merge footer with --no-commit, then commit it yourself", "check": { "type": "all", "checks": [
+        { "type": "usedCommand", "matches": "^git merge\\b.*(--no-commit\\b.*\\bfooter\\b|\\bfooter\\b.*--no-commit\\b)" },
+        { "type": "isAncestor", "ancestor": "@mark:footer-tip", "descendant": "main" },
+        { "type": "fileInRev", "path": "footer.html", "rev": "main", "present": true }
+      ] } },
+    { "label": "Two merge commits on main, nothing in progress", "check": { "type": "all", "checks": [
+        { "type": "currentBranch", "name": "main" },
+        { "type": "operation", "value": null },
+        { "type": "commitCount", "range": "main --merges", "equals": 2 },
+        { "type": "status", "clean": true }
+      ] } },
+    { "label": "Answer: -X ours versus restore --ours", "check": { "type": "answer", "question": "x-vs-restore" } }
+  ]
+}

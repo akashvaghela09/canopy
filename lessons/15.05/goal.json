@@ -1,0 +1,81 @@
+{
+  "questions": [
+    {
+      "id": "squash",
+      "prompt": "What does --squash change about subtree add and pull?",
+      "type": "choice",
+      "options": [
+        "The library's commits are collapsed into one commit per sync, so its history stays out of yours",
+        "The library's files are compressed",
+        "Only the latest file versions are copied; later pulls are impossible",
+        "The folder is added as a submodule instead"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    {
+      "label": "The library is vendored under vendor/lib",
+      "sticky": true,
+      "check": {
+        "type": "all",
+        "checks": [
+          {
+            "type": "fileInRev",
+            "path": "vendor/lib/version.txt",
+            "rev": "HEAD",
+            "present": true
+          },
+          {
+            "type": "shell",
+            "script": "git log --format=%B HEAD | grep -q '^git-subtree-dir: vendor/lib$'"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Sam's 1.1 is pulled into vendor/lib",
+      "check": {
+        "type": "fileContent",
+        "source": "HEAD",
+        "path": "vendor/lib/version.txt",
+        "lines": [
+          "1.1"
+        ]
+      }
+    },
+    {
+      "label": "Your greeting fix is committed in app",
+      "check": {
+        "type": "fileContent",
+        "source": "HEAD",
+        "path": "vendor/lib/greet.txt",
+        "contains": "patched in app"
+      }
+    },
+    {
+      "label": "lib.git main received the fix",
+      "check": {
+        "type": "fileContent",
+        "repo": "lib.git",
+        "source": "main",
+        "path": "greet.txt",
+        "contains": "patched in app"
+      }
+    },
+    {
+      "label": "Nothing left uncommitted",
+      "check": {
+        "type": "status",
+        "clean": true
+      }
+    },
+    {
+      "label": "Say what --squash does",
+      "check": {
+        "type": "answer",
+        "question": "squash"
+      }
+    }
+  ]
+}

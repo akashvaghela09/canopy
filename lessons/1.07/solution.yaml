@@ -1,0 +1,10 @@
+commands: |
+  mkdir bakery
+  cd bakery
+  echo "sourdough loaf" > menu.txt
+  echo "open 7am to 2pm" > hours.txt
+  git init
+  git config user.name "Ada Lovelace"
+  git config user.email "ada@example.com"
+  git status
+answers: {}

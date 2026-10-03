@@ -1,0 +1,10 @@
+commands: |
+  ls
+  git clone origin.git work
+  cd work
+  ls
+  git log --oneline --graph --all
+  git branch
+answers:
+  commit-count: 3
+  why-bare: 0

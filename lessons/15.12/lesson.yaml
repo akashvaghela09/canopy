@@ -1,0 +1,15 @@
+id: "15.12"
+section: 15
+title: Signed commits and tags
+kind: practice
+teaches: [signing]
+requires: [tag-annotated, config-settings]
+flags: []
+minGit: "2.34"
+tools: [ssh-keygen]
+repo: project
+start: project
+hints:
+  - "Key: `ssh-keygen -t ed25519 -N '' -f keys/canopy-key` (always with `-f keys/...`). Config: `gpg.format ssh`, `user.signingkey` to the full path of the .pub file, `gpg.ssh.allowedSignersFile` to a file with `<your email> <public key>`."
+  - "`git commit -S -m ...` and `git tag -s v1.0 -m ...` sign; `git verify-commit HEAD` and `git verify-tag v1.0` check."
+  - "Amending creates a new, unsigned commit object; `git verify-commit HEAD` then fails. The tag still points at the signed original."

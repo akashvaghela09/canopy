@@ -1,0 +1,116 @@
+{
+  "questions": [
+    {
+      "id": "unrecoverable",
+      "prompt": "Which case cannot be recovered with git, and why?",
+      "type": "choice",
+      "options": [
+        "Case 5: the edits were never staged or committed, so git never stored them",
+        "Case 4: a dropped stash is deleted immediately",
+        "Case 3: a finished rebase overwrites the old commits",
+        "Case 2: deleting a branch with -D deletes its commits"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    {
+      "label": "Case 1: main is back on \"Add PDF footer\"",
+      "check": {
+        "type": "all",
+        "repo": "case1-reset",
+        "checks": [
+          {
+            "type": "refAt",
+            "ref": "main",
+            "target": "@mark:c1-tip"
+          },
+          {
+            "type": "status",
+            "clean": true
+          }
+        ]
+      }
+    },
+    {
+      "label": "Case 2: feature/invoices exists at \"Add invoice creation\"",
+      "check": {
+        "type": "all",
+        "repo": "case2-branch",
+        "checks": [
+          {
+            "type": "refAt",
+            "ref": "feature/invoices",
+            "target": "@mark:c2-tip"
+          },
+          {
+            "type": "refAt",
+            "ref": "main",
+            "target": "@mark:c2-main"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Case 3: feature/pdf is back on its original commits",
+      "check": {
+        "type": "all",
+        "repo": "case3-rebase",
+        "checks": [
+          {
+            "type": "refAt",
+            "ref": "feature/pdf",
+            "target": "@mark:c3-orig"
+          },
+          {
+            "type": "refAt",
+            "ref": "main",
+            "target": "@mark:c3-main"
+          },
+          {
+            "type": "refAt",
+            "ref": "old-base",
+            "target": "@mark:c3-old"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Case 4: the retry logic is back (in client.py or in the stash list)",
+      "check": {
+        "type": "all",
+        "repo": "case4-stash",
+        "checks": [
+          {
+            "type": "any",
+            "checks": [
+              {
+                "type": "fileContent",
+                "path": "client.py",
+                "contains": "RETRIES"
+              },
+              {
+                "type": "fileContent",
+                "source": "stash@{0}",
+                "path": "client.py",
+                "contains": "RETRIES"
+              }
+            ]
+          },
+          {
+            "type": "refAt",
+            "ref": "main",
+            "target": "@mark:c4-main"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Case 5: name the unrecoverable case",
+      "check": {
+        "type": "answer",
+        "question": "unrecoverable"
+      }
+    }
+  ]
+}

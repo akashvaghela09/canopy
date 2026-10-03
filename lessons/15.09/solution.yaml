@@ -1,0 +1,15 @@
+commands: |
+  git bundle create ../full.bundle --all
+  git bundle verify ../full.bundle
+  git bundle list-heads ../full.bundle
+  cd ..
+  git clone full.bundle offline
+  cd project
+  echo "Swifts gone by the 10th." > notes/august.md
+  git add notes/august.md
+  git commit -m "Add August notes"
+  git bundle create ../update.bundle v1.0..main
+  ls -l ../full.bundle ../update.bundle
+  cd ../offline
+  git pull ../update.bundle main
+  cd ../project

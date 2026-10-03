@@ -1,0 +1,13 @@
+id: "9.24"
+section: 9
+title: Keep merges when rebasing
+kind: practice
+teaches: [rebase-merges]
+requires: [rebase, merge-three-way, rebase-i-basics]
+flags: []
+minGit: "2.18"
+repo: app
+start: app
+hints:
+  - "A plain rebase would replay the commits in a line and leave the merge out. Add `--rebase-merges`."
+  - "On `editor`: `git rebase --rebase-merges main`. Afterwards the graph should still show the small loop for the merge."

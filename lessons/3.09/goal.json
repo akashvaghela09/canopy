@@ -1,0 +1,34 @@
+{
+  "questions": [
+    {
+      "id": "files-head2",
+      "prompt": "Which files changed between HEAD~2 and HEAD?",
+      "type": "choice",
+      "options": [
+        "index.html and pages/menu.md",
+        "styles.css and index.html",
+        "Only pages/menu.md",
+        "README.md and pages/contact.md"
+      ],
+      "answer": 0
+    },
+    {
+      "id": "baguette",
+      "prompt": "According to `git diff v1.0 HEAD`, what happened to the baguette line in pages/menu.md?",
+      "type": "choice",
+      "options": [
+        "Its price went from 4.00 to 40.0",
+        "Its price went from 4.00 to 4.50",
+        "The line was removed from the menu",
+        "Nothing; the line is identical in both"
+      ],
+      "answer": 0
+    }
+  ],
+  "goals": [
+    { "label": "Compare two commits with git diff", "check": { "type": "usedCommand", "matches": "^git diff( -\\S+)* [^-\\s]\\S*?( |\\.\\.)[^-\\s]\\S*" } },
+    { "label": "Compare v1.0 with HEAD", "check": { "type": "usedCommand", "matches": "^git diff\\b.*v1\\.0" } },
+    { "label": "Answer: files changed between HEAD~2 and HEAD", "check": { "type": "answer", "question": "files-head2" } },
+    { "label": "Answer: the baguette line", "check": { "type": "answer", "question": "baguette" } }
+  ]
+}
