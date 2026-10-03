@@ -1,6 +1,6 @@
 New machine, empty config. Set it up the way this section taught, then prove each piece works. The lesson folder has two repos, `work/app` and `personal/blog`, two identity files in `conf/`, and a bare monorepo `big.git`.
 
-## Goals
+## Your tasks
 
 - Commits under `work/` use `Alex Rivera <alex@acme.example>` and commits under `personal/` use `Alex <alex@home.example>`, through conditional includes of the files in `conf/`, not through local settings. Commit the waiting file in each repo to prove it.
 - A global alias `lg` shows a decorated graph of all branches. Run it.

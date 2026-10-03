@@ -305,3 +305,14 @@
   --dur-slow: 0ms;
   --dur-graph: 0ms;
 }
+
+/* Lesson panel content follows the "Lessons" text size; everything inside
+   uses em so the whole panel content scales together. */
+:root {
+  --lesson-fs: 15px;
+  --code-fs: 13px;
+}
+.lesson-scale {
+  font-size: var(--lesson-fs);
+  line-height: 1.6;
+}

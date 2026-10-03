@@ -1,17 +1,41 @@
-import { X } from "lucide-react";
+import { ChevronRight, X } from "lucide-react";
 import { useEffect } from "react";
 import { api, events } from "./api";
-import { FirstRun, GitGate, Home, SectionView, ThemeRadios, TopBar } from "./components/screens";
-import { Button, Dialog, IconButton, useFocusTrap } from "./components/ui";
+import { FirstRun, GitGate, Home, SectionView, TopBar } from "./components/screens";
+import { Button, Dialog, IconButton, Segmented, Stepper, Switch, useFocusTrap } from "./components/ui";
 import { LessonUpdates } from "./components/Updates";
 import { paneFocus, Workspace } from "./components/Workspace";
 import { isAppChord } from "./components/Terminal";
 import { appActions, catalogActions, confirmLeave, go, leaveRisks, lessonActions, loadCatalog, resetProgress, setSetting, store, useAppDispatch, useAppSelector } from "./store";
 import { neighbours } from "./store/progress";
-import { applyMotion, applyTheme, TEXT_SIZES, textScale } from "./theme";
+import { applyMotion, applyTheme, CODE_DEFAULT, CODE_STEPS, codeFs, LESSON_DEFAULT, LESSON_STEPS, lessonFs, nearest, stepBy } from "./theme";
 import { useRef, useState } from "react";
 
 let booting = false;
+const APP_VERSION = __APP_VERSION__;
+
+// Short "Lesson text 16" pill after Ctrl+= / Ctrl+-.
+let pillSetter: ((t: string | null) => void) | null = null;
+let pillTimer: ReturnType<typeof setTimeout> | undefined;
+function showSizePill(text: string) {
+  pillSetter?.(text);
+  clearTimeout(pillTimer);
+  pillTimer = setTimeout(() => pillSetter?.(null), 1200);
+}
+function SizePill() {
+  const [text, setText] = useState<string | null>(null);
+  useEffect(() => {
+    pillSetter = setText;
+    return () => {
+      pillSetter = null;
+    };
+  }, []);
+  return (
+    <div aria-live="polite" className="pointer-events-none fixed top-14 right-4 z-50">
+      {text && <div className="flex h-6 items-center rounded-md border border-edge-2 bg-raised px-2 text-xs text-fg-2">{text}</div>}
+    </div>
+  );
+}
 
 export default function App() {
   const [bootError, setBootError] = useState<string | null>(null);
@@ -50,9 +74,18 @@ export default function App() {
 
   useEffect(() => applyTheme(settings.theme), [settings.theme]);
   useEffect(() => applyMotion(settings.motion), [settings.motion]);
+  // Two text sizes: lesson content and terminal/editors. The root stays 16px.
   useEffect(() => {
-    document.documentElement.style.fontSize = `${textScale(settings)}%`;
+    document.documentElement.style.setProperty("--lesson-fs", `${lessonFs(settings)}px`);
+    document.documentElement.style.setProperty("--code-fs", `${codeFs(settings)}px`);
   }, [settings]);
+  // One-time move from the old single "textSize" (a percentage) to the two settings.
+  useEffect(() => {
+    const old = Number(settings.textSize);
+    if (!settings.textSize || settings.lessonText || settings.codeText) return;
+    dispatch(setSetting({ key: "lessonText", value: String(nearest(LESSON_STEPS, (LESSON_DEFAULT * old) / 100)) }));
+    dispatch(setSetting({ key: "codeText", value: String(nearest(CODE_STEPS, (CODE_DEFAULT * old) / 100)) }));
+  }, [settings, dispatch]);
 
   // Backend events.
   useEffect(() => {
@@ -129,11 +162,16 @@ export default function App() {
         e.preventDefault();
         dispatch(appActions.openShortcuts(true));
       } else if (e.ctrlKey && (e.key === "=" || e.key === "-" || e.key === "0")) {
+        // Change the text size of the surface being worked in.
         e.preventDefault();
-        const steps = TEXT_SIZES.map((t) => t.value);
-        const cur = steps.indexOf(textScale(settings));
-        const next = e.key === "0" ? 100 : steps[Math.min(steps.length - 1, Math.max(0, cur + (e.key === "=" ? 1 : -1)))];
-        dispatch(setSetting({ key: "textSize", value: String(next) }));
+        const el = document.activeElement;
+        const code = Boolean(el?.closest("[data-pane=terminal], .cm-editor, .editor-sheet"));
+        const [key, steps, dflt, cur, name] = code
+          ? (["codeText", CODE_STEPS, CODE_DEFAULT, codeFs(settings), "Terminal text"] as const)
+          : (["lessonText", LESSON_STEPS, LESSON_DEFAULT, lessonFs(settings), "Lesson text"] as const);
+        const next = e.key === "0" ? dflt : stepBy([...steps], cur, e.key === "=" ? 1 : -1);
+        dispatch(setSetting({ key, value: String(next) }));
+        showSizePill(`${name} ${next}`);
       }
     };
     window.addEventListener("keydown", onKey);
@@ -165,6 +203,7 @@ export default function App() {
         {screen.kind === "section" && <SectionView sectionId={screen.section} />}
         {screen.kind === "lesson" && <Workspace lessonId={screen.lesson} />}
       </div>
+      <SizePill />
       <SettingsSheet />
       <LeaveDialog />
       <Shortcuts />
@@ -224,72 +263,74 @@ function SettingsSheet() {
   const set = (key: string, value: string) => dispatch(setSetting({ key, value }));
   const done = cat ? Object.keys(cat.completed).length : 0;
   return (
-    <div className="fixed inset-0 z-30 flex justify-end bg-black/40 dark:bg-black/60" onMouseDown={() => dispatch(appActions.openSettings(false))}>
-      <aside ref={sheet} role="dialog" aria-modal="true" aria-label="Settings" className="flex h-full w-[480px] flex-col border-l border-edge-2 bg-raised" onMouseDown={(e) => e.stopPropagation()}>
-        <div className="flex h-12 shrink-0 items-center border-b border-edge px-4">
-          <h2 className="text-lg font-semibold">Settings</h2>
-          <IconButton icon={X} label="Close settings" className="ml-auto" size={28} onClick={() => dispatch(appActions.openSettings(false))} />
+    // A light scrim keeps the lesson and terminal readable while sizes change.
+    <div className="fixed inset-0 z-30 flex justify-end bg-black/15 dark:bg-black/35" onMouseDown={() => dispatch(appActions.openSettings(false))}>
+      <aside
+        ref={sheet}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Settings"
+        className="flex h-full w-[440px] flex-col border-l border-edge-2 bg-bg max-[1279px]:w-[400px]"
+        onMouseDown={(e) => e.stopPropagation()}
+      >
+        <div className="flex h-[52px] shrink-0 items-center border-b border-edge px-5">
+          <h2 className="text-base font-semibold">Settings</h2>
+          <IconButton icon={X} label="Close settings (Esc)" className="ml-auto" size={28} onClick={() => dispatch(appActions.openSettings(false))} />
         </div>
-        <div className="min-h-0 flex-1 overflow-y-auto p-4 text-sm">
+        <div className="min-h-0 flex-1 overflow-y-auto px-5 pt-2 pb-6">
           <SettingsGroup title="Appearance">
             <Row label="Theme">
-              <ThemeRadios value={settings.theme ?? "system"} onChange={(v) => set("theme", v)} />
+              <Segmented
+                label="Theme"
+                value={(settings.theme ?? "system") as "system" | "light" | "dark"}
+                options={[
+                  { value: "system", label: "System" },
+                  { value: "light", label: "Light" },
+                  { value: "dark", label: "Dark" },
+                ]}
+                onChange={(v) => set("theme", v)}
+              />
             </Row>
-            <Row label="Text size">
-              <select value={String(textScale(settings))} onChange={(e) => set("textSize", e.target.value)} className="h-7 rounded-sm border border-edge-2 bg-surface px-2" aria-describedby="text-size-note">
-                {TEXT_SIZES.map((t) => (
-                  <option key={t.value} value={t.value}>
-                    {t.label}
-                  </option>
-                ))}
-              </select>
-              <div id="text-size-note" className="mt-1 text-xs text-fg-3">
-                Lessons, panels and the terminal. Ctrl+= and Ctrl+- also work.
-              </div>
+            <Row label="Reduce motion" description="Canopy already follows your system setting. Turn on to always reduce it." onRowClick={() => set("motion", settings.motion === "reduce" ? "system" : "reduce")}>
+              <Switch label="Reduce motion" checked={settings.motion === "reduce"} onChange={(v) => set("motion", v ? "reduce" : "system")} />
             </Row>
-            <Row label="Reduce motion">
-              <select value={settings.motion ?? "system"} onChange={(e) => set("motion", e.target.value)} className="h-7 rounded-sm border border-edge-2 bg-surface px-2">
-                <option value="system">Follow system</option>
-                <option value="reduce">Always</option>
-              </select>
+          </SettingsGroup>
+          <SettingsGroup title="Text size" caption="Ctrl+= and Ctrl+- change the one you are working in.">
+            <Row label="Lessons" description="Lesson text, questions and goals">
+              <Stepper label="Lesson text" value={lessonFs(settings)} steps={LESSON_STEPS} dflt={LESSON_DEFAULT} onChange={(v) => set("lessonText", String(v))} />
             </Row>
-            <Row label="Graph">
-              <div className="flex flex-col gap-1.5">
-                <label className="flex items-center gap-2">
-                  <input type="checkbox" checked={settings.graphIds === "1"} onChange={(e) => set("graphIds", e.target.checked ? "1" : "0")} className="accent-[var(--color-accent)]" />
-                  Show commit ids instead of messages
-                </label>
-                <label className="flex items-center gap-2">
-                  <input type="checkbox" checked={settings.graphText === "1"} onChange={(e) => set("graphText", e.target.checked ? "1" : "0")} className="accent-[var(--color-accent)]" />
-                  Show the graph as a text list (screen readers)
-                </label>
-              </div>
+            <Row label="Terminal and editors" description="Terminal, commit messages and files">
+              <Stepper label="Terminal text" value={codeFs(settings)} steps={CODE_STEPS} dflt={CODE_DEFAULT} onChange={(v) => set("codeText", String(v))} />
+            </Row>
+          </SettingsGroup>
+          <SettingsGroup title="Graph">
+            <Row label="Show commit ids" description="Instead of commit messages under each commit" onRowClick={() => set("graphIds", settings.graphIds === "1" ? "0" : "1")}>
+              <Switch label="Show commit ids" checked={settings.graphIds === "1"} onChange={(v) => set("graphIds", v ? "1" : "0")} />
+            </Row>
+            <Row label="Graph as a text list" description="Easier with a screen reader" onRowClick={() => set("graphText", settings.graphText === "1" ? "0" : "1")}>
+              <Switch label="Graph as a text list" checked={settings.graphText === "1"} onChange={(v) => set("graphText", v ? "1" : "0")} />
             </Row>
           </SettingsGroup>
           <SettingsGroup title="Lessons">
             <LessonUpdates />
-            <Row label="Progress">
-              <Button variant="danger-ghost" disabled={done === 0} onClick={() => setConfirmAll(true)}>
-                Reset all progress…
+            <Row label="Reset all progress" description={done === 0 ? "Nothing to reset" : done === 1 ? "Marks your 1 completed lesson as not done" : `Marks all ${done} completed lessons as not done`}>
+              <Button disabled={done === 0} onClick={() => setConfirmAll(true)}>
+                Reset…
               </Button>
             </Row>
           </SettingsGroup>
           <SettingsGroup title="Help">
-            <Row label="Keyboard">
-              <Button variant="link" onClick={() => dispatch(appActions.openShortcuts(true))}>
-                Keyboard shortcuts
-              </Button>
-            </Row>
+            <button className="flex min-h-12 w-full items-center gap-4 px-3.5 py-2.5 text-left hover:bg-sunken" onClick={() => dispatch(appActions.openShortcuts(true))}>
+              <span className="flex-1 text-[0.84375rem] font-medium">Keyboard shortcuts</span>
+              <span className="font-mono text-xs text-fg-3">Ctrl+/</span>
+              <ChevronRight size={14} className="text-fg-3" />
+            </button>
           </SettingsGroup>
-          <SettingsGroup title="About">
-            <div className="text-fg-2">
-              Canopy · git {git?.version}
-              <br />
-              Lesson format {cat?.manifest.formatVersion} · content {cat?.manifest.contentVersion}
-              <br />
-              Fonts: Inter, JetBrains Mono (OFL). Icons: Lucide (ISC).
-            </div>
-          </SettingsGroup>
+          <footer className="mt-6 text-center text-xs leading-5 text-fg-3">
+            Canopy {APP_VERSION} · git {git?.version} · lesson format {cat?.manifest.formatVersion}
+            <br />
+            Inter and JetBrains Mono (OFL) · Lucide icons (ISC)
+          </footer>
         </div>
       </aside>
       {confirmAll && (
@@ -313,27 +354,32 @@ function SettingsSheet() {
             </>
           }
         >
-          All {done} completed lessons will be marked as not complete. This cannot be undone.
+          {done === 1 ? "Your 1 completed lesson" : `All ${done} completed lessons`} will be marked as not complete. This cannot be undone.
         </Dialog>
       )}
     </div>
   );
 }
 
-function SettingsGroup({ title, children }: { title: string; children: React.ReactNode }) {
+function SettingsGroup({ title, caption, children }: { title: string; caption?: string; children: React.ReactNode }) {
   return (
-    <section className="mb-6">
-      <h3 className="mb-2 text-2xs font-semibold tracking-[0.06em] text-fg-3 uppercase">{title}</h3>
-      <div className="flex flex-col gap-3">{children}</div>
+    <section className="mt-5">
+      <h3 className="mx-1 mb-2 text-[0.8125rem] font-semibold text-fg-2">{title}</h3>
+      <div className="divide-y divide-edge overflow-hidden rounded-lg border border-edge bg-surface">{children}</div>
+      {caption && <p className="mx-1 mt-1.5 text-xs text-fg-3">{caption}</p>}
     </section>
   );
 }
 
-function Row({ label, children }: { label: string; children: React.ReactNode }) {
+/** One settings row: label and description left, control right. */
+export function Row({ label, description, children, onRowClick }: { label: string; description?: React.ReactNode; children: React.ReactNode; onRowClick?: () => void }) {
   return (
-    <div className="grid grid-cols-[140px_1fr] items-center gap-3">
-      <span className="text-fg-2">{label}</span>
-      <div>{children}</div>
+    <div className={`flex min-h-12 items-center gap-4 px-3.5 py-2.5 ${onRowClick ? "cursor-pointer" : ""}`} onClick={(e) => onRowClick && !(e.target as HTMLElement).closest("button") && onRowClick()}>
+      <div className="min-w-0 flex-1">
+        <div className="text-[0.84375rem] leading-5 font-medium">{label}</div>
+        {description && <div className="mt-0.5 text-xs leading-4 text-fg-3">{description}</div>}
+      </div>
+      {children}
     </div>
   );
 }
@@ -352,7 +398,7 @@ const SHORTCUTS: [string, string][] = [
   ["Ctrl+,", "Settings"],
   ["Ctrl+/", "Keyboard shortcuts"],
   ["Ctrl+Shift+C / V", "Copy / paste in the terminal"],
-  ["Ctrl+= / Ctrl+- / Ctrl+0", "Text size (bigger / smaller / default)"],
+  ["Ctrl+= / Ctrl+- / Ctrl+0", "Text size of the lesson or terminal, whichever you are in"],
   ["Ctrl+Enter", "Save and continue (editor sheet)"],
 ];
 

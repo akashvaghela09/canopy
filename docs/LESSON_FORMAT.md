@@ -67,7 +67,10 @@ One or two short paragraphs explaining the idea. Plain English, short sentences.
 Short explanation tying the result to the graph or panels. Optional.
 ```
 
+The lesson panel splits on these headings: text before `## Try it` is the Read tab, `## Try it` to `## What just happened` is the Try it tab, and `## What just happened` is shown as a recap once the lesson is complete. `## Try it` is required, except in boss lessons, which use `## Your tasks` and show everything on one Challenge tab.
+
 Writing rules:
+- Action buttons (from `actions` in lesson.yaml) appear inline in the step that names their label in **bold**, so bold the label in that step.
 - One new idea per lesson. Short. A learner should read it in under two minutes.
 - **Recall rule:** never show the command for a skill in `requires`, unless the lesson has the `guided` flag. Describe the intent instead.
 - Destructive lessons start with one sentence saying what will be lost; the app adds its own banner.

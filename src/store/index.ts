@@ -97,6 +97,7 @@ type LessonState = {
   status: "idle" | "starting" | "running" | "error";
   error: string | null;
   hintsShown: number;
+  hintOpen: boolean;
   /** question id -> last feedback */
   feedback: Record<string, "correct" | "wrong">;
   actionRuns: Record<string, number>;
@@ -121,6 +122,7 @@ const initialLesson: LessonState = {
   status: "idle",
   error: null,
   hintsShown: 0,
+  hintOpen: false,
   feedback: {},
   actionRuns: {},
   runningAction: null,
@@ -156,8 +158,28 @@ const lessonSlice = createSlice({
       if (a.payload.lessonId !== s.id) return;
       s.update = a.payload;
     },
+    /** Reveal the next hint (capped) and show the hint card. */
     showHint(s) {
-      s.hintsShown += 1;
+      const max = s.view?.meta.hints.length ?? 0;
+      s.hintsShown = Math.min(max, s.hintsShown + 1);
+      s.hintOpen = s.hintsShown > 0;
+    },
+    /** Hint button: open (revealing the first hint if none yet) or close. */
+    toggleHint(s) {
+      if (s.hintOpen) {
+        s.hintOpen = false;
+        return;
+      }
+      if (s.hintsShown === 0) s.hintsShown = Math.min(1, s.view?.meta.hints.length ?? 0);
+      s.hintOpen = s.hintsShown > 0;
+    },
+    /** Alt+H: open the card, or reveal the next hint when it is already open. */
+    hintKey(s) {
+      const max = s.view?.meta.hints.length ?? 0;
+      if (!s.hintOpen) {
+        if (s.hintsShown === 0) s.hintsShown = Math.min(1, max);
+        s.hintOpen = s.hintsShown > 0;
+      } else s.hintsShown = Math.min(max, s.hintsShown + 1);
     },
     answerChecked(s, a: PayloadAction<{ question: string; correct: boolean; value: unknown }>) {
       s.feedback[a.payload.question] = a.payload.correct ? "correct" : "wrong";

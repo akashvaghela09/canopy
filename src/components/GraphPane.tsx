@@ -173,22 +173,22 @@ export function GraphPane({ showIds, scale, maxHeight, manualHeight }: { showIds
   );
 }
 
-/** "Key" button in the corner; the popover opens by itself the first time. */
+/** "Key" button in the corner; the popover opens by itself once, after the first command changes the graph. */
 function GraphKey() {
-  const [open, setOpen] = useState(() => {
-    try {
-      return !localStorage.getItem("canopy.graphKeySeen");
-    } catch {
-      return false;
-    }
-  });
+  const [open, setOpen] = useState(false);
+  const commands = useAppSelector((s) => s.lesson.update?.commands ?? 0);
   useEffect(() => {
-    if (!open) return;
+    if (commands < 1) return;
     try {
+      if (localStorage.getItem("canopy.graphKeySeen")) return;
       localStorage.setItem("canopy.graphKeySeen", "1");
     } catch {
-      /* ignore */
+      return;
     }
+    setOpen(true);
+  }, [commands]);
+  useEffect(() => {
+    if (!open) return;
     const close = () => setOpen(false);
     window.addEventListener("pointerdown", close, { once: true });
     return () => window.removeEventListener("pointerdown", close);

@@ -63,112 +63,102 @@ export function LessonUpdates() {
     }
   };
 
-  const checked = lastChecked ? `Checked ${relative(Number(lastChecked))}` : "Never checked";
+  const checked = lastChecked ? `checked ${relative(Number(lastChecked))}` : "never checked";
 
-  return (
-    <div className="rounded-md border border-edge p-3" aria-live="polite">
-      <div className="font-medium">Lesson content</div>
-      {state.kind === "idle" && (
-        <>
-          <div className="mt-1 text-fg-2">
-            Installed {installed} · {checked}
+  // Row layout like the other settings: status left, one button right,
+  // anything longer (changelog, progress, errors) below.
+  let status: React.ReactNode = `Version ${installed} · ${checked}`;
+  let control: React.ReactNode = <Button onClick={check}>Check for updates</Button>;
+  let extra: React.ReactNode = null;
+  switch (state.kind) {
+    case "checking":
+      control = <Button loading>Checking…</Button>;
+      break;
+    case "notConfigured":
+      status = "No update source in this build. Lessons keep working offline.";
+      control = null;
+      break;
+    case "upToDate":
+      status = (
+        <span className="inline-flex items-center gap-1">
+          <CheckCircle2 size={12} className="text-success" /> Up to date · version {installed}
+        </span>
+      );
+      control = (
+        <Button variant="ghost" onClick={check}>
+          Check again
+        </Button>
+      );
+      break;
+    case "available":
+      status = `${state.feed.contentVersion} available · ${mb(state.feed.size)}`;
+      control = (
+        <Button variant="primary" icon={Download} onClick={() => install(state.feed)}>
+          Install
+        </Button>
+      );
+      extra = state.feed.changelog && (
+        <details className="text-xs text-fg-2">
+          <summary className="cursor-pointer">What changed</summary>
+          <div className="lesson-md mt-1 max-h-60 overflow-y-auto text-sm">
+            <ReactMarkdown>{state.feed.changelog}</ReactMarkdown>
           </div>
-          <Button className="mt-2" onClick={check}>
-            Check for updates
-          </Button>
-        </>
-      )}
-      {state.kind === "checking" && (
-        <>
-          <div className="mt-1 text-fg-2">Installed {installed}</div>
-          <Button className="mt-2" loading>
-            Checking…
-          </Button>
-        </>
-      )}
-      {state.kind === "notConfigured" && (
-        <Banner tone="info" className="mt-2">
-          This build of Canopy has no lesson update source configured. Lessons keep working offline.
-        </Banner>
-      )}
-      {state.kind === "upToDate" && (
-        <>
-          <div className="mt-1 flex items-center gap-1.5 text-fg">
-            <CheckCircle2 size={14} className="text-success" /> You have the latest lessons. · Checked just now
-          </div>
-          <Button variant="ghost" className="mt-2" onClick={check}>
-            Check again
-          </Button>
-        </>
-      )}
-      {state.kind === "available" && (
-        <>
-          <div className="mt-1">
-            {state.feed.contentVersion} available · {mb(state.feed.size)}
-          </div>
-          {state.feed.changelog && (
-            <details className="mt-1 text-fg-2">
-              <summary className="cursor-pointer">What changed</summary>
-              <div className="lesson-md mt-1 max-h-60 overflow-y-auto text-sm">
-                <ReactMarkdown>{state.feed.changelog}</ReactMarkdown>
-              </div>
-            </details>
-          )}
-          <div className="mt-2 flex gap-2">
-            <Button variant="primary" icon={Download} onClick={() => install(state.feed)}>
-              Download and install
-            </Button>
-            <Button variant="ghost" onClick={() => setState({ kind: "idle" })}>
-              Not now
-            </Button>
-          </div>
-        </>
-      )}
-      {state.kind === "downloading" && (
-        <div className="mt-2">
-          <ProgressBar done={state.done} total={state.total || 1} label="Download progress" />
-          <div className="mt-1 text-fg-2">
-            Downloading… {mb(state.done)} of {mb(state.total)}
-          </div>
-        </div>
-      )}
-      {state.kind === "installing" && <div className="mt-2 text-fg-2">Installing…</div>}
-      {state.kind === "installed" && (
-        <>
-          <div className="mt-1 flex items-center gap-1.5">
-            <CheckCircle2 size={14} className="text-success" /> Installed {state.version}. Your progress is unchanged.
-          </div>
-          {state.openLessonChanged && <div className="mt-1 text-fg-2">The lesson you have open was updated. Reset lesson to load the new version.</div>}
-          <Button className="mt-2" onClick={() => setState({ kind: "idle" })}>
-            Done
-          </Button>
-        </>
-      )}
-      {state.kind === "needsNewerApp" && (
-        <Banner tone="warning" className="mt-2" title="This update needs a newer Canopy.">
+        </details>
+      );
+      break;
+    case "downloading":
+      status = `Downloading… ${mb(state.done)} of ${mb(state.total)}`;
+      control = null;
+      extra = <ProgressBar done={state.done} total={state.total || 1} label="Download progress" />;
+      break;
+    case "installing":
+      status = "Installing…";
+      control = null;
+      break;
+    case "installed":
+      status = (
+        <span className="inline-flex items-center gap-1">
+          <CheckCircle2 size={12} className="text-success" /> Installed {state.version}. Your progress is unchanged.
+        </span>
+      );
+      control = <Button onClick={() => setState({ kind: "idle" })}>Done</Button>;
+      if (state.openLessonChanged) extra = <p className="text-xs text-fg-2">The lesson you have open was updated. Reset lesson to load the new version.</p>;
+      break;
+    case "needsNewerApp":
+      status = `${state.feed.contentVersion} needs a newer Canopy`;
+      extra = (
+        <Banner tone="warning">
           Lesson pack {state.feed.contentVersion} uses lesson format {state.feed.formatVersion}. This version of Canopy reads format 1.
         </Banner>
-      )}
-      {state.kind === "failed" && (
-        <>
-          <div className="mt-1 flex items-center gap-1.5">
-            <XCircle size={14} className="text-danger" /> {state.message}
-          </div>
-          <details className="mt-1 text-xs text-fg-2">
-            <summary className="cursor-pointer">Details</summary>
-            <pre className="selectable mt-1 whitespace-pre-wrap">{state.detail}</pre>
-          </details>
-          <div className="mt-2 flex gap-2">
-            <Button onClick={check}>Try again</Button>
-            <Button variant="ghost" onClick={() => setState({ kind: "idle" })}>
-              Not now
-            </Button>
-          </div>
-        </>
-      )}
-      <p className="mt-2 text-xs text-fg-3">
-        Canopy only goes online when you press this button.
-      </p>
+      );
+      break;
+    case "failed":
+      status = (
+        <span className="inline-flex items-center gap-1">
+          <XCircle size={12} className="text-danger" /> {state.message}
+        </span>
+      );
+      control = <Button onClick={check}>Try again</Button>;
+      extra = (
+        <details className="text-xs text-fg-2">
+          <summary className="cursor-pointer">Details</summary>
+          <pre className="selectable mt-1 whitespace-pre-wrap">{state.detail}</pre>
+        </details>
+      );
+      break;
+  }
+
+  return (
+    <div className="px-3.5 py-2.5" aria-live="polite">
+      <div className="flex min-h-7 items-center gap-4">
+        <div className="min-w-0 flex-1">
+          <div className="text-[0.84375rem] leading-5 font-medium">Lesson content</div>
+          <div className="mt-0.5 text-xs leading-4 text-fg-3">{status}</div>
+        </div>
+        {control}
+      </div>
+      {extra && <div className="mt-2">{extra}</div>}
+      <p className="mt-1.5 text-xs text-fg-3">Canopy only goes online when you press the button.</p>
     </div>
   );
 }

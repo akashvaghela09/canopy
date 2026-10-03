@@ -1,6 +1,6 @@
 // Shared UI primitives. Specs: docs/design/DESIGN.md section 7.
 
-import { AlertTriangle, CheckCircle2, Info, Loader2, X, XCircle, type LucideIcon } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Info, Loader2, Minus, Plus, X, XCircle, type LucideIcon } from "lucide-react";
 import React, { useEffect, useRef, type ButtonHTMLAttributes, type ReactNode } from "react";
 
 type Variant = "primary" | "secondary" | "ghost" | "danger" | "danger-ghost" | "link";
@@ -19,6 +19,7 @@ export function Button({
   size = "md",
   icon: Icon,
   loading,
+  scaled,
   className = "",
   children,
   ...rest
@@ -27,8 +28,18 @@ export function Button({
   size?: "sm" | "md" | "lg";
   icon?: LucideIcon;
   loading?: boolean;
+  /** Inside the lesson panel: size follows the lesson text setting (em). */
+  scaled?: boolean;
 }) {
-  const h = size === "sm" ? "h-6 px-2 text-xs" : size === "lg" ? "h-8 px-3 text-sm" : "h-7 px-3 text-sm";
+  const h = scaled
+    ? size === "sm"
+      ? "min-h-[1.75em] px-[0.7em] text-[0.8em]"
+      : "min-h-[2em] px-[0.8em] text-[0.875em]"
+    : size === "sm"
+      ? "h-6 px-2 text-xs"
+      : size === "lg"
+        ? "h-8 px-3 text-sm"
+        : "h-7 px-3 text-sm";
   return (
     <button
       type="button"
@@ -36,7 +47,7 @@ export function Button({
       disabled={rest.disabled || loading}
       {...rest}
     >
-      {loading ? <Loader2 size={14} className="animate-spin" /> : Icon ? <Icon size={14} strokeWidth={1.75} /> : null}
+      {loading ? <Loader2 size={scaled ? "1em" : 14} className="animate-spin" /> : Icon ? <Icon size={scaled ? "1em" : 14} strokeWidth={1.75} /> : null}
       {children}
     </button>
   );
@@ -226,4 +237,91 @@ export function Dialog({
 
 export function Spinner({ size = 14 }: { size?: number }) {
   return <Loader2 size={size} className="animate-spin text-fg-3" aria-hidden />;
+}
+
+/** On/off switch (settings). The whole row can also toggle it. */
+export function Switch({ checked, onChange, label }: { checked: boolean; onChange: (v: boolean) => void; label: string }) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      aria-label={label}
+      onClick={() => onChange(!checked)}
+      className={`relative h-[18px] w-8 shrink-0 rounded-full transition-colors duration-[var(--dur-fast)] ${checked ? "bg-accent" : "bg-edge-2"}`}
+    >
+      <span className={`absolute top-[2px] left-[2px] h-[14px] w-[14px] rounded-full bg-surface transition-transform duration-[var(--dur-fast)] ${checked ? "translate-x-[14px]" : ""}`} />
+    </button>
+  );
+}
+
+/** A few mutually exclusive options in one control (e.g. System · Light · Dark). */
+export function Segmented<T extends string>({ value, options, onChange, label }: { value: T; options: { value: T; label: string }[]; onChange: (v: T) => void; label: string }) {
+  const refs = useRef<(HTMLButtonElement | null)[]>([]);
+  const idx = options.findIndex((o) => o.value === value);
+  return (
+    <div role="radiogroup" aria-label={label} className="flex h-7 shrink-0 overflow-hidden rounded-md border border-edge-2 text-sm font-medium">
+      {options.map((o, i) => (
+        <button
+          key={o.value}
+          ref={(el) => {
+            refs.current[i] = el;
+          }}
+          type="button"
+          role="radio"
+          aria-checked={o.value === value}
+          tabIndex={o.value === value ? 0 : -1}
+          onClick={() => onChange(o.value)}
+          onKeyDown={(e) => {
+            if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+            e.preventDefault();
+            const n = (idx + (e.key === "ArrowRight" ? 1 : options.length - 1)) % options.length;
+            onChange(options[n].value);
+            refs.current[n]?.focus();
+          }}
+          className={`px-2.5 ${o.value === value ? "bg-ink text-ink-fg" : "text-fg-2 hover:bg-sunken"}`}
+        >
+          {o.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+/** − value + for stepped numbers (text sizes). */
+export function Stepper({ value, steps, dflt, onChange, label }: { value: number; steps: number[]; dflt: number; onChange: (v: number) => void; label: string }) {
+  const i = steps.indexOf(value);
+  const step = (d: number) => onChange(steps[Math.min(steps.length - 1, Math.max(0, i + d))]);
+  return (
+    <div className="flex shrink-0 items-center gap-2">
+      {value !== dflt && (
+        <button className="text-xs text-fg-3 hover:text-fg hover:underline" onClick={() => onChange(dflt)}>
+          Reset
+        </button>
+      )}
+      <div
+        role="spinbutton"
+        tabIndex={0}
+        aria-label={label}
+        aria-valuenow={value}
+        aria-valuemin={steps[0]}
+        aria-valuemax={steps[steps.length - 1]}
+        aria-valuetext={`${value} pixels`}
+        onKeyDown={(e) => {
+          if (e.key === "ArrowUp" || e.key === "ArrowRight") {
+            e.preventDefault();
+            step(1);
+          } else if (e.key === "ArrowDown" || e.key === "ArrowLeft") {
+            e.preventDefault();
+            step(-1);
+          }
+        }}
+        className="flex h-7 items-center rounded-md border border-edge-2"
+      >
+        <IconButton icon={Minus} label={`Smaller ${label.toLowerCase()}`} size={28} disabled={i <= 0} onClick={() => step(-1)} tabIndex={-1} />
+        <span className="w-10 text-center text-sm tabular-nums">{value}</span>
+        <IconButton icon={Plus} label={`Larger ${label.toLowerCase()}`} size={28} disabled={i >= steps.length - 1} onClick={() => step(1)} tabIndex={-1} />
+      </div>
+    </div>
+  );
 }

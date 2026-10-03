@@ -1,17 +1,20 @@
-/* Rendered lesson Markdown (DESIGN.md 7.17) and small motion helpers. */
+/* Rendered lesson Markdown. Sizes are em so they follow the lesson text
+   setting (UX_REVIEW_3.md 3.3). */
 .lesson-md p,
 .lesson-md ul,
 .lesson-md ol {
-  margin: 0 0 0.75rem;
+  margin: 0 0 0.8em;
+}
+.lesson-md ol li::marker {
+  color: var(--color-fg-3);
 }
 .lesson-md h2 {
-  margin: 1.25rem 0 0.5rem;
-  font-size: var(--text-base);
-  line-height: var(--text-base--line-height);
+  margin: 1.6em 0 0.5em;
+  font-size: 1em;
   font-weight: 600;
 }
 .lesson-md h3 {
-  margin: 1rem 0 0.5rem;
+  margin: 1.2em 0 0.4em;
   font-weight: 600;
 }
 .lesson-md ol {
@@ -23,14 +26,14 @@
   padding-left: 1.25rem;
 }
 .lesson-md li {
-  margin: 0.25rem 0;
+  margin: 0.4em 0;
 }
 .lesson-md strong {
   font-weight: 600;
 }
 .lesson-md code {
   font-family: var(--font-mono);
-  font-size: var(--text-sm);
+  font-size: 0.8667em;
   background: var(--color-sunken);
   border-radius: var(--radius-sm);
   padding: 1px 5px;
@@ -41,9 +44,12 @@
   overflow-wrap: anywhere;
   background: var(--color-sunken);
   border-radius: var(--radius-md);
-  padding: 12px;
+  padding: 0.8em;
   overflow-x: auto;
-  margin: 0 0 0.75rem;
+  margin: 0 0 0.8em;
+}
+.lesson-md pre code {
+  font-size: 0.8667em;
 }
 .lesson-md pre code {
   background: none;
@@ -51,8 +57,8 @@
 }
 .lesson-md table {
   border-collapse: collapse;
-  margin: 0 0 0.75rem;
-  font-size: var(--text-sm);
+  margin: 0 0 0.8em;
+  font-size: 0.9333em;
 }
 .lesson-md th,
 .lesson-md td {
@@ -90,4 +96,8 @@
     opacity: 0;
     transform: translateY(-8px);
   }
+}
+
+.recap-in {
+  animation: fade-in var(--dur-base) var(--ease-out);
 }

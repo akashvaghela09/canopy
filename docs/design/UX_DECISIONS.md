@@ -55,3 +55,7 @@ Deviations:
 - Spacing stays px (Fable 2.1); only text scales. My first pass made spacing rem; reverted.
 - The HEAD commit keeps its subject label (moved 4px lower) instead of hiding it; with `LANE 64` and the label at `y+24` nothing overlaps, and the subject is useful.
 - Item 13 (one-line summaries on section rows) deferred: needs a summary per lesson.
+
+## Round 3 (`UX_REVIEW_3.md`)
+
+Owner feedback after v0.3.0: settings sheet cramped; lesson panel width followed text size; wanted lesson text and terminal sizes separate; wanted reading and hands-on parts separated (e.g. tabs); hints as a button. All P1–P3 items of `UX_REVIEW_3.md` accepted except P3.15 (interface zoom, only if testers ask). Notably: two text settings (Lessons 13–22px, Terminal and editors 11–20px) with fixed 16px root and px panel widths; lesson tabs Read / Try it (no Goals tab: goals sit with the steps they confirm); actions inline at the step that names them; hint button with a pinned one-at-a-time hint card; recap only on completion; grouped settings with switches, segmented control and steppers.

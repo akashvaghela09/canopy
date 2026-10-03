@@ -11,7 +11,7 @@ const theme = EditorView.theme({
     height: "100%",
     backgroundColor: "var(--color-surface)",
     color: "var(--color-fg)",
-    fontSize: "var(--editor-font-size, 13px)",
+    fontSize: "var(--code-fs, 13px)",
   },
   ".cm-scroller": { fontFamily: "var(--font-mono)", lineHeight: "1.45", fontVariantLigatures: "none" },
   ".cm-content": { caretColor: "var(--color-accent)" },

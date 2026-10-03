@@ -8,31 +8,35 @@ import { go, lessonActions, useAppDispatch, useAppSelector } from "../store";
 import { EditorSheet } from "./EditorSheet";
 import { GraphPane } from "./GraphPane";
 import { AreasStrip, Inspector, type InspectorTab, type OpenFile } from "./Inspector";
-import { LessonPanel } from "./LessonPanel";
+import { LessonPanel, lessonTabMemory } from "./LessonPanel";
 import { Terminal } from "./Terminal";
-import { textScale } from "../theme";
+import { codeFs } from "../theme";
 import { Banner, Button, Dialog, PaneHeader } from "./ui";
 
 type Panes = {
-  /** Lesson panel width in rem, or null for the default clamp(22.5rem, 28vw, 32rem). */
-  lessonRem: number | null;
+  /** Lesson panel width in px, or null for the default clamp(360px, 28vw, 512px). */
+  lessonPx: number | null;
   lessonCollapsed: boolean;
-  /** Drawer width in rem, or null for the default clamp(20rem, 24vw, 26rem). */
-  drawerRem: number | null;
+  /** Drawer width in px, or null for the default clamp(320px, 24vw, 416px). */
+  drawerPx: number | null;
 };
 
-const DEFAULT_PANES: Panes = { lessonRem: null, lessonCollapsed: false, drawerRem: null };
+const DEFAULT_PANES: Panes = { lessonPx: null, lessonCollapsed: false, drawerPx: null };
 
+/** Pane widths never depend on text size (UX_REVIEW_3.md 3.1). */
 function loadPanes(): Panes {
   try {
     const saved = JSON.parse(localStorage.getItem("canopy.panes2") ?? "{}");
-    return { ...DEFAULT_PANES, ...saved };
+    // Older versions stored widths in rem.
+    return {
+      lessonPx: saved.lessonPx ?? (saved.lessonRem ? saved.lessonRem * 16 : null),
+      lessonCollapsed: Boolean(saved.lessonCollapsed),
+      drawerPx: saved.drawerPx ?? (saved.drawerRem ? saved.drawerRem * 16 : null),
+    };
   } catch {
     return DEFAULT_PANES;
   }
 }
-
-const remPx = () => parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
 
 /** Focus helpers shared with the global keyboard handler. */
 export const paneFocus: { terminal?: () => void; clearTerminal?: () => void; toggleDrawer?: () => void } = {};
@@ -62,9 +66,8 @@ export function Workspace({ lessonId }: { lessonId: string }) {
   const [termHint, setTermHint] = useState(() => !localStorage.getItem("canopy.termHintDone"));
   const center = useRef<HTMLDivElement>(null);
   const meta = lesson.view?.meta;
-  const scale = textScale(settings) / 100;
-  // The terminal follows the one Text size setting (13px at Default).
-  const fontSize = Math.round(13 * scale);
+  // The terminal has its own size setting.
+  const fontSize = codeFs(settings);
   const winW = useWindowWidth();
   const lessonCollapsed = panes.lessonCollapsed || winW < 1100;
 
@@ -112,6 +115,7 @@ export function Workspace({ lessonId }: { lessonId: string }) {
 
   const doReset = useCallback(() => {
     setConfirmReset(false);
+    lessonTabMemory.delete(lessonId);
     setOpenFile(null);
     setReset(true);
     dispatch(lessonActions.lessonOpening({ id: lessonId, reset: true }));
@@ -131,7 +135,8 @@ export function Workspace({ lessonId }: { lessonId: string }) {
         setPanes((p) => ({ ...p, lessonCollapsed: !p.lessonCollapsed }));
       } else if (e.altKey && (e.key === "h" || e.key === "H")) {
         e.preventDefault();
-        dispatch(lessonActions.showHint());
+        // Reveal without taking focus: a learner asking while typing keeps typing.
+        dispatch(lessonActions.hintKey());
       } else if (e.altKey && (e.key === "g" || e.key === "G")) {
         e.preventDefault();
         dispatch(lessonActions.pinRepo(null));
@@ -149,8 +154,8 @@ export function Workspace({ lessonId }: { lessonId: string }) {
   const showAreas = Boolean(meta?.panels.includes("three-areas"));
   const editorMode = openFile !== null;
   const leftFolder = lesson.update !== null && lesson.update.cwd === null;
-  const lessonWidth = panes.lessonRem ? `${panes.lessonRem}rem` : "clamp(22.5rem, 28vw, 32rem)";
-  const drawerWidth = editorMode ? "min(50%, 45rem)" : panes.drawerRem ? `${panes.drawerRem}rem` : "clamp(20rem, 24vw, 26rem)";
+  const lessonWidth = panes.lessonPx ? `${panes.lessonPx}px` : "clamp(360px, 28vw, 512px)";
+  const drawerWidth = editorMode ? "min(50%, 720px)" : panes.drawerPx ? `${panes.drawerPx}px` : "clamp(320px, 24vw, 416px)";
   const openInDrawer = (f: OpenFile | null) => {
     setOpenFile(f);
     if (f) {
@@ -197,12 +202,11 @@ export function Workspace({ lessonId }: { lessonId: string }) {
             orientation="vertical"
             onDrag={(dx) =>
               setPanes((p) => {
-                const el = document.querySelector<HTMLElement>("[data-pane=lesson]");
-                const cur = (el?.offsetWidth ?? 400) / remPx();
-                return { ...p, lessonRem: clamp(cur + dx / remPx(), 20, 36) };
+                const cur = document.querySelector<HTMLElement>("[data-pane=lesson]")?.offsetWidth ?? 400;
+                return { ...p, lessonPx: clamp(cur + dx, 320, 576) };
               })
             }
-            onReset={() => setPanes((p) => ({ ...p, lessonRem: null }))}
+            onReset={() => setPanes((p) => ({ ...p, lessonPx: null }))}
           />
         </>
       )}
@@ -215,7 +219,7 @@ export function Workspace({ lessonId }: { lessonId: string }) {
             <EditorSheet request={lesson.editor} onDone={() => paneFocus.terminal?.()} />
           </div>
         )}
-        {showGraph && <GraphPane showIds={settings.graphIds === "1"} scale={scale} maxHeight={centerH * 0.45} manualHeight={graphManual} />}
+        {showGraph && <GraphPane showIds={settings.graphIds === "1"} scale={1} maxHeight={centerH * 0.45} manualHeight={graphManual} />}
         {showGraph && (
           <Resizer
             orientation="horizontal"
@@ -288,12 +292,11 @@ export function Workspace({ lessonId }: { lessonId: string }) {
             orientation="vertical"
             onDrag={(dx) =>
               setPanes((p) => {
-                const el = document.querySelector<HTMLElement>("[data-pane=inspector]");
-                const cur = (el?.offsetWidth ?? 360) / remPx();
-                return { ...p, drawerRem: clamp(cur - dx / remPx(), 18, 40) };
+                const cur = document.querySelector<HTMLElement>("[data-pane=inspector]")?.offsetWidth ?? 360;
+                return { ...p, drawerPx: clamp(cur - dx, 288, 640) };
               })
             }
-            onReset={() => setPanes((p) => ({ ...p, drawerRem: null }))}
+            onReset={() => setPanes((p) => ({ ...p, drawerPx: null }))}
           />
           <div className="min-h-0 shrink-0 border-l border-edge" style={{ width: drawerWidth }}>
             <Inspector

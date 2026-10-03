@@ -48,16 +48,24 @@ export function useThemeVersion(): number {
   return v;
 }
 
-/** One size for everything: the interface (rem) and the terminal font. */
-export const TEXT_SIZES = [
-  { value: 90, label: "Small" },
-  { value: 100, label: "Default" },
-  { value: 112, label: "Large" },
-  { value: 125, label: "Larger" },
-  { value: 140, label: "Largest" },
-];
+/** Lesson text sizes (px): scales only the lesson panel's content. */
+export const LESSON_STEPS = [13, 14, 15, 16, 17, 18, 20, 22];
+/** Terminal and editor sizes (px). */
+export const CODE_STEPS = [11, 12, 13, 14, 15, 16, 18, 20];
+export const LESSON_DEFAULT = 15;
+export const CODE_DEFAULT = 13;
 
-export function textScale(settings: Record<string, string>): number {
-  const v = Number(settings.textSize ?? 100);
-  return TEXT_SIZES.some((t) => t.value === v) ? v : 100;
+const pick = (steps: number[], v: number, dflt: number) => (steps.includes(v) ? v : dflt);
+export const lessonFs = (settings: Record<string, string>) => pick(LESSON_STEPS, Number(settings.lessonText ?? LESSON_DEFAULT), LESSON_DEFAULT);
+export const codeFs = (settings: Record<string, string>) => pick(CODE_STEPS, Number(settings.codeText ?? CODE_DEFAULT), CODE_DEFAULT);
+
+/** Nearest allowed step to a value. */
+export function nearest(steps: number[], v: number): number {
+  return steps.reduce((a, b) => (Math.abs(b - v) < Math.abs(a - v) ? b : a));
+}
+
+/** Next step up or down from the current value. */
+export function stepBy(steps: number[], v: number, dir: 1 | -1): number {
+  const i = steps.indexOf(nearest(steps, v));
+  return steps[Math.min(steps.length - 1, Math.max(0, i + dir))];
 }

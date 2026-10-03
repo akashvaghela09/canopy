@@ -35,12 +35,28 @@ export function Inspector({
   const tick = useAppSelector((s) => s.lesson.update);
   return (
     <section role="region" aria-label="Inspector" className="flex h-full min-h-0 flex-col bg-surface" data-pane="inspector" tabIndex={-1}>
-      <div className="flex h-[var(--size-pane-header)] shrink-0 items-end gap-4 border-b border-edge px-3" role="tablist">
+      <div
+        className="flex h-[var(--size-pane-header)] shrink-0 items-end gap-4 border-b border-edge px-3"
+        role="tablist"
+        aria-label="Inspector"
+        onKeyDown={(e) => {
+          const i = tabs.indexOf(tab);
+          const next = { ArrowRight: i + 1, ArrowLeft: i - 1, Home: 0, End: tabs.length - 1 }[e.key];
+          if (next === undefined) return;
+          e.preventDefault();
+          const t = tabs[(next + tabs.length) % tabs.length];
+          onTab(t);
+          e.currentTarget.querySelector<HTMLElement>(`#inspector-tab-${t}`)?.focus();
+        }}
+      >
         {tabs.map((t) => (
           <button
             key={t}
+            id={`inspector-tab-${t}`}
             role="tab"
             aria-selected={tab === t}
+            aria-controls="inspector-tabpanel"
+            tabIndex={tab === t ? 0 : -1}
             onClick={() => onTab(t)}
             className={`-mb-px h-8 border-b-2 text-sm font-medium transition-colors ${tab === t ? "border-fg text-fg" : "border-transparent text-fg-2 hover:text-fg"}`}
           >
@@ -51,7 +67,7 @@ export function Inspector({
           <IconButton icon={PanelRightClose} label="Close (Alt+4)" onClick={onCollapse} />
         </div>
       </div>
-      <div className="min-h-0 flex-1">
+      <div id="inspector-tabpanel" role="tabpanel" aria-labelledby={`inspector-tab-${tab}`} className="min-h-0 flex-1">
         {tab === "files" && <FilesTab openFile={openFile} onOpenFile={onOpenFile} tick={tick} />}
         {tab === "inside-git" && <GitTab />}
       </div>

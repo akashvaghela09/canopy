@@ -7,7 +7,7 @@ You now know six ways to undo. The skill is picking the one that fits. Two quest
 
 There are four small repos in this lesson, one folder each. Move into each folder, read the situation, pick the undo, and do it.
 
-## The cases
+## Try it
 
 **1. `wrong-file`**: your last commit "Add meeting notes" included `secret.env` by accident. Nobody has pulled it. Make the commit contain `notes.md` only. `secret.env` should stay on disk, untracked.
 
