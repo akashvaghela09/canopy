@@ -44,3 +44,14 @@ Questions:
 - Q6 Goal cadence: **Accept** — one quiet line under Goals: "Ticks automatically as you work."
 - Q10 Alt-chords vs terminal editors: lessons use the in-app editor; no change.
 - Q1, Q7–Q9, Q11: need real-user observation; revisit after testing.
+
+## Round 2 (design review 2, `REVIEW_2.md`)
+
+Owner feedback after using v0.2.0: text size must scale lessons too; navigation confusing; no warning about losing work; both side panels cramped; branch labels crowded; Files/Changes/Areas/.git tabs unclear. Fable's review 2 answered each.
+
+Accepted as specified: items 1–8 (wide lesson panel and drawer instead of inspector; auto-height graph, key popover; inline goals and one-line status bar with Prev/Next; clickable breadcrumb and lesson menu; leave guard with "Save and leave", window close and resumed-lesson notice; branch pills with `HEAD → main`; text size; Changes tab removed, Areas as a centre strip, ".git" renamed "Inside .git"), and P2/P3 items 9–12, 14–23.
+
+Deviations:
+- Spacing stays px (Fable 2.1); only text scales. My first pass made spacing rem; reverted.
+- The HEAD commit keeps its subject label (moved 4px lower) instead of hiding it; with `LANE 64` and the label at `y+24` nothing overlaps, and the subject is useful.
+- Item 13 (one-line summaries on section rows) deferred: needs a summary per lesson.

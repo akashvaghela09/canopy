@@ -136,9 +136,11 @@ export function Terminal({
       .startLesson(lessonId, reset, t.cols, t.rows, (data) => {
         if (!disposed) t.write(data);
       })
-      .then(() => {
+      .then((info) => {
         if (disposed) return;
         if (reset) t.writeln("\x1b[2;3m— lesson reset —\x1b[0m");
+        // Coming back to a lesson: say so, where the learner is looking.
+        else if (!info.fresh) t.writeln("\x1b[2;3m— continuing where you left off; Reset lesson starts over —\x1b[0m");
         onStarted();
       })
       .catch((e) => onError(String(e)));

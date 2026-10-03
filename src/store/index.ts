@@ -21,7 +21,7 @@ type AppState = {
   settingsOpen: boolean;
   shortcutsOpen: boolean;
   /** Navigation waiting for the learner to confirm leaving a lesson. */
-  pendingNav: { to: Screen; reasons: string[] } | null;
+  pendingNav: { to: Screen | "quit"; reasons: string[]; canSave: boolean } | null;
   toasts: Toast[];
 };
 
@@ -35,7 +35,7 @@ const appSlice = createSlice({
       s.screen = a.payload;
       s.pendingNav = null;
     },
-    askToLeave(s, a: PayloadAction<{ to: Screen; reasons: string[] } | null>) {
+    askToLeave(s, a: PayloadAction<{ to: Screen | "quit"; reasons: string[]; canSave: boolean } | null>) {
       s.pendingNav = a.payload;
     },
     setGit(s, a: PayloadAction<GitCheck>) {
@@ -254,23 +254,46 @@ export const skipLesson = createAsyncThunk("catalog/skipLesson", async (id: stri
   await dispatch(loadCatalog());
 });
 
+/** Set by the file editor while it has unsaved edits, so "Save and leave" can save. */
+export const editorSaver: { save: (() => Promise<void>) | null } = { save: null };
+
+/** What would be lost by leaving the current lesson right now. */
+export async function leaveRisks(state: RootState): Promise<string[]> {
+  if (state.app.screen.kind !== "lesson") return [];
+  const reasons: string[] = [];
+  if (state.lesson.dirtyFile) reasons.push(`You have unsaved edits in ${state.lesson.dirtyFile}.`);
+  if (state.lesson.editor) reasons.push("git is waiting for you in the editor. Leaving cancels that command.");
+  else if (await api.terminalBusy().catch(() => false)) reasons.push("A command is still running in the terminal.");
+  return reasons;
+}
+
 /**
  * Go to another screen. Leaving a lesson keeps its folder and progress, but
  * unsaved edits, a git command waiting on the editor and a running command
- * are lost, so ask first when any of those apply.
+ * are lost, so ask first when any of those apply (REVIEW_2.md item 5).
  */
 export const go = createAsyncThunk("app/go", async (to: Screen, { dispatch, getState }) => {
   const state = getState() as RootState;
   const from = state.app.screen;
   const leaving = from.kind === "lesson" && !(to.kind === "lesson" && to.lesson === from.lesson);
-  if (!leaving) {
-    dispatch(appActions.navigate(to));
-    return;
-  }
-  const reasons: string[] = [];
-  if (state.lesson.dirtyFile) reasons.push(`Unsaved changes in ${state.lesson.dirtyFile} will be lost.`);
-  if (state.lesson.editor) reasons.push("git is waiting for you to finish in the editor; leaving cancels that command.");
-  else if (await api.terminalBusy().catch(() => false)) reasons.push("A command is still running in the terminal; leaving stops it.");
-  if (reasons.length) dispatch(appActions.askToLeave({ to, reasons }));
+  const reasons = leaving ? await leaveRisks(state) : [];
+  if (reasons.length) dispatch(appActions.askToLeave({ to, reasons, canSave: Boolean(state.lesson.dirtyFile) }));
   else dispatch(appActions.navigate(to));
+});
+
+/** Leave after the learner confirmed: optionally save, cancel a waiting git editor, then go. */
+export const confirmLeave = createAsyncThunk("app/confirmLeave", async (save: boolean, { dispatch, getState }) => {
+  const state = getState() as RootState;
+  const pending = state.app.pendingNav;
+  if (!pending) return;
+  if (save && editorSaver.save) await editorSaver.save();
+  // Let git exit cleanly instead of being killed while it waits.
+  if (state.lesson.editor) await api.editorFinish(state.lesson.editor.id, null).catch(() => {});
+  dispatch(appActions.askToLeave(null));
+  if (pending.to === "quit") {
+    const { getCurrentWindow } = await import("@tauri-apps/api/window");
+    await getCurrentWindow().destroy();
+  } else {
+    dispatch(appActions.navigate(pending.to));
+  }
 });

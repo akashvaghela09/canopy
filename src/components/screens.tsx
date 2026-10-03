@@ -1,8 +1,8 @@
 // Top bar, git gate, first run, home and section view (DESIGN.md sections 2-3).
 
 import { openUrl } from "@tauri-apps/plugin-opener";
-import { Check, CheckCircle2, ChevronRight, Circle, ExternalLink, GitBranch, Settings } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Check, CheckCircle2, ChevronDown, ChevronRight, Circle, ExternalLink, GitBranch, Home as HomeIcon, Settings } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { api, type LessonSummary } from "../api";
 import { appActions, go, loadCatalog, resetProgress, setSetting, useAppDispatch, useAppSelector } from "../store";
 import { nextLesson, overallProgress, sectionProgress } from "../store/progress";
@@ -11,44 +11,162 @@ import { Button, Chip, Dialog, IconButton, ProgressBar } from "./ui";
 const LEVELS = ["beginner", "core", "intermediate", "advanced"];
 const LEVEL_NAMES: Record<string, string> = { beginner: "Beginner", core: "Everyday", intermediate: "Intermediate", advanced: "Advanced" };
 
+const crumb = "flex h-7 min-w-0 items-center gap-1.5 rounded-sm px-2 text-fg-2 transition-colors hover:bg-sunken hover:text-fg";
+
+/** Breadcrumb navigation: Home › Section › Lesson ▾ (REVIEW_2.md item 4). */
 export function TopBar() {
   const dispatch = useAppDispatch();
   const screen = useAppSelector((s) => s.app.screen);
   const cat = useAppSelector((s) => s.catalog.data);
+  const [menuOpen, setMenuOpen] = useState(false);
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.altKey && (e.key === "l" || e.key === "L") && screen.kind === "lesson") {
+        e.preventDefault();
+        setMenuOpen((o) => !o);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [screen.kind]);
+  useEffect(() => setMenuOpen(false), [screen]);
   if (!cat) return null;
   const lesson = screen.kind === "lesson" ? cat.lessons.find((l) => l.id === screen.lesson) : undefined;
   const sectionId = screen.kind === "section" ? screen.section : lesson?.section;
   const section = cat.sections.find((s) => s.id === sectionId);
 
   return (
-    <header className="flex h-[var(--size-topbar)] shrink-0 items-center gap-2 border-b border-edge bg-surface px-3">
-      <nav aria-label="Breadcrumb" className="flex min-w-0 items-center gap-1.5 text-sm">
-        <button className="flex items-center gap-2 rounded-sm px-1 font-semibold hover:underline" onClick={() => dispatch(go({ kind: "home" }))}>
-          <GitBranch size={18} strokeWidth={1.75} aria-hidden />
+    <header className="relative flex h-[var(--size-topbar)] shrink-0 items-center gap-1 border-b border-edge bg-surface px-2">
+      <nav aria-label="Breadcrumb" className="flex min-w-0 items-center gap-0.5 text-sm">
+        <button className={`${crumb} font-semibold text-fg`} onClick={() => dispatch(go({ kind: "home" }))} title="Home (Alt+Home)">
+          <HomeIcon size={16} strokeWidth={1.75} aria-hidden />
           Canopy
         </button>
         {section && (
           <>
-            <ChevronRight size={14} className="text-fg-3" aria-hidden />
-            <button className="truncate rounded-sm text-fg-2 hover:text-fg hover:underline" onClick={() => dispatch(go({ kind: "section", section: section.id }))}>
-              {section.id} {section.title}
+            <ChevronRight size={14} className="shrink-0 text-fg-3" aria-hidden />
+            <button className={crumb} onClick={() => dispatch(go({ kind: "section", section: section.id }))} title="All lessons in this section">
+              <span className="truncate">
+                {section.id} · {section.title}
+              </span>
             </button>
           </>
         )}
         {lesson && (
           <>
-            <ChevronRight size={14} className="text-fg-3" aria-hidden />
-            <span className="truncate" aria-current="page">
-              <span className="mr-1.5 font-mono text-xs text-fg-3">{lesson.id}</span>
-              {lesson.title}
-            </span>
+            <ChevronRight size={14} className="shrink-0 text-fg-3" aria-hidden />
+            <button className={`${crumb} text-fg`} aria-haspopup="listbox" aria-expanded={menuOpen} onClick={() => setMenuOpen((o) => !o)} title="Lessons in this section (Alt+L)">
+              <span className="font-mono text-xs text-fg-3">{lesson.id}</span>
+              <span className="truncate">{lesson.title}</span>
+              <ChevronDown size={14} className="shrink-0 text-fg-3" />
+            </button>
           </>
         )}
       </nav>
       <div className="ml-auto flex items-center gap-2">
         <IconButton icon={Settings} label="Settings (Ctrl+,)" size={28} onClick={() => dispatch(appActions.openSettings(true))} />
       </div>
+      {menuOpen && lesson && section && <LessonMenu current={lesson.id} sectionId={section.id} onClose={() => setMenuOpen(false)} />}
     </header>
+  );
+}
+
+/** The lessons of this section, with their state; pick one to go there. */
+function LessonMenu({ current, sectionId, onClose }: { current: string; sectionId: number; onClose: () => void }) {
+  const dispatch = useAppDispatch();
+  const cat = useAppSelector((s) => s.catalog.data)!;
+  const section = cat.sections.find((s) => s.id === sectionId)!;
+  const lessons = cat.lessons.filter((l) => l.section === sectionId);
+  const p = sectionProgress(cat, sectionId);
+  const [filter, setFilter] = useState("");
+  const [active, setActive] = useState(() => Math.max(0, lessons.findIndex((l) => l.id === current)));
+  const shown = lessons.filter((l) => !filter || `${l.id} ${l.title}`.toLowerCase().includes(filter.toLowerCase()));
+  const list = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    list.current?.focus();
+    const outside = (e: PointerEvent) => {
+      if (!list.current?.parentElement?.contains(e.target as Node)) onClose();
+    };
+    window.addEventListener("pointerdown", outside);
+    return () => window.removeEventListener("pointerdown", outside);
+  }, [onClose]);
+  useEffect(() => {
+    list.current?.querySelector<HTMLElement>(`[data-i="${active}"]`)?.scrollIntoView({ block: "nearest" });
+  }, [active]);
+  const pick = (id: string) => {
+    onClose();
+    if (id !== current) dispatch(go({ kind: "lesson", lesson: id }));
+  };
+  return (
+    <div className="absolute top-[calc(var(--size-topbar)-4px)] left-40 z-40 w-[22.5rem] rounded-md border border-edge-2 bg-raised shadow-[0_4px_12px_oklch(0%_0_0/0.12)] dark:shadow-[0_4px_12px_oklch(0%_0_0/0.4)]">
+      <div className="flex items-center justify-between border-b border-edge px-3 py-2 text-sm text-fg-2">
+        <span>
+          {section.title} · {p.done} of {p.total} complete
+        </span>
+        <button
+          className="text-xs text-accent hover:underline"
+          onClick={() => {
+            onClose();
+            dispatch(go({ kind: "section", section: sectionId }));
+          }}
+        >
+          Section page
+        </button>
+      </div>
+      <div
+        ref={list}
+        tabIndex={-1}
+        role="listbox"
+        aria-label={`Lessons in ${section.title}`}
+        className="max-h-[60vh] overflow-y-auto py-1 outline-none"
+        onKeyDown={(e) => {
+          if (e.key === "ArrowDown") {
+            e.preventDefault();
+            setActive((a) => Math.min(shown.length - 1, a + 1));
+          } else if (e.key === "ArrowUp") {
+            e.preventDefault();
+            setActive((a) => Math.max(0, a - 1));
+          } else if (e.key === "Enter" && shown[active]) {
+            pick(shown[active].id);
+          } else if (e.key === "Escape") {
+            onClose();
+          } else if (e.key === "Backspace") {
+            setFilter((f) => f.slice(0, -1));
+            setActive(0);
+          } else if (e.key.length === 1 && !e.ctrlKey && !e.altKey) {
+            setFilter((f) => f + e.key);
+            setActive(0);
+          }
+        }}
+      >
+        {filter && <div className="px-3 py-1 text-xs text-fg-3">Filter: {filter}</div>}
+        {shown.map((l, i) => {
+          const done = Boolean(cat.completed[l.id]);
+          const skipped = cat.skipped.includes(l.id);
+          return (
+            <button
+              key={l.id}
+              data-i={i}
+              role="option"
+              aria-selected={l.id === current}
+              onClick={() => pick(l.id)}
+              onMouseEnter={() => setActive(i)}
+              className={`flex h-8 w-full items-center gap-2 border-l-2 px-3 text-left text-sm ${l.id === current ? "border-accent bg-sunken" : "border-transparent"} ${i === active ? "bg-sunken" : ""}`}
+            >
+              {skipped ? (
+                <Circle size={15} className="shrink-0 text-fg-3" aria-label="Skipped" />
+              ) : done ? (
+                <CheckCircle2 size={15} className="shrink-0 fill-success text-surface" aria-label="Complete" />
+              ) : (
+                <Circle size={15} className="shrink-0 text-edge-2" aria-label="Not complete" />
+              )}
+              <span className="w-10 shrink-0 font-mono text-xs text-fg-3">{l.id}</span>
+              <span className="truncate">{l.title}</span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
   );
 }
 
@@ -76,11 +194,12 @@ export function GitGate() {
             ? `Canopy needs ${git?.minimum} or newer because the lessons rely on commands added since then.`
             : "Canopy teaches git by running the real thing, and it could not find git on this computer."}
         </p>
-        <div className="mt-5 rounded-md border border-edge bg-sunken p-3 text-left font-mono text-xs text-fg-2">
-          <div>Looked for: git on PATH</div>
-          <div>Found: {git?.version ? `git ${git.version}` : "nothing"}</div>
-          {tooOld && <div>Needs: {git?.minimum} or newer</div>}
-        </div>
+        {tooOld && (
+          <div className="mt-5 rounded-md border border-edge bg-sunken p-3 text-left font-mono text-xs text-fg-2">
+            <div>Found: git {git?.version}</div>
+            <div>Needs: {git?.minimum} or newer</div>
+          </div>
+        )}
         {checkedOnce && !git?.ok && (
           <p className="mt-3 text-sm text-fg-2">Still not found. If you installed git just now, restart Canopy so it sees the new PATH.</p>
         )}
@@ -192,7 +311,7 @@ export function Home() {
                   {sectionProgress(cat, nextSection.id).done} of {sectionProgress(cat, nextSection.id).total} complete
                 </span>
               </div>
-              <div className="mt-2 text-2xs font-semibold tracking-[0.06em] text-fg-3 uppercase">{fresh ? "Start here" : "Next up"}</div>
+              <div className="mt-2 text-xs text-fg-3">{fresh ? "Start here" : "Next up"}</div>
               <div className="mt-1 flex items-center gap-3">
                 <span className="font-mono text-sm text-fg-3">{next.id}</span>
                 <span className="text-lg font-medium">{next.title}</span>

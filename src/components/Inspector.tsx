@@ -5,14 +5,14 @@ import { ChevronDown, ChevronRight, File, Folder, FolderGit2, PanelRightClose, R
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { api, inspect, type AreaRow, type DirEntry } from "../api";
 import type { Snapshot } from "../graph/types";
-import { lessonActions, useAppDispatch, useAppSelector } from "../store";
+import { editorSaver, lessonActions, useAppDispatch, useAppSelector } from "../store";
 import { CodeEditor } from "./CodeEditor";
 import { useActiveRepo } from "./GraphPane";
 import { Button, IconButton, Spinner } from "./ui";
 
-export type InspectorTab = "files" | "diff" | "three-areas" | "inside-git";
+export type InspectorTab = "files" | "inside-git";
 
-const TAB_LABEL: Record<InspectorTab, string> = { files: "Files", diff: "Changes", "three-areas": "Areas", "inside-git": ".git" };
+const TAB_LABEL: Record<InspectorTab, string> = { files: "Files", "inside-git": "Inside .git" };
 
 export type OpenFile = { path: string; readOnly?: boolean; content?: string; title?: string };
 
@@ -48,13 +48,11 @@ export function Inspector({
           </button>
         ))}
         <div className="mb-1.5 ml-auto">
-          <IconButton icon={PanelRightClose} label="Hide files panel (Alt+])" onClick={onCollapse} />
+          <IconButton icon={PanelRightClose} label="Close (Alt+4)" onClick={onCollapse} />
         </div>
       </div>
       <div className="min-h-0 flex-1">
         {tab === "files" && <FilesTab openFile={openFile} onOpenFile={onOpenFile} tick={tick} />}
-        {tab === "diff" && <ChangesTab tick={tick} />}
-        {tab === "three-areas" && <AreasTab tick={tick} onOpenFile={onOpenFile} />}
         {tab === "inside-git" && <GitTab />}
       </div>
     </section>
@@ -216,6 +214,13 @@ function FileEditor({ file, tick, onClose }: { file: OpenFile; tick: unknown; on
     await api.writeFile(file.path, text);
     setSaved(text);
   }, [file, text]);
+  // Let the leave dialog's "Save and leave" save this file.
+  useEffect(() => {
+    editorSaver.save = dirty ? save : null;
+    return () => {
+      editorSaver.save = null;
+    };
+  }, [dirty, save]);
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
@@ -245,121 +250,72 @@ function FileEditor({ file, tick, onClose }: { file: OpenFile; tick: unknown; on
   );
 }
 
-// ---------------------------------------------------------------- Changes
+// ---------------------------------------------------------------- Areas strip
 
-const SCOPES = [
-  ["unstaged", "Working tree vs staging"],
-  ["staged", "Staging vs HEAD"],
-  ["head", "Working tree vs HEAD"],
-] as const;
-
-function ChangesTab({ tick }: { tick: unknown }) {
-  const { active } = useActiveRepo();
-  const [scope, setScope] = useState<string>("unstaged");
-  const [diff, setDiff] = useState<string | null>(null);
-  useEffect(() => {
-    if (!active || active.snapshot?.bare) return setDiff("");
-    inspect.diff(active.path, scope).then(setDiff, () => setDiff(""));
-  }, [active, scope, tick]);
-  return (
-    <div className="flex h-full flex-col">
-      <div className="shrink-0 border-b border-edge p-2">
-        <select value={scope} onChange={(e) => setScope(e.target.value)} aria-label="Compare" className="h-7 w-full rounded-sm border border-edge-2 bg-surface px-2 text-sm">
-          {SCOPES.map(([v, label]) => (
-            <option key={v} value={v}>
-              {label}
-            </option>
-          ))}
-        </select>
-      </div>
-      <div className="min-h-0 flex-1 overflow-auto">
-        {diff === null ? null : diff.trim() === "" ? (
-          <div className="p-4">
-            <div className="text-sm font-medium">Nothing has changed.</div>
-            <div className="text-xs text-fg-3">Edit a file or stage something and the diff shows here.</div>
-          </div>
-        ) : (
-          <DiffView text={diff} />
-        )}
-      </div>
-    </div>
-  );
-}
-
-export function DiffView({ text }: { text: string }) {
-  return (
-    <pre className="selectable min-w-full py-2 font-mono text-xs leading-5">
-      {text.split("\n").map((line, i) => {
-        let cls = "text-fg";
-        let glyph = " ";
-        if (line.startsWith("+++") || line.startsWith("---") || line.startsWith("diff ") || line.startsWith("index ")) cls = "text-fg-3 font-semibold";
-        else if (line.startsWith("@@")) cls = "text-fg-3";
-        else if (line.startsWith("+")) {
-          cls = "bg-diff-add";
-          glyph = "+";
-        } else if (line.startsWith("-")) {
-          cls = "bg-diff-del";
-          glyph = "−";
-        }
-        const body = glyph !== " " ? line.slice(1) : line;
-        return (
-          <div key={i} className={`flex px-3 ${cls}`}>
-            <span className="w-4 shrink-0 text-fg-3 select-none" aria-hidden>
-              {glyph !== " " ? glyph : ""}
-            </span>
-            <span className="whitespace-pre">{body || " "}</span>
-          </div>
-        );
-      })}
-    </pre>
-  );
-}
-
-// ---------------------------------------------------------------- Areas
-
-function AreasTab({ tick, onOpenFile }: { tick: unknown; onOpenFile: (f: OpenFile) => void }) {
+/**
+ * The three areas, left to right, as a strip between graph and terminal in
+ * the lessons that teach them (REVIEW_2.md items 8–9).
+ */
+export function AreasStrip({ onOpenFile }: { onOpenFile: (f: OpenFile) => void }) {
+  const tick = useAppSelector((s) => s.lesson.update);
   const { active } = useActiveRepo();
   const [rows, setRows] = useState<AreaRow[] | null>(null);
+  const [open, setOpen] = useState(true);
   useEffect(() => {
-    if (!active || active.snapshot?.bare) return setRows([]);
+    if (!active || active.snapshot?.bare || !active.snapshot) return setRows([]);
     inspect.threeAreas(active.path).then(setRows, () => setRows([]));
   }, [active, tick]);
-  if (!rows) return null;
-  if (rows.length === 0) return <div className="p-4 text-sm text-fg-3">No files yet.</div>;
+  const cols = [
+    { key: "worktree" as const, title: "Working tree", sub: "files on disk", empty: "Nothing here yet" },
+    { key: "index" as const, title: "Staging", sub: "what the next commit will contain", empty: "Nothing staged" },
+    { key: "head" as const, title: "Last commit (HEAD)", sub: "", empty: "No commits yet" },
+  ];
   return (
-    <div className="h-full overflow-auto p-3">
-      <div className="grid grid-cols-3 gap-2 text-2xs font-semibold tracking-[0.06em] text-fg-3 uppercase">
-        <div>Working tree</div>
-        <div>Staging</div>
-        <div>HEAD</div>
-      </div>
-      {rows.map((r) => (
-        <div key={r.path} className="mt-2 grid grid-cols-3 gap-2">
-          {(["worktree", "index", "head"] as const).map((area, i) => {
-            const v = r[area];
-            const prevV = i === 0 ? undefined : r[(["worktree", "index", "head"] as const)[i - 1]];
-            const differs = i > 0 && v !== prevV;
-            const name = { worktree: "working tree", index: "staging", head: "HEAD" }[area];
+    <section aria-label="Where your changes are" className="shrink-0 border-t border-edge bg-surface">
+      <button className="flex h-8 w-full items-center gap-1.5 px-3 text-left text-xs text-fg-2 hover:text-fg" onClick={() => setOpen((v) => !v)} aria-expanded={open}>
+        {open ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+        <span>
+          Where your changes are: <b className="font-medium text-fg">Working tree</b> (files on disk) → <b className="font-medium text-fg">Staging</b> (the next commit) →{" "}
+          <b className="font-medium text-fg">Last commit (HEAD)</b>
+        </span>
+      </button>
+      {open && (
+        <div className="grid max-h-[132px] grid-cols-3 gap-3 overflow-y-auto px-3 pb-2">
+          {cols.map((c, i) => {
+            const files = (rows ?? []).filter((r) => r[c.key] !== null);
             return (
-              <button
-                key={area}
-                onClick={() => v !== null && onOpenFile({ path: `${active!.path}/${r.path}`, readOnly: true, content: v, title: `${r.path} · ${name}` })}
-                aria-label={`${r.path}, ${name} version${differs ? `, differs from ${i === 1 ? "working tree" : "staging"}` : ""}`}
-                className={`min-w-0 rounded-md border p-2 text-left transition-colors duration-[var(--dur-slow)] ${v === null ? "border-dashed border-edge" : "border-edge-2 hover:bg-sunken"}`}
-              >
-                <div className="flex items-center gap-1">
-                  <span className="truncate font-mono text-xs font-semibold">{r.path}</span>
-                  {differs && v !== null && <span className="ml-auto shrink-0 rounded-sm bg-warning-soft px-1 text-2xs text-fg-2">differs</span>}
-                </div>
-                <pre className="mt-1 overflow-hidden font-mono text-2xs leading-4 whitespace-pre text-fg-2">
-                  {v === null ? "(absent)" : v.split("\n").slice(0, 3).join("\n") || "(empty)"}
-                </pre>
-              </button>
+              <div key={c.key} className="min-w-0">
+                {files.length === 0 ? (
+                  <div className="rounded-md border border-dashed border-edge p-2 text-xs text-fg-3">{c.empty}</div>
+                ) : (
+                  <div className="flex flex-col gap-1.5">
+                    {files.map((r) => {
+                      const v = r[c.key]!;
+                      const prev = i === 0 ? undefined : r[cols[i - 1].key];
+                      const differs = i > 0 && v !== prev;
+                      return (
+                        <button
+                          key={r.path}
+                          onClick={() => onOpenFile({ path: `${active!.path}/${r.path}`, readOnly: true, content: v, title: `${r.path} · ${c.title}` })}
+                          aria-label={`${r.path}, ${c.title} version${differs ? ", differs from the column to its left" : ""}`}
+                          className="min-w-0 rounded-md border border-edge-2 p-1.5 text-left hover:bg-sunken"
+                        >
+                          <div className="flex items-center gap-1">
+                            <span className="truncate font-mono text-xs font-semibold">{r.path}</span>
+                            {differs && <span className="ml-auto shrink-0 rounded-sm bg-warning-soft px-1 text-2xs text-fg-2">differs</span>}
+                          </div>
+                          <pre className="mt-0.5 overflow-hidden font-mono text-2xs leading-4 whitespace-pre text-fg-2">{v.split("\n").slice(0, 2).join("\n") || "(empty)"}</pre>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
             );
           })}
         </div>
-      ))}
-    </div>
+      )}
+    </section>
   );
 }
 

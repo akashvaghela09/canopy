@@ -16,15 +16,15 @@
   font-variant-numeric: tabular-nums;
 }
 .canopy-graph .g-id {
-  font-size: 10px;
+  font-size: 0.625rem;
   fill: var(--color-fg-3);
 }
 .canopy-graph .g-meta {
-  font-size: 10px;
+  font-size: 0.625rem;
   fill: var(--color-fg-2);
 }
 .canopy-graph .g-flag {
-  font-size: 11px;
+  font-size: 0.6875rem;
   font-weight: 600;
 }
 .canopy-graph .g-head {
@@ -51,6 +51,6 @@
 }
 .canopy-graph .g-subject {
   font-family: var(--font-sans);
-  font-size: 11px;
+  font-size: 0.6875rem;
   fill: var(--color-fg-2);
 }

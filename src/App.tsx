@@ -6,7 +6,7 @@ import { Button, Dialog, IconButton, useFocusTrap } from "./components/ui";
 import { LessonUpdates } from "./components/Updates";
 import { paneFocus, Workspace } from "./components/Workspace";
 import { isAppChord } from "./components/Terminal";
-import { appActions, catalogActions, go, lessonActions, loadCatalog, resetProgress, setSetting, useAppDispatch, useAppSelector } from "./store";
+import { appActions, catalogActions, confirmLeave, go, leaveRisks, lessonActions, loadCatalog, resetProgress, setSetting, store, useAppDispatch, useAppSelector } from "./store";
 import { neighbours } from "./store/progress";
 import { applyMotion, applyTheme, TEXT_SIZES, textScale } from "./theme";
 import { useRef, useState } from "react";
@@ -68,6 +68,24 @@ export default function App() {
     };
   }, [dispatch]);
 
+  // Closing the window asks first when work would be lost.
+  useEffect(() => {
+    if (!("__TAURI_INTERNALS__" in window) || (window as { __CANOPY_PREVIEW__?: boolean }).__CANOPY_PREVIEW__) return;
+    let unlisten: (() => void) | undefined;
+    import("@tauri-apps/api/window").then(({ getCurrentWindow }) =>
+      getCurrentWindow()
+        .onCloseRequested(async (e) => {
+          const reasons = await leaveRisks(store.getState());
+          if (reasons.length) {
+            e.preventDefault();
+            dispatch(appActions.askToLeave({ to: "quit", reasons, canSave: Boolean(store.getState().lesson.dirtyFile) }));
+          }
+        })
+        .then((u) => (unlisten = u)),
+    );
+    return () => unlisten?.();
+  }, [dispatch]);
+
   // Leaving the workspace stops the shell.
   useEffect(() => {
     if (screen.kind !== "lesson") {
@@ -80,6 +98,8 @@ export default function App() {
   useEffect(() => {
     const focusPane = (name: string) => {
       if (name === "terminal") return paneFocus.terminal?.();
+      // Alt+4 opens or closes the Files drawer.
+      if (name === "inspector") return paneFocus.toggleDrawer?.();
       const el = document.querySelector<HTMLElement>(`[data-pane="${name}"]`);
       el?.focus();
     };
@@ -319,14 +339,16 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
 }
 
 const SHORTCUTS: [string, string][] = [
-  ["Alt+1 / 2 / 3 / 4", "Focus Lesson / Graph / Terminal / Inspector"],
+  ["Alt+1 / 2 / 3", "Focus Lesson / Graph / Terminal"],
+  ["Alt+4", "Open or close Files"],
   ["F6 / Shift+F6", "Cycle focus between panes"],
   ["Alt+← / Alt+→", "Previous / next lesson"],
+  ["Alt+L", "Lessons in this section"],
   ["Alt+Home", "Home"],
   ["Alt+Shift+R", "Reset lesson"],
   ["Alt+H", "Show next hint"],
   ["Alt+G", "Graph follows the terminal"],
-  ["Alt+[ / Alt+]", "Collapse lesson panel / inspector"],
+  ["Alt+[", "Hide or show the lesson panel"],
   ["Ctrl+,", "Settings"],
   ["Ctrl+/", "Keyboard shortcuts"],
   ["Ctrl+Shift+C / V", "Copy / paste in the terminal"],
@@ -367,27 +389,32 @@ function LeaveDialog() {
   const dispatch = useAppDispatch();
   const pending = useAppSelector((s) => s.app.pendingNav);
   if (!pending) return null;
+  const quitting = pending.to === "quit";
+  const cancel = () => dispatch(appActions.askToLeave(null));
   return (
     <Dialog
-      title="Leave this lesson?"
-      onClose={() => dispatch(appActions.askToLeave(null))}
+      title={quitting ? "Quit Canopy?" : "Leave this lesson?"}
+      onClose={cancel}
       actions={
         <>
-          <Button variant="ghost" data-autofocus onClick={() => dispatch(appActions.askToLeave(null))}>
-            Stay
+          <Button variant="ghost" data-autofocus={!pending.canSave || undefined} onClick={cancel}>
+            Cancel
           </Button>
-          <Button variant="danger" onClick={() => dispatch(appActions.navigate(pending.to))}>
-            Leave anyway
+          <Button variant={pending.canSave ? "secondary" : "primary"} onClick={() => dispatch(confirmLeave(false))}>
+            {quitting ? "Quit" : "Leave"}
           </Button>
+          {pending.canSave && (
+            <Button variant="primary" data-autofocus onClick={() => dispatch(confirmLeave(true))}>
+              {quitting ? "Save and quit" : "Save and leave"}
+            </Button>
+          )}
         </>
       }
     >
-      <ul className="list-disc space-y-1 pl-5">
-        {pending.reasons.map((r) => (
-          <li key={r}>{r}</li>
-        ))}
-      </ul>
-      <p className="mt-3">Your lesson folder and progress are kept. You can come back and carry on.</p>
+      {pending.reasons.map((r) => (
+        <p key={r}>{r}</p>
+      ))}
+      <p className="mt-3">Everything else is kept: your files, answers and progress. You can come back to this lesson any time.</p>
     </Dialog>
   );
 }

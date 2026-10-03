@@ -213,7 +213,7 @@ export function Dialog({
         aria-modal="true"
         aria-label={title}
         className="rounded-lg border border-edge-2 bg-raised p-5 text-base"
-        style={{ width }}
+        style={{ width: `${width / 16}rem`, maxWidth: "calc(100vw - 2rem)" }}
         onMouseDown={(e) => e.stopPropagation()}
       >
         <h2 className="text-lg font-semibold">{title}</h2>

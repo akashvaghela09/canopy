@@ -113,7 +113,7 @@
   --dur-graph:  320ms;
 
   /* ---- Layout ---- */
-  --spacing: 0.25rem;            /* Tailwind v4 spacing unit (4px at 100% text size) */
+  --spacing: 4px;                /* Tailwind v4 spacing unit; spacing does not scale with text */
   --size-topbar: 44px;
   --size-pane-header: 36px;
   --size-rail: 36px;
