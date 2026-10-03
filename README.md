@@ -2,6 +2,12 @@
 
 Learn git by running real git. Canopy is a desktop app with a terminal, a file tree and editor, and an animated commit graph on one screen. 225 lessons take you from your first `cd` to git internals. Every command runs in real git inside a learning folder Canopy creates; your own projects are never touched.
 
+## Install
+
+Download the latest `.deb`, `.rpm` or `.AppImage` from the [Releases](https://github.com/akashvaghela09/canopy/releases) page. Canopy needs git 2.32 or newer.
+
+To publish a release: bump `version` in `src-tauri/tauri.conf.json` and `package.json`, commit, then `git tag v<version> && git push origin v<version>`.
+
 ## Develop
 
 Requirements: Rust (stable), Node 22+, pnpm, git 2.32+, and the Tauri Linux dependencies (`libwebkit2gtk-4.1-dev` and friends).
