@@ -8,7 +8,7 @@ Lessons are data (`lessons/`), separate from the app. Learners can pull new or f
    - tests every lesson (`canopy-lesson test`),
    - stamps `contentVersion` as `YYYY.MM.DD.<run>`,
    - packs `lessons/` into `canopy-lessons-<version>.tar.gz` (`tools/package-lessons.sh`), without `_notes` and `_reviews`,
-   - signs it with minisign (`<pack>.minisig`),
+   - signs it with minisign using the `MINISIGN_SECRET_KEY` secret (`<pack>.minisig`),
    - publishes a release `lessons-<version>` and uploads `latest.json` to the fixed release `lessons-latest`.
 2. **Checking.** In the app, Settings → Lessons → **Check for updates**. This is the only time Canopy goes online. It fetches `latest.json`:
    ```json
@@ -23,11 +23,11 @@ Why signatures are mandatory: lesson `setup.sh` and action scripts run on the le
 
 ## One-time setup
 
-1. Generate a signing key pair (keep the secret key safe; it is the only way to publish packs):
+1. Generate a password-less signing key pair (keep the secret key safe; it is the only way to publish packs):
    ```sh
-   minisign -G -p canopy-lessons.pub -s canopy-lessons.key
+   minisign -G -W -p canopy-lessons.pub -s canopy-lessons.key
    ```
-2. In the GitHub repo settings, add secrets `MINISIGN_SECRET_KEY` (contents of `canopy-lessons.key`) and `MINISIGN_PASSWORD`.
+2. Add the secret key as a repository secret: `gh secret set MINISIGN_SECRET_KEY < canopy-lessons.key`.
 3. The official feed URL and public key (`canopy-lessons.pub`, committed in the repo root) are built into the app by default (`src-tauri/src/updates.rs`). Keep `canopy-lessons.key` out of the repo (it is git-ignored) and store it somewhere safe. A fork can override both at build time:
    ```sh
    export CANOPY_CONTENT_FEED="https://github.com/<owner>/<repo>/releases/download/lessons-latest/latest.json"
