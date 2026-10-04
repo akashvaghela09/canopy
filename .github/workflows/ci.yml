@@ -53,3 +53,7 @@ jobs:
         run: cargo test -p canopy-core
       - name: Test every lesson's solution against its goals
         run: cargo run -q -p canopy-lesson -- test
+      - name: Transcripts of a few failing lessons
+        if: failure()
+        shell: bash
+        run: cargo run -q -p canopy-lesson -- test -v 3.01 7.06 9.15 13.07 || true

@@ -141,9 +141,10 @@ export default function App() {
     const order = ["lesson", "graph", "terminal", "inspector"];
     const onKey = (e: KeyboardEvent) => {
       if (!isAppChord(e)) return;
-      if (e.altKey && /^[1-4]$/.test(e.key)) {
+      // e.code, not e.key: on macOS Option+1 types "¡".
+      if (e.altKey && /^Digit[1-4]$/.test(e.code)) {
         e.preventDefault();
-        focusPane(order[Number(e.key) - 1]);
+        focusPane(order[Number(e.code.slice(5)) - 1]);
       } else if (e.key === "F6") {
         e.preventDefault();
         const current = (document.activeElement?.closest("[data-pane]") as HTMLElement | null)?.dataset.pane;

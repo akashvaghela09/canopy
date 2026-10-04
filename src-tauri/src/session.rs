@@ -348,7 +348,8 @@ fn compute_update(shared: &Shared) -> Result<LessonUpdate> {
         let r = std::fs::canonicalize(&shared.root).ok()?;
         c.strip_prefix(&r)
             .ok()
-            .map(|p| p.to_string_lossy().into_owned())
+            // "/"-separated on every platform: the frontend matches repo paths with "/".
+            .map(|p| p.to_string_lossy().replace('\\', "/"))
     });
 
     Ok(LessonUpdate {

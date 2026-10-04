@@ -1,6 +1,6 @@
 name: Release app
 
-# Builds Linux installers and publishes them as a GitHub release when a
+# Builds Linux, macOS and Windows installers and publishes them as a GitHub release when a
 # version tag is pushed, e.g. `git tag v0.1.0 && git push origin v0.1.0`.
 # The tag must match the version in src-tauri/tauri.conf.json.
 
@@ -13,17 +13,30 @@ permissions:
   contents: write
 
 jobs:
-  linux:
-    runs-on: ubuntu-22.04
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-22.04
+            args: --bundles deb,rpm,appimage
+          - os: macos-latest
+            args: --target universal-apple-darwin --bundles dmg,app
+          - os: windows-latest
+            args: --bundles nsis,msi
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0 # build.rs stamps the lesson content version from git history
       - name: System packages
+        if: runner.os == 'Linux'
         run: |
           sudo apt-get update
           sudo apt-get install -y libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev patchelf
       - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ runner.os == 'macOS' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
       - uses: Swatinem/rust-cache@v2
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
@@ -33,9 +46,10 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - name: Check tag matches app version
         if: startsWith(github.ref, 'refs/tags/v')
+        shell: bash
         run: |
           want="${GITHUB_REF_NAME#v}"
-          have=$(python3 -c "import json;print(json.load(open('src-tauri/tauri.conf.json'))['version'])")
+          have=$(node -p "require('./src-tauri/tauri.conf.json').version")
           [ "$want" = "$have" ] || { echo "tag $GITHUB_REF_NAME does not match app version $have"; exit 1; }
       - uses: tauri-apps/tauri-action@v0
         env:
@@ -44,10 +58,13 @@ jobs:
           tagName: ${{ github.ref_name }}
           releaseName: "Canopy ${{ github.ref_name }}"
           releaseBody: |
-            Learn git by running real git.
+            Learn git by using it.
 
-            Linux installers: `.deb` (Debian/Ubuntu/Mint), `.rpm` (Fedora/openSUSE) and `.AppImage` (any distro).
+            - **Linux:** `.deb` (Debian/Ubuntu/Mint), `.rpm` (Fedora/openSUSE) or `.AppImage` (any distro).
+            - **macOS:** `.dmg` (Apple silicon and Intel). Not notarized yet: the first time, right-click Canopy in Applications and choose Open.
+            - **Windows:** `.exe` installer or `.msi`. Needs Git for Windows. Not signed yet: on the SmartScreen prompt choose More info → Run anyway.
+
             Requires git 2.32 or newer. Lessons can be updated later from Settings → Check for updates.
           releaseDraft: false
           prerelease: ${{ startsWith(github.ref_name, 'v0.') }}
-          args: --bundles deb,rpm,appimage
+          args: ${{ matrix.args }}

@@ -136,7 +136,7 @@ export function LessonPanel({
             {missing.length > 1 && (
               <>
                 {" and "}
-                <button className="text-fg-2 hover:text-fg hover:underline" onClick={() => window.dispatchEvent(new KeyboardEvent("keydown", { key: "l", altKey: true }))}>
+                <button className="text-fg-2 hover:text-fg hover:underline" onClick={() => window.dispatchEvent(new KeyboardEvent("keydown", { key: "l", code: "KeyL", altKey: true }))}>
                   {missing.length - 1} more
                 </button>
               </>

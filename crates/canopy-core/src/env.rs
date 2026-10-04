@@ -205,6 +205,20 @@ rm -f "$dir/$id.done"
 exit 0
 "#;
 
+/// GIT_EDITOR is run as a shell command, so the script path is quoted (macOS
+/// keeps app data under "Application Support") and, on Windows, given to sh
+/// with forward slashes.
+fn editor_command(script: &Path) -> String {
+    let path = s(script);
+    let path = if cfg!(windows) { path.replace('\\', "/") } else { path };
+    let quoted = format!("'{}'", path.replace('\'', r"'\''"));
+    if cfg!(windows) {
+        format!("sh {quoted}")
+    } else {
+        quoted
+    }
+}
+
 fn write_executable(path: &Path, body: &str) -> Result<()> {
     fs::write(path, body)?;
     #[cfg(unix)]
@@ -305,7 +319,7 @@ pub enum EditorMode {
 pub fn learner_env(paths: &AppPaths, lesson_id: &str, editor: EditorMode) -> EnvVars {
     let mut env = base_env();
     let editor_cmd = match editor {
-        EditorMode::App => s(&paths.editor_script()),
+        EditorMode::App => editor_command(&paths.editor_script()),
         EditorMode::NoOp => "true".into(),
     };
     env.extend([
@@ -362,7 +376,9 @@ mod tests {
         let file = dir.join("COMMIT_EDITMSG");
         for (answer, code) in [("done", 0), ("cancel", 1)] {
             fs::write(&file, "msg").unwrap();
-            let mut child = std::process::Command::new(paths.editor_script())
+            // Through bash, as git does on Windows (a .sh file is not a Win32 program).
+            let mut child = std::process::Command::new(bash())
+                .arg(paths.editor_script())
                 .arg(&file)
                 .env("CANOPY_EDITOR_DIR", paths.editor_requests())
                 .stderr(std::process::Stdio::null())

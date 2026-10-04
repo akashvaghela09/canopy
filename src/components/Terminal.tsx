@@ -55,10 +55,10 @@ function xtermTheme(): ITheme {
 /** Chords the app handles even while the terminal has focus (DESIGN.md 10.1). */
 export function isAppChord(e: KeyboardEvent): boolean {
   if (e.key === "F6") return true;
-  if (e.altKey && !e.ctrlKey && /^[1-4]$/.test(e.key)) return true;
-  if (e.altKey && ["ArrowLeft", "ArrowRight", "Home", "[", "]"].includes(e.key)) return true;
-  if (e.altKey && !e.ctrlKey && ["h", "g", "H", "G"].includes(e.key)) return true;
-  if (e.altKey && e.shiftKey && (e.key === "R" || e.key === "r")) return true;
+  if (e.altKey && !e.ctrlKey && /^Digit[1-4]$/.test(e.code)) return true;
+  if (e.altKey && (["ArrowLeft", "ArrowRight", "Home"].includes(e.key) || ["BracketLeft", "BracketRight"].includes(e.code))) return true;
+  if (e.altKey && !e.ctrlKey && ["KeyH", "KeyG", "KeyL"].includes(e.code)) return true;
+  if (e.altKey && e.shiftKey && e.code === "KeyR") return true;
   if (e.ctrlKey && !e.altKey && [",", "/", "=", "-", "0"].includes(e.key)) return true;
   return false;
 }

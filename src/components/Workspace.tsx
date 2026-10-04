@@ -130,20 +130,20 @@ export function Workspace({ lessonId }: { lessonId: string }) {
   // Keyboard: Alt+Shift+R reset, Alt+[ lesson panel, Alt+H hint, Alt+G follow terminal.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.altKey && e.shiftKey && (e.key === "R" || e.key === "r")) {
+      if (e.altKey && e.shiftKey && e.code === "KeyR") {
         e.preventDefault();
         setConfirmReset(true);
-      } else if (e.altKey && e.key === "[") {
+      } else if (e.altKey && e.code === "BracketLeft") {
         e.preventDefault();
         setPanes((p) => ({ ...p, lessonCollapsed: !p.lessonCollapsed }));
-      } else if (e.altKey && e.key === "]") {
+      } else if (e.altKey && e.code === "BracketRight") {
         e.preventDefault();
         setPanes((p) => ({ ...p, graphCollapsed: !p.graphCollapsed }));
-      } else if (e.altKey && (e.key === "h" || e.key === "H")) {
+      } else if (e.altKey && e.code === "KeyH") {
         e.preventDefault();
         // Reveal without taking focus: a learner asking while typing keeps typing.
         dispatch(lessonActions.hintKey());
-      } else if (e.altKey && (e.key === "g" || e.key === "G")) {
+      } else if (e.altKey && e.code === "KeyG") {
         e.preventDefault();
         dispatch(lessonActions.pinRepo(null));
       } else if (e.key === "Escape" && drawerOpen && document.activeElement?.closest("[data-pane=inspector]")) {

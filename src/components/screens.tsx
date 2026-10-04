@@ -21,7 +21,7 @@ export function TopBar() {
   const [menuOpen, setMenuOpen] = useState(false);
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.altKey && (e.key === "l" || e.key === "L") && screen.kind === "lesson") {
+      if (e.altKey && e.code === "KeyL" && screen.kind === "lesson") {
         e.preventDefault();
         setMenuOpen((o) => !o);
       }
