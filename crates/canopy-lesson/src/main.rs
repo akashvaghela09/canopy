@@ -122,7 +122,8 @@ fn run() -> Result<bool> {
                                 println!("       timed out");
                             }
                         }
-                        if verbose {
+                        // In CI, a failure always shows its transcript.
+                        if verbose || (!ok && std::env::var_os("CI").is_some()) {
                             println!("------ transcript\n{}\n------", r.transcript.trim_end());
                         }
                     }
