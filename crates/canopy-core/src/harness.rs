@@ -142,7 +142,11 @@ pub fn test_lesson_with(
     let started = Instant::now();
     let mut timed_out = false;
     shell.wait_prompt(&mut parser, &mut transcript, Duration::from_secs(10));
-    for line in lines.iter().chain(std::iter::once(&"exit".to_string())) {
+    for (i, line) in lines
+        .iter()
+        .chain(std::iter::once(&"exit".to_string()))
+        .enumerate()
+    {
         if started.elapsed() > TOTAL_TIMEOUT {
             timed_out = true;
             break;
@@ -151,7 +155,15 @@ pub fn test_lesson_with(
         if line == "exit" {
             break;
         }
-        for ev in shell.wait_prompt(&mut parser, &mut transcript, LINE_WAIT) {
+        // The last command gets longer to finish (slow git on Windows):
+        // after `exit` its prompt would be lost. wait_prompt returns as soon
+        // as the prompt comes, so this costs nothing when it is quick.
+        let wait = if i + 1 == lines.len() {
+            LAST_LINE_WAIT
+        } else {
+            LINE_WAIT
+        };
+        for ev in shell.wait_prompt(&mut parser, &mut transcript, wait) {
             cwd = Some(PathBuf::from(&ev.cwd));
             if let Some(c) = parser.command_for(&ev, 0) {
                 transcript.push_str(&format!("[{} -> exit {}]\n", c.command, c.exit_code));
@@ -220,6 +232,7 @@ pub fn test_lesson_with(
 const TOTAL_TIMEOUT: Duration = Duration::from_secs(120);
 /// How long to wait for a prompt before treating the next line as input.
 const LINE_WAIT: Duration = Duration::from_millis(1500);
+const LAST_LINE_WAIT: Duration = Duration::from_secs(15);
 
 /// The learner's shell in a real PTY, exactly as the app runs it, so commands
 /// that check for a terminal (pagers, `shortlog`, `add -p`) behave the same.
