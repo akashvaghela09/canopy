@@ -231,3 +231,12 @@ Scripts in `actions/` simulate other people (teammate pushes, a force-push mista
 ## 9. Versioning and content updates
 
 `manifest.yaml` holds `formatVersion` (this document, integer) and `contentVersion` (date-based, e.g. `2026.10.03.1`). The app only installs a content bundle whose `formatVersion` it supports. Lesson ids are permanent: never renumber a published lesson, because progress is keyed on the id. To retire a lesson, add `flags: [retired]`.
+
+## Portability
+
+Lessons run on Linux, macOS (bash 3.2, BSD tools) and Windows (Git for Windows' bash); CI runs every lesson on all three. In `setup.sh`, actions and goal checks:
+- No GNU-only options: no `sed -i` (write to a temp file and `mv`), no `date -d` (use the `at` helper), no `readlink -f`.
+- Read archives with `tar tzf - < file`: GNU tar takes `C:` in a path for a host name.
+- Paths given to git in config values (`includeIf "gitdir:..."`) need the `C:/...` form on Windows: `pwd -W`, not `$PWD`.
+- Bash 3.2: no associative arrays, `mapfile`, `${var,,}` or `|&`.
+
