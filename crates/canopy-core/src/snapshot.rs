@@ -113,9 +113,15 @@ pub struct Snapshot {
 pub fn take(git: &Git) -> Result<Snapshot> {
     let bare = git.run(&["rev-parse", "--is-bare-repository"])?.trim() == "true";
 
-    let branch = git.try_run(&["symbolic-ref", "--short", "-q", "HEAD"])?.map(|s| s.trim().to_string());
+    let branch = git
+        .try_run(&["symbolic-ref", "--short", "-q", "HEAD"])?
+        .map(|s| s.trim().to_string());
     let head_commit = git.resolve_commit("HEAD")?;
-    let head = Head { detached: branch.is_none() && head_commit.is_some(), branch, commit: head_commit.clone() };
+    let head = Head {
+        detached: branch.is_none() && head_commit.is_some(),
+        branch,
+        commit: head_commit.clone(),
+    };
 
     let refs = read_refs(git)?;
 
@@ -128,7 +134,12 @@ pub fn take(git: &Git) -> Result<Snapshot> {
     let mut truncated = false;
     if !tips.is_empty() {
         let max = format!("--max-count={}", MAX_COMMITS + 1);
-        let mut args = vec!["log", "--topo-order", "--format=%H%x00%P%x00%s%x00%an%x00%at", max.as_str()];
+        let mut args = vec![
+            "log",
+            "--topo-order",
+            "--format=%H%x00%P%x00%s%x00%an%x00%at",
+            max.as_str(),
+        ];
         args.extend(tips.iter().map(String::as_str));
         args.push("--");
         commits = parse_log(&git.run(&args)?, true);
@@ -149,7 +160,12 @@ pub fn take(git: &Git) -> Result<Snapshot> {
         .into_iter()
         .collect();
     if !lost.is_empty() && !truncated {
-        let mut args = vec!["log", "--topo-order", "--format=%H%x00%P%x00%s%x00%an%x00%at", "--max-count=200"];
+        let mut args = vec![
+            "log",
+            "--topo-order",
+            "--format=%H%x00%P%x00%s%x00%an%x00%at",
+            "--max-count=200",
+        ];
         args.extend(lost.iter().copied());
         args.push("--not");
         args.extend(tips.iter().map(String::as_str));
@@ -163,8 +179,18 @@ pub fn take(git: &Git) -> Result<Snapshot> {
         (WorkingTree::default(), Vec::new(), None, Vec::new())
     } else {
         let st = read_status(git, false)?;
-        let wt = WorkingTree { staged: st.staged, modified: st.modified, untracked: st.untracked, conflicted: st.conflicted };
-        (wt, read_index(git)?, current_operation(git)?, read_stashes(git)?)
+        let wt = WorkingTree {
+            staged: st.staged,
+            modified: st.modified,
+            untracked: st.untracked,
+            conflicted: st.conflicted,
+        };
+        (
+            wt,
+            read_index(git)?,
+            current_operation(git)?,
+            read_stashes(git)?,
+        )
     };
 
     Ok(Snapshot {
@@ -213,7 +239,14 @@ fn read_refs(git: &Git) -> Result<Vec<RefInfo>> {
     let out = match full {
         Some(out) => out,
         None => {
-            let basic = git.run(&["for-each-ref", "--format=%(refname)%00%(objectname)%00%00commit", "refs/heads", "refs/tags", "refs/remotes", "refs/bisect"])?;
+            let basic = git.run(&[
+                "for-each-ref",
+                "--format=%(refname)%00%(objectname)%00%00commit",
+                "refs/heads",
+                "refs/tags",
+                "refs/remotes",
+                "refs/bisect",
+            ])?;
             basic
                 .lines()
                 .filter(|l| {
@@ -251,7 +284,12 @@ fn read_refs(git: &Git) -> Result<Vec<RefInfo>> {
         if annotated && peeled.is_empty() {
             continue; // tag of a non-commit
         }
-        refs.push(RefInfo { name: name.to_string(), target: target.to_string(), kind, annotated });
+        refs.push(RefInfo {
+            name: name.to_string(),
+            target: target.to_string(),
+            kind,
+            annotated,
+        });
     }
     Ok(refs)
 }
@@ -264,7 +302,11 @@ fn read_index(git: &Git) -> Result<Vec<IndexEntry>> {
             let (meta, path) = e.split_once('\t')?;
             let mut m = meta.split_whitespace();
             let _mode = m.next()?;
-            Some(IndexEntry { blob: m.next()?.to_string(), stage: m.next()?.parse().ok()?, path: path.to_string() })
+            Some(IndexEntry {
+                blob: m.next()?.to_string(),
+                stage: m.next()?.parse().ok()?,
+                path: path.to_string(),
+            })
         })
         .collect())
 }
@@ -281,7 +323,12 @@ fn read_stashes(git: &Git) -> Result<Vec<StashEntry>> {
             let id = f.next()?.to_string();
             let message = f.next()?.to_string();
             let base = f.next()?.split_whitespace().next()?.to_string();
-            Some(StashEntry { index: i, id, message, base })
+            Some(StashEntry {
+                index: i,
+                id,
+                message,
+                base,
+            })
         })
         .collect())
 }
@@ -292,7 +339,11 @@ fn read_worktrees(git: &Git) -> Result<Vec<Worktree>> {
     };
     let mut list = Vec::new();
     for block in out.split("\n\n") {
-        let mut wt = Worktree { path: String::new(), head: None, branch: None };
+        let mut wt = Worktree {
+            path: String::new(),
+            head: None,
+            branch: None,
+        };
         for line in block.lines() {
             if let Some(p) = line.strip_prefix("worktree ") {
                 wt.path = p.to_string();
@@ -310,14 +361,26 @@ fn read_worktrees(git: &Git) -> Result<Vec<Worktree>> {
 }
 
 fn read_reflog(git: &Git) -> Result<Vec<ReflogEntry>> {
-    let Some(out) = git.try_run(&["reflog", "show", "--format=%H%x00%gs", "-n", "50", "HEAD", "--"])? else {
+    let Some(out) = git.try_run(&[
+        "reflog",
+        "show",
+        "--format=%H%x00%gs",
+        "-n",
+        "50",
+        "HEAD",
+        "--",
+    ])?
+    else {
         return Ok(Vec::new());
     };
     Ok(out
         .lines()
         .filter_map(|l| {
             let (id, msg) = l.split_once('\0')?;
-            Some(ReflogEntry { id: id.to_string(), message: msg.to_string() })
+            Some(ReflogEntry {
+                id: id.to_string(),
+                message: msg.to_string(),
+            })
         })
         .collect())
 }

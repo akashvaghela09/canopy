@@ -21,8 +21,14 @@ fn write(path: &Path, body: &str) {
 fn catalog_with(id: &str, files: &[(&str, &str)]) -> (tempfile::TempDir, Catalog) {
     let dir = tempfile::tempdir().unwrap();
     let root = dir.path();
-    write(&root.join("manifest.yaml"), "formatVersion: 1\ncontentVersion: test\n");
-    write(&root.join("sections.yaml"), "- { id: 9, slug: t, title: T, level: core, summary: s }\n");
+    write(
+        &root.join("manifest.yaml"),
+        "formatVersion: 1\ncontentVersion: test\n",
+    );
+    write(
+        &root.join("sections.yaml"),
+        "- { id: 9, slug: t, title: T, level: core, summary: s }\n",
+    );
     std::os::unix::fs::symlink(lib_dir(), root.join("_lib")).unwrap();
     for (name, body) in files {
         write(&root.join(id).join(name), body);
@@ -118,24 +124,43 @@ fn harness_runs_solution_and_checks_goals() {
         ],
     );
     let issues = canopy_core::validate::validate(&cat);
-    assert!(issues.iter().all(|i| i.level != canopy_core::validate::Level::Error), "{issues:?}");
+    assert!(
+        issues
+            .iter()
+            .all(|i| i.level != canopy_core::validate::Level::Error),
+        "{issues:?}"
+    );
 
     let data = tempfile::tempdir().unwrap();
     let report = test_lesson(&cat, cat.lesson(lesson).unwrap(), data.path()).unwrap();
     let failed: Vec<_> = report.goals.iter().filter(|g| !g.passed).collect();
-    assert!(failed.is_empty(), "failed: {failed:#?}\n{}", report.transcript);
-    assert!(report.wrong_answers.is_empty(), "{:?}", report.wrong_answers);
+    assert!(
+        failed.is_empty(),
+        "failed: {failed:#?}\n{}",
+        report.transcript
+    );
+    assert!(
+        report.wrong_answers.is_empty(),
+        "{:?}",
+        report.wrong_answers
+    );
     assert!(report.passed());
 
     // Snapshot of the finished repo.
     let paths = AppPaths::new(data.path());
-    let git = Git::new(paths.lesson_root(lesson).join("work"), learner_env(&paths, lesson, EditorMode::NoOp));
+    let git = Git::new(
+        paths.lesson_root(lesson).join("work"),
+        learner_env(&paths, lesson, EditorMode::NoOp),
+    );
     let snap = snapshot::take(&git).unwrap();
     assert_eq!(snap.head.branch.as_deref(), Some("main"));
     assert_eq!(snap.stashes.len(), 1);
     assert!(snap.refs.iter().any(|r| r.name == "v1" && r.annotated));
     assert!(snap.refs.iter().any(|r| r.name == "origin/main"));
-    assert_eq!(snap.commits.iter().filter(|c| c.parents.len() == 2).count(), 1);
+    assert_eq!(
+        snap.commits.iter().filter(|c| c.parents.len() == 2).count(),
+        1
+    );
     assert!(snap.commits.iter().all(|c| c.reachable));
 }
 
@@ -144,7 +169,10 @@ fn identical_setup_gives_identical_hashes() {
     let (_dir, cat) = catalog_with(
         "9.01",
         &[
-            ("lesson.yaml", "id: \"9.01\"\nsection: 9\ntitle: T\nkind: practice\nrepo: work\nstart: work\n"),
+            (
+                "lesson.yaml",
+                "id: \"9.01\"\nsection: 9\ntitle: T\nkind: practice\nrepo: work\nstart: work\n",
+            ),
             ("setup.sh", SETUP),
         ],
     );
@@ -169,8 +197,23 @@ fn snapshot_survives_a_broken_ref() {
     fs::create_dir_all(&repo).unwrap();
     let git = Git::new(&repo, learner_env(&paths, "r", EditorMode::NoOp));
     git.run(&["init", "-q", "-b", "main"]).unwrap();
-    git.run(&["-c", "user.name=a", "-c", "user.email=a@b", "commit", "-q", "--allow-empty", "-m", "one"]).unwrap();
-    fs::write(repo.join(".git/refs/heads/broken"), "1111111111111111111111111111111111111111\n").unwrap();
+    git.run(&[
+        "-c",
+        "user.name=a",
+        "-c",
+        "user.email=a@b",
+        "commit",
+        "-q",
+        "--allow-empty",
+        "-m",
+        "one",
+    ])
+    .unwrap();
+    fs::write(
+        repo.join(".git/refs/heads/broken"),
+        "1111111111111111111111111111111111111111\n",
+    )
+    .unwrap();
     let snap = snapshot::take(&git).unwrap();
     assert!(snap.refs.iter().any(|r| r.name == "main"));
     assert!(!snap.refs.iter().any(|r| r.name == "broken"));
@@ -180,7 +223,13 @@ fn snapshot_survives_a_broken_ref() {
 #[test]
 fn identity_carries_between_lessons_but_not_into_identity_lessons() {
     use canopy_core::runner::{sync_profile, write_lesson_config};
-    let (_dir, cat) = catalog_with("9.01", &[("lesson.yaml", "id: \"9.01\"\nsection: 9\ntitle: T\nkind: practice\n")]);
+    let (_dir, cat) = catalog_with(
+        "9.01",
+        &[(
+            "lesson.yaml",
+            "id: \"9.01\"\nsection: 9\ntitle: T\nkind: practice\n",
+        )],
+    );
     let lesson = cat.lesson("9.01").unwrap().clone();
     let data = tempfile::tempdir().unwrap();
     let paths = AppPaths::new(data.path());
@@ -189,9 +238,12 @@ fn identity_carries_between_lessons_but_not_into_identity_lessons() {
     // Lesson A: the learner sets a global identity.
     write_lesson_config(&paths, &lesson).unwrap();
     let git = Git::new(data.path(), learner_env(&paths, "9.01", EditorMode::NoOp));
-    git.run(&["config", "--global", "user.name", "Ada"]).unwrap();
-    git.run(&["config", "--global", "user.email", "ada@example.com"]).unwrap();
-    git.run(&["config", "--global", "alias.st", "status"]).unwrap();
+    git.run(&["config", "--global", "user.name", "Ada"])
+        .unwrap();
+    git.run(&["config", "--global", "user.email", "ada@example.com"])
+        .unwrap();
+    git.run(&["config", "--global", "alias.st", "status"])
+        .unwrap();
     sync_profile(&paths, "9.01").unwrap();
 
     // Lesson B gets the identity, but not the alias.
@@ -199,9 +251,18 @@ fn identity_carries_between_lessons_but_not_into_identity_lessons() {
     b.meta.id = "9.02".into();
     write_lesson_config(&paths, &b).unwrap();
     let gb = Git::new(data.path(), learner_env(&paths, "9.02", EditorMode::NoOp));
-    assert_eq!(gb.run(&["config", "--global", "user.name"]).unwrap().trim(), "Ada");
-    assert!(gb.try_run(&["config", "--global", "alias.st"]).unwrap().is_none());
-    assert!(gb.ok(&["config", "--global", "include.path", "x"]).unwrap(), "learner can set include.path");
+    assert_eq!(
+        gb.run(&["config", "--global", "user.name"]).unwrap().trim(),
+        "Ada"
+    );
+    assert!(gb
+        .try_run(&["config", "--global", "alias.st"])
+        .unwrap()
+        .is_none());
+    assert!(
+        gb.ok(&["config", "--global", "include.path", "x"]).unwrap(),
+        "learner can set include.path"
+    );
 
     // A lesson that teaches identity starts without it (system fallback only).
     let mut c = lesson.clone();
@@ -209,6 +270,12 @@ fn identity_carries_between_lessons_but_not_into_identity_lessons() {
     c.meta.identity = false;
     write_lesson_config(&paths, &c).unwrap();
     let gc = Git::new(data.path(), learner_env(&paths, "9.03", EditorMode::NoOp));
-    assert!(gc.try_run(&["config", "--global", "user.name"]).unwrap().is_none());
-    assert_eq!(gc.run(&["config", "user.name"]).unwrap().trim(), "Canopy Learner");
+    assert!(gc
+        .try_run(&["config", "--global", "user.name"])
+        .unwrap()
+        .is_none());
+    assert_eq!(
+        gc.run(&["config", "user.name"]).unwrap().trim(),
+        "Canopy Learner"
+    );
 }

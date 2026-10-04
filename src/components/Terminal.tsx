@@ -9,9 +9,12 @@ import { api } from "../api";
 import { useThemeVersion } from "../theme";
 
 /** Resolve a CSS color (e.g. an oklch() token) to #rrggbb, which xterm needs. */
-export function cssColor(variable: string): string {
-  const raw = getComputedStyle(document.documentElement).getPropertyValue(variable).trim();
-  const ctx = document.createElement("canvas").getContext("2d", { willReadFrequently: true });
+let colorCtx: CanvasRenderingContext2D | null = null;
+export function cssColor(variable: string, style: CSSStyleDeclaration = getComputedStyle(document.documentElement)): string {
+  const raw = style.getPropertyValue(variable).trim();
+  if (raw.startsWith("#")) return raw;
+  colorCtx ??= document.createElement("canvas").getContext("2d", { willReadFrequently: true });
+  const ctx = colorCtx;
   if (!ctx || !raw) return "#000000";
   ctx.clearRect(0, 0, 1, 1);
   ctx.fillStyle = raw;
@@ -21,13 +24,15 @@ export function cssColor(variable: string): string {
 }
 
 function xtermTheme(): ITheme {
-  const ansi = (n: number) => cssColor(`--color-ansi-${n}`);
+  // One computed style for all 21 colors.
+  const style = getComputedStyle(document.documentElement);
+  const ansi = (n: number) => cssColor(`--color-ansi-${n}`, style);
   return {
-    background: cssColor("--color-term-bg"),
-    foreground: cssColor("--color-term-fg"),
-    cursor: cssColor("--color-term-cursor"),
-    cursorAccent: cssColor("--color-term-bg"),
-    selectionBackground: cssColor("--color-term-selection"),
+    background: cssColor("--color-term-bg", style),
+    foreground: cssColor("--color-term-fg", style),
+    cursor: cssColor("--color-term-cursor", style),
+    cursorAccent: cssColor("--color-term-bg", style),
+    selectionBackground: cssColor("--color-term-selection", style),
     black: ansi(0),
     red: ansi(1),
     green: ansi(2),

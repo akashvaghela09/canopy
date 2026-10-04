@@ -17,7 +17,9 @@ use canopy_core::goal::GoalFile;
 use canopy_core::marker::{Chunk, MarkerParser};
 use canopy_core::snapshot::{self, Snapshot};
 use notify_debouncer_mini::notify::event::ModifyKind;
-use notify_debouncer_mini::notify::{recommended_watcher, Event, EventKind, RecommendedWatcher, RecursiveMode, Watcher};
+use notify_debouncer_mini::notify::{
+    recommended_watcher, Event, EventKind, RecommendedWatcher, RecursiveMode, Watcher,
+};
 use portable_pty::{native_pty_system, Child, CommandBuilder, MasterPty, PtySize};
 use serde::Serialize;
 use tauri::ipc::Channel;
@@ -96,7 +98,12 @@ impl Session {
         // attempt (including a redo after reset) should.
         let was_complete = !fresh_attempt && db.lock().unwrap().completed()?.contains_key(&id);
 
-        let Shell { master, child, mut reader, writer } = spawn_shell(&env, start_dir, size)?;
+        let Shell {
+            master,
+            child,
+            mut reader,
+            writer,
+        } = spawn_shell(&env, start_dir, size)?;
 
         let shared = Arc::new(Shared {
             app,
@@ -143,7 +150,11 @@ impl Session {
                                 busy.store(false, std::sync::atomic::Ordering::Relaxed);
                                 *shared.cwd.lock().unwrap() = Some(PathBuf::from(&ev.cwd));
                                 if let Some(entry) = parser.command_for(&ev, now_ms()) {
-                                    let _ = shared.db.lock().unwrap().add_command(&shared.lesson.meta.id, &entry);
+                                    let _ = shared
+                                        .db
+                                        .lock()
+                                        .unwrap()
+                                        .add_command(&shared.lesson.meta.id, &entry);
                                 }
                                 let _ = refresh.send(());
                             }
@@ -167,13 +178,14 @@ impl Session {
         // Only real changes count. Access events (git reading files while we
         // take a snapshot) would otherwise trigger a refresh loop.
         let watch_tx = refresh_tx.clone();
-        let mut watcher = recommended_watcher(move |res: notify_debouncer_mini::notify::Result<Event>| {
-            if let Ok(ev) = res {
-                if is_change(&ev.kind) {
-                    let _ = watch_tx.send(());
+        let mut watcher =
+            recommended_watcher(move |res: notify_debouncer_mini::notify::Result<Event>| {
+                if let Ok(ev) = res {
+                    if is_change(&ev.kind) {
+                        let _ = watch_tx.send(());
+                    }
                 }
-            }
-        })?;
+            })?;
         watcher.watch(&root, RecursiveMode::Recursive)?;
 
         let _ = refresh_tx.send(());
@@ -200,10 +212,12 @@ impl Session {
     }
 
     pub fn resize(&self, cols: u16, rows: u16) -> Result<()> {
-        self.master
-            .lock()
-            .unwrap()
-            .resize(PtySize { cols: cols.max(20), rows: rows.max(5), pixel_width: 0, pixel_height: 0 })?;
+        self.master.lock().unwrap().resize(PtySize {
+            cols: cols.max(20),
+            rows: rows.max(5),
+            pixel_width: 0,
+            pixel_height: 0,
+        })?;
         Ok(())
     }
 
@@ -233,7 +247,12 @@ pub struct Shell {
 /// Start the learner's bash in a PTY with the given environment.
 pub fn spawn_shell(env: &EnvVars, start_dir: &Path, size: (u16, u16)) -> Result<Shell> {
     let pair = native_pty_system()
-        .openpty(PtySize { cols: size.0.max(20), rows: size.1.max(5), pixel_width: 0, pixel_height: 0 })
+        .openpty(PtySize {
+            cols: size.0.max(20),
+            rows: size.1.max(5),
+            pixel_width: 0,
+            pixel_height: 0,
+        })
         .context("opening a terminal")?;
     let mut cmd = CommandBuilder::new("bash");
     cmd.args(["--noprofile", "--norc", "-i"]);
@@ -242,11 +261,19 @@ pub fn spawn_shell(env: &EnvVars, start_dir: &Path, size: (u16, u16)) -> Result<
     for (k, v) in env {
         cmd.env(k, v);
     }
+    for (k, v) in canopy_core::env::SHELL_FUNCTIONS {
+        cmd.env(k, v);
+    }
     let child = pair.slave.spawn_command(cmd).context("starting bash")?;
     drop(pair.slave);
     let reader = pair.master.try_clone_reader()?;
     let writer = pair.master.take_writer()?;
-    Ok(Shell { master: pair.master, child, reader, writer })
+    Ok(Shell {
+        master: pair.master,
+        child,
+        reader,
+        writer,
+    })
 }
 
 fn is_change(kind: &EventKind) -> bool {
@@ -276,13 +303,17 @@ fn compute_update(shared: &Shared) -> Result<LessonUpdate> {
     let id = &shared.lesson.meta.id;
     let (commands, answers, mut sticky) = {
         let db = shared.db.lock().unwrap();
-        let answers: HashMap<String, serde_json::Value> =
-            db.answers(id)?.into_iter().map(|(k, (v, _))| (k, v)).collect();
+        let answers: HashMap<String, serde_json::Value> = db
+            .answers(id)?
+            .into_iter()
+            .map(|(k, (v, _))| (k, v))
+            .collect();
         (db.commands(id)?, answers, db.sticky(id)?)
     };
     let cwd = shared.cwd.lock().unwrap().clone();
     // Actions may add marks while the lesson runs, so read them every time.
-    let marks = canopy_core::runner::read_marks(&shared.state).unwrap_or_else(|_| shared.marks.clone());
+    let marks =
+        canopy_core::runner::read_marks(&shared.state).unwrap_or_else(|_| shared.marks.clone());
     let _ = canopy_core::runner::sync_profile(&shared.paths, id);
     let ctx = CheckContext {
         root: &shared.root,
@@ -315,7 +346,9 @@ fn compute_update(shared: &Shared) -> Result<LessonUpdate> {
     let rel_cwd = cwd.and_then(|c| {
         let c = std::fs::canonicalize(&c).ok()?;
         let r = std::fs::canonicalize(&shared.root).ok()?;
-        c.strip_prefix(&r).ok().map(|p| p.to_string_lossy().into_owned())
+        c.strip_prefix(&r)
+            .ok()
+            .map(|p| p.to_string_lossy().into_owned())
     });
 
     Ok(LessonUpdate {
@@ -332,7 +365,11 @@ fn compute_update(shared: &Shared) -> Result<LessonUpdate> {
 /// Snapshot every repo the lesson declares (or just its primary repo).
 fn snapshots(shared: &Shared) -> Vec<RepoSnapshot> {
     let meta = &shared.lesson.meta;
-    let mut list: Vec<(String, String)> = meta.repos.iter().map(|r| (r.path.clone(), r.label.clone())).collect();
+    let mut list: Vec<(String, String)> = meta
+        .repos
+        .iter()
+        .map(|r| (r.path.clone(), r.label.clone()))
+        .collect();
     if let Some(primary) = &meta.repo {
         if !list.iter().any(|(p, _)| p == primary) {
             list.insert(0, (primary.clone(), primary.clone()));
@@ -349,7 +386,12 @@ fn snapshots(shared: &Shared) -> Vec<RepoSnapshot> {
                 Ok(None) => (None, None),
                 Err(e) => (None, Some(format!("{e:#}"))),
             };
-            RepoSnapshot { path, label, snapshot, error }
+            RepoSnapshot {
+                path,
+                label,
+                snapshot,
+                error,
+            }
         })
         .collect()
 }
@@ -389,7 +431,9 @@ mod tests {
         std::fs::create_dir_all(&root).unwrap();
         let env = learner_env(&paths, "t", EditorMode::NoOp);
         let mut sh = spawn_shell(&env, &root, (80, 24)).unwrap();
-        sh.writer.write_all(b"git init -q -b main repo && cd repo\ngit status --short; false\n").unwrap();
+        sh.writer
+            .write_all(b"git init -q -b main repo && cd repo\ngit status --short; false\n")
+            .unwrap();
         let (tx, rx) = std::sync::mpsc::channel();
         let mut reader = sh.reader;
         std::thread::spawn(move || {

@@ -67,3 +67,8 @@ Owner feedback after v0.3.0: settings sheet cramped; lesson panel width followed
 - Resizing measures once per drag and applies once per frame, with transitions off while dragging.
 - Setup shows skeletons; two starts of the same lesson can no longer run setup.sh at once (the "re-init" / "nothing to commit" setup errors), and a folder whose setup never finished is not resumed.
 - App icon: a git graph drawn as a tree under a canopy (`assets/icon.svg`).
+
+## Round 5 (owner feedback on v1.0.1, `HOME_SPEC.md`)
+
+- Home becomes a course front page: hero (icon, "Canopy", "Learn git by using it.", live counts), a 15-node learning path drawn like a small commit graph, one "Up next" card, and the syllabus as rows grouped by level with summaries and counts. Bars only for sections in progress. Section pages get Start/Continue and no 0% bar. Accepted as specified.
+- Terminal: coloured prompt (folder, branch, operation), coloured ls/grep for the interactive shell only, and a terminal colour picker (Canopy, Tokyo Night, Dracula, Nord, Gruvbox, Solarized Light, GitHub Light). Fable's performance review: no idle cost, theme switch is a one-off few ms; its two hygiene nits were applied.

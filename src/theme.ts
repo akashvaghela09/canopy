@@ -2,6 +2,7 @@
 // variables in styles.css switch without re-rendering components.
 
 import { useEffect, useState } from "react";
+import { setTerminalTokens } from "./terminalThemes";
 
 type Listener = () => void;
 const listeners = new Set<Listener>();
@@ -20,6 +21,12 @@ export function applyTheme(theme: string | undefined) {
   const root = document.documentElement;
   if (theme === "light" || theme === "dark") root.setAttribute("data-theme", theme);
   else root.removeAttribute("data-theme");
+  bump();
+}
+
+/** Terminal color theme id ("canopy" or one of TERMINAL_THEMES). */
+export function applyTerminalTheme(id: string | undefined) {
+  setTerminalTokens(id);
   bump();
 }
 

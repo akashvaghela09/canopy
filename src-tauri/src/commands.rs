@@ -120,7 +120,10 @@ pub fn get_catalog(state: State<AppState>) -> CmdResult<CatalogView> {
     // would deadlock (the first guard lives until the end of the statement).
     let (completed, skipped) = {
         let db = state.db.lock().unwrap();
-        (db.completed().map_err(anyhow_err)?, db.skipped().map_err(anyhow_err)?)
+        (
+            db.completed().map_err(anyhow_err)?,
+            db.skipped().map_err(anyhow_err)?,
+        )
     };
     Ok(CatalogView {
         manifest: catalog.manifest.clone(),
@@ -135,7 +138,12 @@ pub fn get_catalog(state: State<AppState>) -> CmdResult<CatalogView> {
 #[tauri::command]
 pub fn skip_lesson(state: State<AppState>, id: String) -> CmdResult<()> {
     lesson_by_id(&state, &id)?;
-    state.db.lock().unwrap().mark_skipped(&id, crate::session::now_ms()).map_err(anyhow_err)
+    state
+        .db
+        .lock()
+        .unwrap()
+        .mark_skipped(&id, crate::session::now_ms())
+        .map_err(anyhow_err)
 }
 
 #[derive(Serialize)]
@@ -170,7 +178,10 @@ pub struct LessonView {
 
 fn lesson_by_id(state: &AppState, id: &str) -> CmdResult<Lesson> {
     let catalog = state.catalog.read().unwrap();
-    catalog.lesson(id).cloned().ok_or_else(|| format!("no lesson {id}"))
+    catalog
+        .lesson(id)
+        .cloned()
+        .ok_or_else(|| format!("no lesson {id}"))
 }
 
 #[tauri::command]
@@ -240,7 +251,12 @@ pub async fn start_lesson(
     // resumable.
     let fresh = reset || !canopy_core::runner::is_prepared(&paths, &id);
     let attempt = if fresh {
-        state.db.lock().unwrap().clear_attempt(&id).map_err(anyhow_err)?;
+        state
+            .db
+            .lock()
+            .unwrap()
+            .clear_attempt(&id)
+            .map_err(anyhow_err)?;
         let lib = catalog.lib_dir();
         let l = lesson.clone();
         let p = paths.clone();
@@ -260,11 +276,29 @@ pub async fn start_lesson(
         canopy_core::runner::write_lesson_config(&paths, &lesson).map_err(anyhow_err)?;
     }
     let marks = read_marks(&attempt.state).map_err(anyhow_err)?;
-    let start_dir = if attempt.start.is_dir() { attempt.start.clone() } else { attempt.root.clone() };
-    let session = Session::start(app, &paths, lesson, &start_dir, marks, state.db.clone(), output, (cols, rows), fresh)
-        .map_err(anyhow_err)?;
+    let start_dir = if attempt.start.is_dir() {
+        attempt.start.clone()
+    } else {
+        attempt.root.clone()
+    };
+    let session = Session::start(
+        app,
+        &paths,
+        lesson,
+        &start_dir,
+        marks,
+        state.db.clone(),
+        output,
+        (cols, rows),
+        fresh,
+    )
+    .map_err(anyhow_err)?;
     *state.session.lock().unwrap() = Some(session);
-    Ok(StartInfo { lesson_id: id, root: attempt.root.to_string_lossy().into_owned(), fresh })
+    Ok(StartInfo {
+        lesson_id: id,
+        root: attempt.root.to_string_lossy().into_owned(),
+        fresh,
+    })
 }
 
 #[tauri::command]
@@ -293,7 +327,11 @@ pub fn submit_answer(state: State<AppState>, question: String, value: Value) -> 
     let lesson_id = with_session(&state, |s| Ok(s.lesson_id.clone()))?;
     let lesson = lesson_by_id(&state, &lesson_id)?;
     let goal = lesson.goal().map_err(anyhow_err)?;
-    let q = goal.questions.iter().find(|q| q.id == question).ok_or("no such question")?;
+    let q = goal
+        .questions
+        .iter()
+        .find(|q| q.id == question)
+        .ok_or("no such question")?;
     let env = learner_env(&state.paths, &lesson_id, EditorMode::NoOp);
     let marks = read_marks(&state.paths.lesson_state(&lesson_id)).map_err(anyhow_err)?;
     let root = state.paths.lesson_root(&lesson_id);
@@ -310,9 +348,16 @@ pub fn submit_answer(state: State<AppState>, question: String, value: Value) -> 
     };
     // `@mark:` is for solution.yaml only; a learner who read setup.sh must
     // still find the commit.
-    let mark_syntax = value.as_str().is_some_and(|v| v.trim_start().starts_with("@mark:"));
+    let mark_syntax = value
+        .as_str()
+        .is_some_and(|v| v.trim_start().starts_with("@mark:"));
     let correct = !mark_syntax && check_answer(q, &value, &ctx);
-    state.db.lock().unwrap().set_answer(&lesson_id, &question, &value, correct).map_err(anyhow_err)?;
+    state
+        .db
+        .lock()
+        .unwrap()
+        .set_answer(&lesson_id, &question, &value, correct)
+        .map_err(anyhow_err)?;
     with_session(&state, |s| {
         s.request_refresh();
         Ok(())
@@ -326,10 +371,12 @@ pub async fn run_action(state: State<'_, AppState>, action: String) -> CmdResult
     let lesson = lesson_by_id(&state, &lesson_id)?;
     let lib = state.catalog.read().unwrap().lib_dir();
     let paths = state.paths.clone();
-    let out = tauri::async_runtime::spawn_blocking(move || core_run_action(&paths, &lib, &lesson, &action))
-        .await
-        .map_err(err)?
-        .map_err(anyhow_err)?;
+    let out = tauri::async_runtime::spawn_blocking(move || {
+        core_run_action(&paths, &lib, &lesson, &action)
+    })
+    .await
+    .map_err(err)?
+    .map_err(anyhow_err)?;
     with_session(&state, |s| {
         s.request_refresh();
         Ok(())
@@ -375,7 +422,11 @@ pub fn list_dir(state: State<AppState>, path: String) -> CmdResult<Vec<DirEntry>
             })
         })
         .collect();
-    entries.sort_by(|a, b| b.dir.cmp(&a.dir).then_with(|| a.name.to_lowercase().cmp(&b.name.to_lowercase())));
+    entries.sort_by(|a, b| {
+        b.dir
+            .cmp(&a.dir)
+            .then_with(|| a.name.to_lowercase().cmp(&b.name.to_lowercase()))
+    });
     Ok(entries)
 }
 
@@ -405,8 +456,13 @@ pub fn write_file(state: State<AppState>, path: String, content: String) -> CmdR
 
 #[tauri::command]
 pub fn editor_finish(state: State<AppState>, id: String, content: Option<String>) -> CmdResult<()> {
-    editor::finish(&state.paths.editor_requests(), &state.paths.workspace(), &id, content.as_deref())
-        .map_err(anyhow_err)
+    editor::finish(
+        &state.paths.editor_requests(),
+        &state.paths.workspace(),
+        &id,
+        content.as_deref(),
+    )
+    .map_err(anyhow_err)
 }
 
 #[tauri::command]
@@ -416,7 +472,12 @@ pub fn get_settings(state: State<AppState>) -> CmdResult<HashMap<String, String>
 
 #[tauri::command]
 pub fn set_setting(state: State<AppState>, key: String, value: String) -> CmdResult<()> {
-    state.db.lock().unwrap().set_setting(&key, &value).map_err(anyhow_err)
+    state
+        .db
+        .lock()
+        .unwrap()
+        .set_setting(&key, &value)
+        .map_err(anyhow_err)
 }
 
 /// Clear completion for one section, or for everything.
@@ -431,13 +492,21 @@ pub fn reset_progress(state: State<AppState>, section: Option<u32>) -> CmdResult
         .filter(|l| section.is_none_or(|s| l.meta.section == s))
         .map(|l| l.meta.id.clone())
         .collect();
-    state.db.lock().unwrap().clear_completion(&ids).map_err(anyhow_err)
+    state
+        .db
+        .lock()
+        .unwrap()
+        .clear_completion(&ids)
+        .map_err(anyhow_err)
 }
 
 fn session_repo(state: &AppState, repo: &str) -> CmdResult<canopy_core::git::Git> {
     let lesson_id = with_session(state, |s| Ok(s.lesson_id.clone()))?;
     let dir = in_root(state, repo)?;
-    Ok(canopy_core::git::Git::new(dir, learner_env(&state.paths, &lesson_id, EditorMode::NoOp)))
+    Ok(canopy_core::git::Git::new(
+        dir,
+        learner_env(&state.paths, &lesson_id, EditorMode::NoOp),
+    ))
 }
 
 /// Unified diff for the Changes tab. scope: "unstaged" | "staged" | "head" | "commit:<id>".
@@ -451,14 +520,25 @@ pub fn repo_diff(state: State<AppState>, repo: String, scope: String) -> CmdResu
         "staged" => args.push("--cached"),
         "head" => args.push("HEAD"),
         other => {
-            commit = other.strip_prefix("commit:").ok_or("bad diff scope")?.to_string();
+            commit = other
+                .strip_prefix("commit:")
+                .ok_or("bad diff scope")?
+                .to_string();
             if !commit.chars().all(|c| c.is_ascii_hexdigit()) {
                 return Err("bad commit id".into());
             }
-            args = vec!["show", "--no-color", "--no-ext-diff", "--format=%h %s%n%an, %ad%n", &commit];
+            args = vec![
+                "show",
+                "--no-color",
+                "--no-ext-diff",
+                "--format=%h %s%n%an, %ad%n",
+                &commit,
+            ];
         }
     }
-    git.try_run(&args).map_err(anyhow_err).map(|o| o.unwrap_or_default())
+    git.try_run(&args)
+        .map_err(anyhow_err)
+        .map(|o| o.unwrap_or_default())
 }
 
 #[derive(Serialize)]
@@ -483,10 +563,20 @@ pub fn three_areas(state: State<AppState>, repo: String) -> CmdResult<Vec<AreaRo
             paths.push(p.to_string());
         }
     };
-    for p in git.try_run(&["ls-files", "--cached", "--others", "--exclude-standard"]).map_err(anyhow_err)?.unwrap_or_default().lines() {
+    for p in git
+        .try_run(&["ls-files", "--cached", "--others", "--exclude-standard"])
+        .map_err(anyhow_err)?
+        .unwrap_or_default()
+        .lines()
+    {
         add(p);
     }
-    for p in git.try_run(&["ls-tree", "-r", "--name-only", "HEAD"]).map_err(anyhow_err)?.unwrap_or_default().lines() {
+    for p in git
+        .try_run(&["ls-tree", "-r", "--name-only", "HEAD"])
+        .map_err(anyhow_err)?
+        .unwrap_or_default()
+        .lines()
+    {
         add(p);
     }
     paths.sort();
@@ -504,29 +594,55 @@ pub fn three_areas(state: State<AppState>, repo: String) -> CmdResult<Vec<AreaRo
     paths
         .into_iter()
         .map(|path| {
-            let worktree = fs::read(git.dir.join(&path)).ok().map(|b| clip(String::from_utf8_lossy(&b).into_owned()));
-            let index = git.try_run(&["show", &format!(":{path}")]).map_err(anyhow_err)?.map(clip);
-            let head = git.try_run(&["show", &format!("HEAD:{path}")]).map_err(anyhow_err)?.map(clip);
-            Ok(AreaRow { path, worktree, index, head })
+            let worktree = fs::read(git.dir.join(&path))
+                .ok()
+                .map(|b| clip(String::from_utf8_lossy(&b).into_owned()));
+            let index = git
+                .try_run(&["show", &format!(":{path}")])
+                .map_err(anyhow_err)?
+                .map(clip);
+            let head = git
+                .try_run(&["show", &format!("HEAD:{path}")])
+                .map_err(anyhow_err)?
+                .map(clip);
+            Ok(AreaRow {
+                path,
+                worktree,
+                index,
+                head,
+            })
         })
         .collect()
 }
 
 /// `git cat-file -p` for the .git tab; also returns the type.
 #[tauri::command]
-pub fn git_object(state: State<AppState>, repo: String, spec: String) -> CmdResult<(String, String)> {
+pub fn git_object(
+    state: State<AppState>,
+    repo: String,
+    spec: String,
+) -> CmdResult<(String, String)> {
     let git = session_repo(&state, &repo)?;
     if spec.starts_with('-') {
         return Err("bad object name".into());
     }
-    let ty = git.try_run(&["cat-file", "-t", &spec]).map_err(anyhow_err)?.ok_or("No object with that name.")?;
+    let ty = git
+        .try_run(&["cat-file", "-t", &spec])
+        .map_err(anyhow_err)?
+        .ok_or("No object with that name.")?;
     let body = git.run(&["cat-file", "-p", &spec]).map_err(anyhow_err)?;
     Ok((ty.trim().to_string(), body))
 }
 
 #[tauri::command]
 pub async fn check_updates(state: State<'_, AppState>) -> CmdResult<crate::updates::CheckResult> {
-    let installed = state.catalog.read().unwrap().manifest.content_version.clone();
+    let installed = state
+        .catalog
+        .read()
+        .unwrap()
+        .manifest
+        .content_version
+        .clone();
     tauri::async_runtime::spawn_blocking(move || crate::updates::check(&installed))
         .await
         .map_err(err)?
@@ -543,7 +659,11 @@ struct UpdateProgress {
 /// Download, verify and install a lesson pack, then reload the catalog.
 /// Returns true if the open lesson's content changed.
 #[tauri::command]
-pub async fn install_update(app: AppHandle, state: State<'_, AppState>, feed: crate::updates::Feed) -> CmdResult<bool> {
+pub async fn install_update(
+    app: AppHandle,
+    state: State<'_, AppState>,
+    feed: crate::updates::Feed,
+) -> CmdResult<bool> {
     use tauri::Emitter;
     let paths = state.paths.clone();
     let app2 = app.clone();
@@ -585,7 +705,9 @@ pub fn frontend_log(level: String, message: String) {
 /// types a command (see src/main.tsx). Unset in normal use.
 #[tauri::command]
 pub fn smoke_lesson() -> Option<String> {
-    std::env::var("CANOPY_SMOKE_LESSON").ok().filter(|s| !s.is_empty())
+    std::env::var("CANOPY_SMOKE_LESSON")
+        .ok()
+        .filter(|s| !s.is_empty())
 }
 
 /// "Go back" after leaving the learning folder: clear the input line and cd
@@ -596,7 +718,10 @@ pub fn terminal_go_home(state: State<AppState>) -> CmdResult<()> {
     let lesson = lesson_by_id(&state, &lesson_id)?;
     let dir = state.paths.lesson_root(&lesson_id).join(&lesson.meta.start);
     let quoted = format!("'{}'", dir.to_string_lossy().replace('\'', "'\\''"));
-    with_session(&state, |s| s.write(format!("\x15cd {quoted}\r").as_bytes()).map_err(anyhow_err))
+    with_session(&state, |s| {
+        s.write(format!("\x15cd {quoted}\r").as_bytes())
+            .map_err(anyhow_err)
+    })
 }
 
 /// Where Canopy keeps lesson folders (shown on the first-run screen).
@@ -608,5 +733,10 @@ pub fn learning_folder(state: State<AppState>) -> String {
 /// Is a terminal command still running? (Used to warn before leaving a lesson.)
 #[tauri::command]
 pub fn terminal_busy(state: State<AppState>) -> bool {
-    state.session.lock().unwrap().as_ref().is_some_and(|s| s.is_busy())
+    state
+        .session
+        .lock()
+        .unwrap()
+        .as_ref()
+        .is_some_and(|s| s.is_busy())
 }

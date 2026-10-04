@@ -52,7 +52,10 @@ impl Db {
         let conn = Connection::open(path)?;
         conn.pragma_update(None, "journal_mode", "WAL")?;
         conn.pragma_update(None, "foreign_keys", "ON")?;
-        conn.execute("CREATE TABLE IF NOT EXISTS schema_version (version INTEGER NOT NULL)", [])?;
+        conn.execute(
+            "CREATE TABLE IF NOT EXISTS schema_version (version INTEGER NOT NULL)",
+            [],
+        )?;
         let current: i64 = conn
             .query_row("SELECT version FROM schema_version", [], |r| r.get(0))
             .optional()?
@@ -60,13 +63,18 @@ impl Db {
         for (i, sql) in MIGRATIONS.iter().enumerate().skip(current as usize) {
             conn.execute_batch(&format!("BEGIN; {sql} COMMIT;"))?;
             conn.execute("DELETE FROM schema_version", [])?;
-            conn.execute("INSERT INTO schema_version (version) VALUES (?1)", [(i + 1) as i64])?;
+            conn.execute(
+                "INSERT INTO schema_version (version) VALUES (?1)",
+                [(i + 1) as i64],
+            )?;
         }
         Ok(Db { conn })
     }
 
     pub fn completed(&self) -> Result<HashMap<String, i64>> {
-        let mut stmt = self.conn.prepare("SELECT lesson_id, completed_at FROM completion")?;
+        let mut stmt = self
+            .conn
+            .prepare("SELECT lesson_id, completed_at FROM completion")?;
         let rows = stmt.query_map([], |r| Ok((r.get(0)?, r.get(1)?)))?;
         Ok(rows.collect::<Result<_, _>>()?)
     }
@@ -78,7 +86,10 @@ impl Db {
             "INSERT OR IGNORE INTO completion (lesson_id, completed_at) VALUES (?1, ?2)",
             params![lesson, at],
         )?;
-        self.conn.execute("UPDATE completion SET skipped = 0 WHERE lesson_id = ?1", [lesson])?;
+        self.conn.execute(
+            "UPDATE completion SET skipped = 0 WHERE lesson_id = ?1",
+            [lesson],
+        )?;
         Ok(n > 0)
     }
 
@@ -91,14 +102,18 @@ impl Db {
     }
 
     pub fn skipped(&self) -> Result<Vec<String>> {
-        let mut stmt = self.conn.prepare("SELECT lesson_id FROM completion WHERE skipped = 1")?;
+        let mut stmt = self
+            .conn
+            .prepare("SELECT lesson_id FROM completion WHERE skipped = 1")?;
         let rows = stmt.query_map([], |r| r.get(0))?;
         Ok(rows.collect::<Result<_, _>>()?)
     }
 
     /// Remove completion for these lessons (reset progress).
     pub fn clear_completion(&self, lessons: &[String]) -> Result<()> {
-        let mut stmt = self.conn.prepare("DELETE FROM completion WHERE lesson_id = ?1")?;
+        let mut stmt = self
+            .conn
+            .prepare("DELETE FROM completion WHERE lesson_id = ?1")?;
         for l in lessons {
             stmt.execute([l])?;
         }
@@ -108,7 +123,9 @@ impl Db {
     pub fn setting(&self, key: &str) -> Result<Option<String>> {
         Ok(self
             .conn
-            .query_row("SELECT value FROM setting WHERE key = ?1", [key], |r| r.get(0))
+            .query_row("SELECT value FROM setting WHERE key = ?1", [key], |r| {
+                r.get(0)
+            })
             .optional()?)
     }
 
@@ -129,7 +146,10 @@ impl Db {
 
     pub fn clear_attempt(&self, lesson: &str) -> Result<()> {
         for table in ["attempt_command", "attempt_answer", "attempt_sticky"] {
-            self.conn.execute(&format!("DELETE FROM {table} WHERE lesson_id = ?1"), [lesson])?;
+            self.conn.execute(
+                &format!("DELETE FROM {table} WHERE lesson_id = ?1"),
+                [lesson],
+            )?;
         }
         Ok(())
     }
@@ -148,12 +168,23 @@ impl Db {
             "SELECT command, exit_code, cwd, at FROM attempt_command WHERE lesson_id = ?1 ORDER BY seq",
         )?;
         let rows = stmt.query_map([lesson], |r| {
-            Ok(CommandEntry { command: r.get(0)?, exit_code: r.get(1)?, cwd: r.get(2)?, at: r.get(3)? })
+            Ok(CommandEntry {
+                command: r.get(0)?,
+                exit_code: r.get(1)?,
+                cwd: r.get(2)?,
+                at: r.get(3)?,
+            })
         })?;
         Ok(rows.collect::<Result<_, _>>()?)
     }
 
-    pub fn set_answer(&self, lesson: &str, question: &str, value: &serde_json::Value, correct: bool) -> Result<()> {
+    pub fn set_answer(
+        &self,
+        lesson: &str,
+        question: &str,
+        value: &serde_json::Value,
+        correct: bool,
+    ) -> Result<()> {
         self.conn.execute(
             "INSERT INTO attempt_answer (lesson_id, question_id, value, correct) VALUES (?1, ?2, ?3, ?4)
              ON CONFLICT(lesson_id, question_id) DO UPDATE SET value = excluded.value, correct = excluded.correct",
@@ -164,18 +195,23 @@ impl Db {
 
     /// question id -> (value, correct)
     pub fn answers(&self, lesson: &str) -> Result<HashMap<String, (serde_json::Value, bool)>> {
-        let mut stmt = self
-            .conn
-            .prepare("SELECT question_id, value, correct FROM attempt_answer WHERE lesson_id = ?1")?;
+        let mut stmt = self.conn.prepare(
+            "SELECT question_id, value, correct FROM attempt_answer WHERE lesson_id = ?1",
+        )?;
         let rows = stmt.query_map([lesson], |r| {
             let v: String = r.get(1)?;
-            Ok((r.get::<_, String>(0)?, (serde_json::from_str(&v).unwrap_or_default(), r.get(2)?)))
+            Ok((
+                r.get::<_, String>(0)?,
+                (serde_json::from_str(&v).unwrap_or_default(), r.get(2)?),
+            ))
         })?;
         Ok(rows.collect::<Result<_, _>>()?)
     }
 
     pub fn sticky(&self, lesson: &str) -> Result<HashSet<usize>> {
-        let mut stmt = self.conn.prepare("SELECT goal_index FROM attempt_sticky WHERE lesson_id = ?1")?;
+        let mut stmt = self
+            .conn
+            .prepare("SELECT goal_index FROM attempt_sticky WHERE lesson_id = ?1")?;
         let rows = stmt.query_map([lesson], |r| r.get::<_, i64>(0))?;
         Ok(rows.filter_map(|r| r.ok()).map(|i| i as usize).collect())
     }
@@ -202,7 +238,12 @@ mod tests {
         db.set_setting("theme", "dark").unwrap();
         db.set_setting("theme", "light").unwrap();
         assert_eq!(db.setting("theme").unwrap().as_deref(), Some("light"));
-        let c = CommandEntry { command: "git status".into(), exit_code: 0, cwd: "/".into(), at: 1 };
+        let c = CommandEntry {
+            command: "git status".into(),
+            exit_code: 0,
+            cwd: "/".into(),
+            at: 1,
+        };
         db.add_command("1.01", &c).unwrap();
         db.add_command("1.01", &c).unwrap();
         assert_eq!(db.commands("1.01").unwrap().len(), 2);

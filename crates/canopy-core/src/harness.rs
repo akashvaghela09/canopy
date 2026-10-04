@@ -42,7 +42,12 @@ pub fn test_lesson(catalog: &Catalog, lesson: &Lesson, data_dir: &Path) -> Resul
 }
 
 /// Like `test_lesson` but with another solution (to try alternative approaches).
-pub fn test_lesson_with(catalog: &Catalog, lesson: &Lesson, data_dir: &Path, solution: crate::catalog::Solution) -> Result<TestReport> {
+pub fn test_lesson_with(
+    catalog: &Catalog,
+    lesson: &Lesson,
+    data_dir: &Path,
+    solution: crate::catalog::Solution,
+) -> Result<TestReport> {
     let paths = AppPaths::new(data_dir);
     let lib = catalog.lib_dir();
     let id = lesson.meta.id.clone();
@@ -84,7 +89,10 @@ pub fn test_lesson_with(catalog: &Catalog, lesson: &Lesson, data_dir: &Path, sol
                 .iter()
                 .find(|a| a.id == action_id.trim())
                 .with_context(|| format!("unknown action {action_id}"))?;
-            let vars: Vec<String> = setup_vars.iter().map(|(k, v)| format!("{k}={}", shell_quote(v))).collect();
+            let vars: Vec<String> = setup_vars
+                .iter()
+                .map(|(k, v)| format!("{k}={}", shell_quote(v)))
+                .collect();
             lines.push(format!(
                 " (cd {} && env -i {} bash {})",
                 shell_quote(&attempt.root.to_string_lossy()),
@@ -164,7 +172,10 @@ pub fn test_lesson_with(catalog: &Catalog, lesson: &Lesson, data_dir: &Path, sol
         cwd: cwd.as_deref().or(Some(&attempt.start)),
     };
     let marks = read_marks(&attempt.state)?;
-    let ctx = CheckContext { marks: &marks, ..ctx };
+    let ctx = CheckContext {
+        marks: &marks,
+        ..ctx
+    };
     let wrong_answers = goal
         .questions
         .iter()
@@ -173,7 +184,15 @@ pub fn test_lesson_with(catalog: &Catalog, lesson: &Lesson, data_dir: &Path, sol
         .collect();
     let goals = evaluate_goals(&goal, &ctx, &mut sticky);
 
-    Ok(TestReport { lesson: id, passing_at_start, goals, wrong_answers, commands, transcript, timed_out })
+    Ok(TestReport {
+        lesson: id,
+        passing_at_start,
+        goals,
+        wrong_answers,
+        commands,
+        transcript,
+        timed_out,
+    })
 }
 
 const TOTAL_TIMEOUT: Duration = Duration::from_secs(120);
@@ -193,13 +212,21 @@ impl Shell {
     fn spawn(cwd: &Path, env: &[(String, String)]) -> Result<Shell> {
         use portable_pty::{native_pty_system, CommandBuilder, PtySize};
         let pair = native_pty_system()
-            .openpty(PtySize { cols: 200, rows: 50, pixel_width: 0, pixel_height: 0 })
+            .openpty(PtySize {
+                cols: 200,
+                rows: 50,
+                pixel_width: 0,
+                pixel_height: 0,
+            })
             .context("opening a terminal")?;
         let mut cmd = CommandBuilder::new("bash");
         cmd.args(["--noprofile", "--norc", "-i"]);
         cmd.cwd(cwd);
         cmd.env_clear();
         for (k, v) in env {
+            cmd.env(k, v);
+        }
+        for (k, v) in crate::env::SHELL_FUNCTIONS {
             cmd.env(k, v);
         }
         let child = pair.slave.spawn_command(cmd).context("starting bash")?;
@@ -215,7 +242,12 @@ impl Shell {
                 }
             }
         });
-        Ok(Shell { child, writer: Some(writer), _master: pair.master, out: rx })
+        Ok(Shell {
+            child,
+            writer: Some(writer),
+            _master: pair.master,
+            out: rx,
+        })
     }
 
     fn send(&mut self, line: &str) {
@@ -226,12 +258,19 @@ impl Shell {
     }
 
     /// Read output until a prompt marker arrives or `wait` passes without one.
-    fn wait_prompt(&mut self, parser: &mut MarkerParser, transcript: &mut String, wait: Duration) -> Vec<PromptEvent> {
+    fn wait_prompt(
+        &mut self,
+        parser: &mut MarkerParser,
+        transcript: &mut String,
+        wait: Duration,
+    ) -> Vec<PromptEvent> {
         let deadline = Instant::now() + wait;
         let mut events = Vec::new();
         while events.is_empty() {
             let left = deadline.saturating_duration_since(Instant::now());
-            let Ok(data) = self.out.recv_timeout(left) else { break };
+            let Ok(data) = self.out.recv_timeout(left) else {
+                break;
+            };
             for chunk in parser.feed(&data) {
                 match chunk {
                     Chunk::Output(b) => transcript.push_str(&String::from_utf8_lossy(&b)),
@@ -243,7 +282,12 @@ impl Shell {
     }
 
     /// Wait for the shell to exit (after `exit` was sent). Some(()) unless it timed out.
-    fn finish(mut self, parser: &mut MarkerParser, transcript: &mut String, started: Instant) -> Option<String> {
+    fn finish(
+        mut self,
+        parser: &mut MarkerParser,
+        transcript: &mut String,
+        started: Instant,
+    ) -> Option<String> {
         loop {
             while let Ok(data) = self.out.try_recv() {
                 for chunk in parser.feed(&data) {

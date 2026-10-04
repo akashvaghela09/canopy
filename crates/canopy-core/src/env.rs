@@ -80,12 +80,21 @@ impl AppPaths {
 
     /// Create folders and default config files. Safe to call on every start.
     pub fn ensure(&self) -> Result<()> {
-        for dir in [self.workspace(), self.git_dir(), self.home(), self.bin(), self.editor_requests()] {
+        for dir in [
+            self.workspace(),
+            self.git_dir(),
+            self.home(),
+            self.bin(),
+            self.editor_requests(),
+        ] {
             fs::create_dir_all(dir)?;
         }
         fs::write(self.base_config(), BASE_CONFIG)?;
         if !self.profile_config().exists() {
-            fs::write(self.profile_config(), "# Your name and email, kept between lessons.\n")?;
+            fs::write(
+                self.profile_config(),
+                "# Your name and email, kept between lessons.\n",
+            )?;
         }
         write_executable(&self.editor_script(), EDITOR_SCRIPT)?;
         Ok(())
@@ -107,7 +116,17 @@ pub const PROMPT_COMMAND: &str = r#"__canopy_ec=$?; __canopy_h=$(history 1); __c
 
 /// Prompt: folder, then the branch (or short id when detached) and any
 /// operation in progress, e.g. `project (main|MERGING) $ `.
-pub const PS1: &str = r#"\W$(__b=$(git symbolic-ref --short -q HEAD 2>/dev/null || git rev-parse --short -q HEAD 2>/dev/null); if [ -n "$__b" ]; then __d=$(git rev-parse --git-dir 2>/dev/null); __o=; if [ -f "$__d/rebase-apply/applying" ]; then __o="|AM"; elif [ -d "$__d/rebase-merge" ] || [ -d "$__d/rebase-apply" ]; then __o="|REBASING"; elif [ -f "$__d/MERGE_HEAD" ]; then __o="|MERGING"; elif [ -f "$__d/CHERRY_PICK_HEAD" ]; then __o="|CHERRY-PICKING"; elif [ -f "$__d/REVERT_HEAD" ]; then __o="|REVERTING"; elif [ -f "$__d/BISECT_LOG" ]; then __o="|BISECTING"; fi; printf ' (%s%s)' "$__b" "$__o"; fi) \$ "#;
+/// Coloured ls and grep for the interactive shell only, without an rc file:
+/// bash imports exported functions from the environment, even with --norc.
+pub const SHELL_FUNCTIONS: [(&str, &str); 2] = [
+    ("BASH_FUNC_ls%%", "() {  command ls --color=auto \"$@\"\n}"),
+    (
+        "BASH_FUNC_grep%%",
+        "() {  command grep --color=auto \"$@\"\n}",
+    ),
+];
+
+pub const PS1: &str = r#"\[\e[1;34m\]\W\[\e[0m\]$(__b=$(git symbolic-ref --short -q HEAD 2>/dev/null || git rev-parse --short -q HEAD 2>/dev/null); if [ -n "$__b" ]; then __d=$(git rev-parse --git-dir 2>/dev/null); __o=; if [ -f "$__d/rebase-apply/applying" ]; then __o="|AM"; elif [ -d "$__d/rebase-merge" ] || [ -d "$__d/rebase-apply" ]; then __o="|REBASING"; elif [ -f "$__d/MERGE_HEAD" ]; then __o="|MERGING"; elif [ -f "$__d/CHERRY_PICK_HEAD" ]; then __o="|CHERRY-PICKING"; elif [ -f "$__d/REVERT_HEAD" ]; then __o="|REVERTING"; elif [ -f "$__d/BISECT_LOG" ]; then __o="|BISECTING"; fi; printf ' \001\e[32m\002(%s\001\e[1;33m\002%s\001\e[0;32m\002)\001\e[0m\002' "$__b" "$__o"; fi) \$ "#;
 
 /// GIT_EDITOR / GIT_SEQUENCE_EDITOR. Asks the app to open the file in the
 /// in-app editor and waits until the learner saves (exit 0) or cancels (exit 1).
@@ -141,7 +160,18 @@ pub type EnvVars = Vec<(String, String)>;
 /// (including any GIT_* the developer has set) is dropped.
 fn base_env() -> EnvVars {
     let mut env = Vec::new();
-    for key in ["PATH", "LANG", "LC_ALL", "LC_CTYPE", "USER", "LOGNAME", "TMPDIR", "DISPLAY", "WAYLAND_DISPLAY", "XDG_RUNTIME_DIR"] {
+    for key in [
+        "PATH",
+        "LANG",
+        "LC_ALL",
+        "LC_CTYPE",
+        "USER",
+        "LOGNAME",
+        "TMPDIR",
+        "DISPLAY",
+        "WAYLAND_DISPLAY",
+        "XDG_RUNTIME_DIR",
+    ] {
         if let Ok(v) = std::env::var(key) {
             env.push((key.to_string(), v));
         }
@@ -166,7 +196,10 @@ pub fn setup_env(paths: &AppPaths, lib: &Path, lesson_dir: &Path, lesson_id: &st
         ("LESSON_DIR".into(), s(lesson_dir)),
         ("CANOPY_LIB".into(), s(lib)),
         ("CANOPY_STATE".into(), s(&state)),
-        ("GIT_CONFIG_GLOBAL".into(), s(&state.join("setup.gitconfig"))),
+        (
+            "GIT_CONFIG_GLOBAL".into(),
+            s(&state.join("setup.gitconfig")),
+        ),
         ("GIT_CONFIG_NOSYSTEM".into(), "1".into()),
         ("GIT_CEILING_DIRECTORIES".into(), s(&paths.workspace())),
         // Lessons read refs as files (5.12, section 14); pin that format in
@@ -196,11 +229,20 @@ pub fn learner_env(paths: &AppPaths, lesson_id: &str, editor: EditorMode) -> Env
         ("HOME".into(), s(&paths.home())),
         ("TERM".into(), "xterm-256color".into()),
         ("COLORTERM".into(), "truecolor".into()),
-        ("GIT_CONFIG_GLOBAL".into(), s(&paths.global_config(lesson_id))),
-        ("GIT_CONFIG_SYSTEM".into(), s(&paths.system_config(lesson_id))),
+        (
+            "GIT_CONFIG_GLOBAL".into(),
+            s(&paths.global_config(lesson_id)),
+        ),
+        (
+            "GIT_CONFIG_SYSTEM".into(),
+            s(&paths.system_config(lesson_id)),
+        ),
         // git also reads $XDG_CONFIG_HOME/git/{config,ignore,attributes};
         // keep those per attempt too so nothing leaks between lessons.
-        ("XDG_CONFIG_HOME".into(), s(&paths.lesson_state(lesson_id).join("xdg"))),
+        (
+            "XDG_CONFIG_HOME".into(),
+            s(&paths.lesson_state(lesson_id).join("xdg")),
+        ),
         ("GIT_CEILING_DIRECTORIES".into(), s(&paths.workspace())),
         ("GIT_PAGER".into(), "cat".into()),
         ("GIT_DEFAULT_REF_FORMAT".into(), "files".into()),
@@ -210,7 +252,10 @@ pub fn learner_env(paths: &AppPaths, lesson_id: &str, editor: EditorMode) -> Env
         ("EDITOR".into(), editor_cmd.clone()),
         ("VISUAL".into(), editor_cmd),
         ("CANOPY_EDITOR_DIR".into(), s(&paths.editor_requests())),
-        ("HISTFILE".into(), s(&paths.lesson_state(lesson_id).join("bash_history"))),
+        (
+            "HISTFILE".into(),
+            s(&paths.lesson_state(lesson_id).join("bash_history")),
+        ),
         ("HISTSIZE".into(), "5000".into()),
         ("HISTCONTROL".into(), "ignorespace".into()),
         ("PS1".into(), PS1.into()),
@@ -252,7 +297,10 @@ mod tests {
                 assert!(Instant::now() < deadline, "no request appeared");
                 std::thread::sleep(Duration::from_millis(20));
             };
-            assert_eq!(fs::read_to_string(&req).unwrap().trim(), file.to_string_lossy());
+            assert_eq!(
+                fs::read_to_string(&req).unwrap().trim(),
+                file.to_string_lossy()
+            );
             let id = req.file_stem().unwrap().to_string_lossy().into_owned();
             fs::write(paths.editor_requests().join(format!("{id}.{answer}")), "").unwrap();
             assert_eq!(child.wait().unwrap().code(), Some(code));

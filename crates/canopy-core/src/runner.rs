@@ -74,14 +74,27 @@ pub fn prepare(paths: &AppPaths, lib: &Path, lesson: &Lesson) -> Result<Attempt>
 
     let start = root.join(&lesson.meta.start);
     if !start.is_dir() {
-        bail!("lesson {id}: start folder {:?} was not created by setup", lesson.meta.start);
+        bail!(
+            "lesson {id}: start folder {:?} was not created by setup",
+            lesson.meta.start
+        );
     }
     fs::write(state.join(READY), "")?;
-    Ok(Attempt { lesson_id: id.clone(), root, state, start })
+    Ok(Attempt {
+        lesson_id: id.clone(),
+        root,
+        state,
+        start,
+    })
 }
 
 /// Run one of the lesson's actions (e.g. a teammate pushing).
-pub fn run_action(paths: &AppPaths, lib: &Path, lesson: &Lesson, action_id: &str) -> Result<String> {
+pub fn run_action(
+    paths: &AppPaths,
+    lib: &Path,
+    lesson: &Lesson,
+    action_id: &str,
+) -> Result<String> {
     let action = lesson
         .meta
         .actions
@@ -92,7 +105,13 @@ pub fn run_action(paths: &AppPaths, lib: &Path, lesson: &Lesson, action_id: &str
     run_script(paths, lib, lesson, &lesson.dir.join(&action.script), &root)
 }
 
-fn run_script(paths: &AppPaths, lib: &Path, lesson: &Lesson, script: &Path, cwd: &Path) -> Result<String> {
+fn run_script(
+    paths: &AppPaths,
+    lib: &Path,
+    lesson: &Lesson,
+    script: &Path,
+    cwd: &Path,
+) -> Result<String> {
     let env = setup_env(paths, lib, &lesson.dir, &lesson.meta.id);
     let out = Command::new("bash")
         .arg(script)
@@ -108,7 +127,12 @@ fn run_script(paths: &AppPaths, lib: &Path, lesson: &Lesson, script: &Path, cwd:
         String::from_utf8_lossy(&out.stderr)
     );
     if !out.status.success() {
-        bail!("{} exited with {}:\n{}", script.display(), out.status, text.trim());
+        bail!(
+            "{} exited with {}:\n{}",
+            script.display(),
+            out.status,
+            text.trim()
+        );
     }
     Ok(text)
 }
@@ -129,10 +153,16 @@ pub fn write_lesson_config(paths: &AppPaths, lesson: &Lesson) -> Result<()> {
         let git = Git::new(&paths.data, learner_env(paths, id, EditorMode::NoOp));
         let profile = paths.profile_config().to_string_lossy().into_owned();
         let get = |key: &str| -> Result<Option<String>> {
-            Ok(git.try_run(&["config", "--file", &profile, "--get", key])?.map(|v| v.trim_end_matches('\n').to_string()))
+            Ok(git
+                .try_run(&["config", "--file", &profile, "--get", key])?
+                .map(|v| v.trim_end_matches('\n').to_string()))
         };
         if let (Some(name), Some(email)) = (get("user.name")?, get("user.email")?) {
-            global.push_str(&format!("[user]\n\tname = {}\n\temail = {}\n", quote(&name), quote(&email)));
+            global.push_str(&format!(
+                "[user]\n\tname = {}\n\temail = {}\n",
+                quote(&name),
+                quote(&email)
+            ));
         }
     }
     fs::write(paths.global_config(id), global)?;
@@ -159,7 +189,10 @@ pub fn sync_profile(paths: &AppPaths, lesson_id: &str) -> Result<()> {
     let file = cfg.to_string_lossy().into_owned();
     let profile = paths.profile_config().to_string_lossy().into_owned();
     for key in ["user.name", "user.email"] {
-        let Some(v) = git.try_run(&["config", "--file", &file, "--no-includes", "--get", key])? else { continue };
+        let Some(v) = git.try_run(&["config", "--file", &file, "--no-includes", "--get", key])?
+        else {
+            continue;
+        };
         let v = v.trim_end_matches('\n');
         let current = git.try_run(&["config", "--file", &profile, "--get", key])?;
         if current.as_deref().map(|c| c.trim_end_matches('\n')) != Some(v) {

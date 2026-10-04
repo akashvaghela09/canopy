@@ -36,7 +36,11 @@ impl<'de> Deserialize<'de> for Check {
         let repo = match map.remove("repo") {
             None | Some(Value::Null) => None,
             Some(Value::String(s)) => Some(s),
-            Some(other) => return Err(D::Error::custom(format!("repo must be a string, got {other}"))),
+            Some(other) => {
+                return Err(D::Error::custom(format!(
+                    "repo must be a string, got {other}"
+                )))
+            }
         };
         let kind = CheckKind::deserialize(Value::Object(map)).map_err(D::Error::custom)?;
         Ok(Check { repo, kind })
@@ -59,7 +63,10 @@ pub struct TextMatch {
 
 impl TextMatch {
     pub fn is_empty(&self) -> bool {
-        self.equals.is_none() && self.contains.is_none() && self.not_contains.is_none() && self.matches.is_none()
+        self.equals.is_none()
+            && self.contains.is_none()
+            && self.not_contains.is_none()
+            && self.matches.is_none()
     }
 }
 
@@ -321,7 +328,9 @@ impl Question {
         let mut v = serde_json::json!({ "id": self.id, "prompt": self.prompt });
         let obj = v.as_object_mut().unwrap();
         match &self.kind {
-            QuestionKind::Choice { options, answers, .. } => {
+            QuestionKind::Choice {
+                options, answers, ..
+            } => {
                 obj.insert("type".into(), "choice".into());
                 obj.insert("options".into(), serde_json::to_value(options).unwrap());
                 obj.insert("multiple".into(), answers.is_some().into());

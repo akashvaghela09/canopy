@@ -276,103 +276,251 @@ export function ThemeRadios({ value, onChange }: { value: string; onChange: (v: 
 }
 
 export function Home() {
-  const dispatch = useAppDispatch();
   const cat = useAppSelector((s) => s.catalog.data)!;
+  const dispatch = useAppDispatch();
   const overall = overallProgress(cat);
   const next = nextLesson(cat);
-  const fresh = overall.done === 0;
-  const nextSection = next ? cat.sections.find((s) => s.id === next.section) : null;
   const pct = overall.total ? Math.round((overall.done / overall.total) * 100) : 0;
+  const allDone = overall.done === overall.total && overall.total > 0;
 
   return (
     <main className="h-full overflow-y-auto">
-      <div className="mx-auto max-w-[1040px] px-8 py-8">
-        {!fresh && (
-          <div className="mb-6">
-            <div className="flex items-baseline justify-between">
-              <h1 className="text-base font-medium">Your progress</h1>
-              <span className="text-sm text-fg-2 tabular-nums">
-                {overall.done} of {overall.total} · {pct}%
-              </span>
+      <div className="mx-auto max-w-[1120px] px-8 pt-10 pb-12">
+        {/* Hero: what Canopy is, and overall progress once there is some. */}
+        <header className="flex items-start gap-4">
+          <img src="/icon.svg" alt="" width={40} height={40} className="mt-0.5 shrink-0" />
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-baseline gap-x-3">
+              <h1 className="text-2xl font-semibold">Canopy</h1>
+              <p className="text-lg text-fg-2">Learn git by using it.</p>
             </div>
-            <div className="mt-2">
-              <ProgressBar done={overall.done} total={overall.total} label="Overall progress" thick />
-            </div>
+            <p className="mt-1 max-w-[720px] text-sm text-fg-3">
+              {cat.lessons.length} hands-on lessons in {cat.sections.length} sections. Every command you type runs in real git, right here on your computer.
+            </p>
           </div>
-        )}
-
-        <section className="rounded-md border border-edge bg-surface p-4" aria-label="Continue">
-          {next && nextSection ? (
-            <>
-              <div className="flex justify-between text-sm text-fg-2">
-                <span>
-                  Section {nextSection.id} · {nextSection.title}
-                </span>
-                <span className="tabular-nums">
-                  {sectionProgress(cat, nextSection.id).done} of {sectionProgress(cat, nextSection.id).total} complete
-                </span>
+          {overall.done > 0 && (
+            <div className="w-[220px] shrink-0 pt-1 text-right">
+              <div className={`text-sm tabular-nums ${allDone ? "text-success" : "text-fg-2"}`}>
+                {allDone ? `All ${overall.total} lessons complete` : `${overall.done} of ${overall.total} lessons · ${pct}%`}
               </div>
-              <div className="mt-2 text-xs text-fg-3">{fresh ? "Start here" : "Next up"}</div>
-              <div className="mt-1 flex items-center gap-3">
-                <span className="font-mono text-sm text-fg-3">{next.id}</span>
-                <span className="text-lg font-medium">{next.title}</span>
-                <Button variant="primary" size="lg" className="ml-auto" onClick={() => dispatch(go({ kind: "lesson", lesson: next.id }))}>
-                  {fresh ? "Start" : "Continue"} <ChevronRight size={16} />
-                </Button>
-              </div>
-            </>
-          ) : (
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-lg font-medium">All {overall.total} lessons complete.</div>
-                <p className="text-sm text-fg-2">Everything in Canopy is done. Redo any lesson whenever you like; your progress stays.</p>
+              <div className="mt-2">
+                <ProgressBar done={overall.done} total={overall.total} label="Overall progress" thick />
               </div>
             </div>
           )}
-        </section>
+        </header>
+
+        <PathStrip current={next?.section ?? null} />
+        <UpNextCard />
 
         {LEVELS.map((level) => {
           const sections = cat.sections.filter((s) => s.level === level);
           if (!sections.length) return null;
           return (
-            <section key={level} className="mt-8" aria-label={level}>
-              <h2 className="text-2xs font-semibold tracking-[0.06em] text-fg-3 uppercase">{LEVEL_NAMES[level] ?? level}</h2>
-              <div className="mt-2 grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-3">
-                {sections.map((s) => {
-                  const p = sectionProgress(cat, s.id);
-                  const current = nextSection?.id === s.id;
-                  const stateText = p.state === "complete" ? "Complete" : p.state === "not-started" ? "Not started" : `${p.done} of ${p.total}`;
-                  return (
-                    <button
-                      key={s.id}
-                      onClick={() => dispatch(go({ kind: "section", section: s.id }))}
-                      aria-label={`Section ${s.id}, ${s.title}, ${p.done} of ${p.total} complete${current ? ", current section" : ""}`}
-                      className={`rounded-md border border-edge bg-surface p-4 text-left transition-colors duration-[var(--dur-fast)] hover:border-edge-2 hover:bg-raised ${
-                        current ? "border-l-2 border-l-accent" : ""
-                      }`}
-                    >
-                      <div className="flex items-baseline gap-2 text-sm font-medium">
-                        <span className="font-mono text-fg-3">{s.id}</span>
-                        <span className="truncate">{s.title}</span>
-                      </div>
-                      <div className={`mt-1 flex items-center gap-1 text-xs ${p.state === "complete" ? "text-success" : "text-fg-2"}`}>
-                        {p.state === "complete" && <Check size={12} aria-hidden />}
-                        {stateText}
-                      </div>
-                      <div className="mt-3">
-                        <ProgressBar done={p.done} total={p.total} label={`Section ${s.id} progress`} />
-                      </div>
-                    </button>
-                  );
-                })}
+            <section key={level} className="mt-8" aria-labelledby={`level-${level}`}>
+              <div className="flex h-10 items-baseline gap-3 border-b border-edge pt-2">
+                <h2 id={`level-${level}`} className="text-sm font-semibold">
+                  {LEVEL_NAMES[level] ?? level}
+                </h2>
+                <span className="truncate text-sm text-fg-3">{LEVEL_BLURB[level]}</span>
               </div>
+              <ul className="divide-y divide-edge">
+                {sections.map((sec) => (
+                  <li key={sec.id}>
+                    <SectionRow id={sec.id} title={sec.title} summary={sec.summary} current={next?.section === sec.id} />
+                  </li>
+                ))}
+              </ul>
             </section>
           );
         })}
 
-
+        <footer className="mt-8">
+          <button className="text-xs text-fg-3 hover:text-fg hover:underline" onClick={() => dispatch(appActions.openShortcuts(true))}>
+            Keyboard shortcuts · Ctrl+/
+          </button>
+        </footer>
       </div>
     </main>
+  );
+}
+
+const LEVEL_BLURB: Record<string, string> = {
+  beginner: "Your first commands, commits, and a safe way to undo.",
+  core: "Branches, merges, remotes, and parking unfinished work.",
+  intermediate: "Rewrite history, recover from mistakes, investigate, and work with a team.",
+  advanced: "Configure git, look inside it, and use its specialist tools.",
+};
+
+type NodeState = "not-started" | "in-progress" | "complete";
+
+/** The section glyph shared by the path strip and the rows (HOME_SPEC 5, 7). */
+function SectionNode({ id, state, current, size }: { id: number; state: NodeState; current: boolean; size: 12 | 24 }) {
+  const big = size === 24;
+  const look =
+    state === "complete"
+      ? "bg-success border-success"
+      : current
+        ? "bg-accent border-accent"
+        : state === "in-progress"
+          ? "bg-surface border-accent"
+          : "bg-surface border-edge-2";
+  return (
+    <span aria-hidden className="relative flex shrink-0 items-center justify-center" style={{ width: size, height: size }}>
+      {current && !big && <span className="absolute -inset-1.5 rounded-full bg-[var(--color-graph-highlight)]" />}
+      <span
+        className={`relative flex items-center justify-center rounded-full ${look} ${big ? "border-[1.5px]" : "border-2"}`}
+        style={{ width: size, height: size }}
+      >
+        {big &&
+          (state === "complete" ? (
+            <Check size={14} strokeWidth={2.5} className="text-surface" />
+          ) : (
+            <span className={`font-mono text-2xs ${current ? "text-accent-fg" : state === "in-progress" ? "text-accent" : "text-fg-3"}`}>{id}</span>
+          ))}
+      </span>
+    </span>
+  );
+}
+
+const stateText = (p: { done: number; total: number; state: NodeState }) =>
+  p.state === "complete" ? "complete" : p.state === "in-progress" ? `${p.done} of ${p.total} lessons complete` : "not started";
+
+/** 15 sections as a tiny commit graph, grouped by level (HOME_SPEC 5). */
+function PathStrip({ current }: { current: number | null }) {
+  const dispatch = useAppDispatch();
+  const cat = useAppSelector((s) => s.catalog.data)!;
+  const all = cat.sections;
+  const [active, setActive] = useState(() => Math.max(0, all.findIndex((s) => s.id === current)));
+  const refs = useRef<(HTMLButtonElement | null)[]>([]);
+  const move = (i: number) => {
+    const n = (i + all.length) % all.length;
+    setActive(n);
+    refs.current[n]?.focus();
+  };
+  const groups = LEVELS.map((level) => all.filter((s) => s.level === level)).filter((g) => g.length > 0);
+  return (
+    <div
+      role="group"
+      aria-label="Learning path"
+      className="mt-8 grid gap-10"
+      style={{ gridTemplateColumns: groups.map((g) => `${g.length}fr`).join(" ") }}
+      onKeyDown={(e) => {
+        const to = { ArrowRight: active + 1, ArrowLeft: active - 1, Home: 0, End: all.length - 1 }[e.key];
+        if (to === undefined) return;
+        e.preventDefault();
+        move(to);
+      }}
+    >
+      {groups.map((g) => (
+        <div key={g[0].level}>
+          <div className="mb-2 text-2xs font-semibold tracking-[0.06em] text-fg-3 uppercase">{LEVEL_NAMES[g[0].level] ?? g[0].level}</div>
+          <div className="relative flex justify-between">
+            {g.map((sec, i) => {
+              const p = sectionProgress(cat, sec.id);
+              const idx = all.indexOf(sec);
+              const nextDone = i < g.length - 1 && p.state === "complete" && sectionProgress(cat, g[i + 1].id).state === "complete";
+              const label = `Section ${sec.id}, ${sec.title}, ${stateText(p)}`;
+              return (
+                <div key={sec.id} className="relative flex flex-1 flex-col items-start last:flex-none">
+                  {/* connector to the next node in this level */}
+                  {i < g.length - 1 && <span aria-hidden className={`absolute top-[11px] right-0 left-3 h-0.5 ${nextDone ? "bg-success" : "bg-edge"}`} />}
+                  <button
+                    ref={(el) => {
+                      refs.current[idx] = el;
+                    }}
+                    tabIndex={idx === active ? 0 : -1}
+                    aria-label={label}
+                    title={label}
+                    onFocus={() => setActive(idx)}
+                    onClick={() => dispatch(go({ kind: "section", section: sec.id }))}
+                    className="group relative flex flex-col items-center gap-1.5 rounded-sm"
+                  >
+                    <span className="flex size-6 items-center justify-center">
+                      <SectionNode id={sec.id} state={p.state} current={sec.id === current} size={12} />
+                    </span>
+                    <span className="font-mono text-2xs text-fg-3 group-hover:text-fg">{sec.id}</span>
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/** The one card on the page: what to do next (HOME_SPEC 6). */
+function UpNextCard() {
+  const dispatch = useAppDispatch();
+  const cat = useAppSelector((s) => s.catalog.data)!;
+  const overall = overallProgress(cat);
+  const next = nextLesson(cat);
+  const card = "mt-10 rounded-md border border-edge bg-surface px-6 py-5 dark:border-edge-2";
+  const eyebrow = "text-2xs font-semibold tracking-[0.06em] uppercase";
+  if (!next) {
+    return (
+      <section className={card} aria-label="Up next">
+        <div className={`${eyebrow} text-success`}>All lessons complete</div>
+        <div className="mt-2 flex items-center gap-2">
+          <CheckCircle2 size={20} className="text-success" aria-hidden />
+          <span className="text-xl font-semibold">All {overall.total} lessons complete.</span>
+        </div>
+        <p className="mt-1 text-sm text-fg-2">Redo any lesson whenever you like; your progress stays.</p>
+      </section>
+    );
+  }
+  const sec = cat.sections.find((s) => s.id === next.section)!;
+  const sp = sectionProgress(cat, sec.id);
+  const fresh = overall.done === 0;
+  const newSection = !fresh && sp.done === 0;
+  const prevComplete = newSection && sec.id > 1 && sectionProgress(cat, sec.id - 1).state === "complete";
+  const label = fresh ? "Start here" : prevComplete ? `Section ${sec.id - 1} complete · next` : "Up next";
+  const button = fresh ? "Start" : newSection ? `Start section ${sec.id}` : "Continue";
+  return (
+    <section className={card} aria-label="Up next">
+      <div className="flex items-baseline justify-between gap-4">
+        <div className={`${eyebrow} text-accent`}>{label}</div>
+        <button className="flex items-center gap-1 text-sm text-fg-2 tabular-nums hover:text-fg hover:underline" onClick={() => dispatch(go({ kind: "section", section: sec.id }))}>
+          Section {sec.id} · {sec.title} · {sp.done > 0 ? `${sp.done} of ${sp.total}` : `${sp.total} lessons`}
+          <ChevronRight size={14} aria-hidden />
+        </button>
+      </div>
+      <div className="mt-2 flex items-center gap-3">
+        <span className="font-mono text-sm text-fg-3">{next.id}</span>
+        <span className="min-w-0 flex-1 truncate text-xl font-semibold">{next.title}</span>
+        <Button variant="primary" size="lg" onClick={() => dispatch(go({ kind: "lesson", lesson: next.id }))}>
+          {button} <ChevronRight size={16} />
+        </Button>
+      </div>
+      <p className="mt-1 truncate text-sm text-fg-2">{sec.summary}</p>
+      {newSection && <p className="mt-1 text-sm text-fg-3">{sp.total} lessons in this section.</p>}
+    </section>
+  );
+}
+
+/** One syllabus row: node, title, summary, state, bar (in progress only). */
+function SectionRow({ id, title, summary, current }: { id: number; title: string; summary: string; current: boolean }) {
+  const dispatch = useAppDispatch();
+  const cat = useAppSelector((s) => s.catalog.data)!;
+  const p = sectionProgress(cat, id);
+  const state = p.state === "complete" ? "Complete" : p.state === "in-progress" ? `${p.done} of ${p.total}` : `${p.total} lessons`;
+  return (
+    <button
+      onClick={() => dispatch(go({ kind: "section", section: id }))}
+      aria-label={`Section ${id}, ${title}, ${stateText(p)}${current ? ", current section" : ""}`}
+      className={`group grid h-14 w-full grid-cols-[32px_minmax(180px,220px)_1fr_120px_96px_16px] items-center gap-4 px-3 text-left transition-colors hover:bg-sunken ${
+        current ? "border-l-2 border-l-accent pl-[10px]" : ""
+      }`}
+    >
+      <SectionNode id={id} state={p.state} current={current} size={24} />
+      <span className="truncate text-sm font-medium">{title}</span>
+      <span className="truncate text-sm text-fg-2">{summary}</span>
+      <span className={`text-right text-sm tabular-nums ${p.state === "complete" ? "text-success" : p.state === "in-progress" ? "text-fg-2" : "text-fg-3"}`}>{state}</span>
+      <span>{p.state === "in-progress" && <ProgressBar done={p.done} total={p.total} label={`Section ${id} progress`} />}</span>
+      <ChevronRight size={16} aria-hidden className="text-edge-2 group-hover:text-fg-3" />
+    </button>
   );
 }
 
@@ -386,20 +534,32 @@ export function SectionView({ sectionId }: { sectionId: number }) {
   const p = sectionProgress(cat, sectionId);
   const next = nextLesson(cat);
   const pct = p.total ? Math.round((p.done / p.total) * 100) : 0;
+  // Continue here: the overall next lesson if it is in this section, else this section's first incomplete one.
+  const resume = next?.section === sectionId ? next : (lessons.find((l) => !cat.completed[l.id]) ?? null);
   return (
     <main className="h-full overflow-y-auto">
       <div className="mx-auto max-w-[880px] px-8 py-8">
         <div className="text-2xs font-semibold tracking-[0.06em] text-fg-3 uppercase">
-          {section.level} · Section {section.id}
+          {LEVEL_NAMES[section.level] ?? section.level} · Section {section.id}
         </div>
         <h1 className="mt-1 text-2xl font-semibold">{section.title}</h1>
         <p className="mt-1 text-base text-fg-2">{section.summary}</p>
         <div className="mt-4 flex items-center gap-4">
-          <span className="shrink-0 text-sm text-fg-2 tabular-nums">
-            {p.done} of {p.total} · {pct}%
-          </span>
-          <ProgressBar done={p.done} total={p.total} label={`Section ${section.id} progress`} />
-
+          {p.done === 0 ? (
+            <span className="text-sm text-fg-3 tabular-nums">{p.total} lessons</span>
+          ) : (
+            <>
+              <span className="shrink-0 text-sm text-fg-2 tabular-nums">
+                {p.done} of {p.total} · {pct}%
+              </span>
+              <ProgressBar done={p.done} total={p.total} label={`Section ${section.id} progress`} />
+            </>
+          )}
+          {resume && (
+            <Button variant="primary" size="lg" className="ml-auto shrink-0" onClick={() => dispatch(go({ kind: "lesson", lesson: resume.id }))}>
+              {p.done === 0 ? "Start" : "Continue"} <ChevronRight size={16} />
+            </Button>
+          )}
         </div>
         {p.state === "complete" && (
           <p className="mt-4 text-sm text-fg-2">

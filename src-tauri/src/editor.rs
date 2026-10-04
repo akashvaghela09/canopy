@@ -29,7 +29,9 @@ pub fn spawn_watcher(app: AppHandle, dir: PathBuf) {
                 let mut live = HashSet::new();
                 for e in entries.flatten() {
                     let name = e.file_name().to_string_lossy().into_owned();
-                    let Some(id) = name.strip_suffix(".req") else { continue };
+                    let Some(id) = name.strip_suffix(".req") else {
+                        continue;
+                    };
                     live.insert(id.to_string());
                     if seen.contains(id) {
                         continue;
@@ -38,7 +40,15 @@ pub fn spawn_watcher(app: AppHandle, dir: PathBuf) {
                         let path = path.trim().to_string();
                         let content = fs::read_to_string(&path).unwrap_or_default();
                         let kind = classify(Path::new(&path)).to_string();
-                        let _ = app.emit("editor-request", EditorRequest { id: id.to_string(), path, content, kind });
+                        let _ = app.emit(
+                            "editor-request",
+                            EditorRequest {
+                                id: id.to_string(),
+                                path,
+                                content,
+                                kind,
+                            },
+                        );
                         seen.insert(id.to_string());
                     }
                 }

@@ -22,7 +22,9 @@ use crate::content::{newer, updates_dir};
 /// of canopy-lessons.pub in the repo root.
 pub const FEED: Option<&str> = match option_env!("CANOPY_CONTENT_FEED") {
     Some(v) => Some(v),
-    None => Some("https://github.com/akashvaghela09/canopy/releases/download/lessons-latest/latest.json"),
+    None => Some(
+        "https://github.com/akashvaghela09/canopy/releases/download/lessons-latest/latest.json",
+    ),
 };
 pub const PUBKEY: Option<&str> = match option_env!("CANOPY_CONTENT_PUBKEY") {
     Some(v) => Some(v),
@@ -71,7 +73,12 @@ fn client() -> Result<reqwest::blocking::Client> {
 
 pub fn check(installed: &str) -> Result<CheckResult> {
     let Some(feed_url) = FEED.filter(|f| !f.is_empty()) else {
-        return Ok(CheckResult { configured: false, installed: installed.into(), available: None, needs_newer_app: None });
+        return Ok(CheckResult {
+            configured: false,
+            installed: installed.into(),
+            available: None,
+            needs_newer_app: None,
+        });
     };
     let feed: Feed = client()?
         .get(feed_url)
@@ -80,7 +87,12 @@ pub fn check(installed: &str) -> Result<CheckResult> {
         .error_for_status()?
         .json()
         .context("The update server sent something unexpected")?;
-    let mut result = CheckResult { configured: true, installed: installed.into(), available: None, needs_newer_app: None };
+    let mut result = CheckResult {
+        configured: true,
+        installed: installed.into(),
+        available: None,
+        needs_newer_app: None,
+    };
     if newer(&feed.content_version, installed) {
         if feed.format_version == FORMAT_VERSION {
             result.available = Some(feed);
@@ -107,7 +119,11 @@ pub fn install(paths: &AppPaths, feed: &Feed, mut progress: impl FnMut(u64, u64)
             .and_then(|r| r.error_for_status())
             .and_then(|r| r.text())
     });
-    let mut resp = client.get(&feed.url).send().context("Could not reach the update server")?.error_for_status()?;
+    let mut resp = client
+        .get(&feed.url)
+        .send()
+        .context("Could not reach the update server")?
+        .error_for_status()?;
     let mut bytes = Vec::with_capacity(feed.size as usize);
     let mut buf = [0u8; 64 * 1024];
     loop {
@@ -132,7 +148,9 @@ pub fn install(paths: &AppPaths, feed: &Feed, mut progress: impl FnMut(u64, u64)
 /// Checksum and minisign signature. Lesson setup scripts run on the learner's
 /// machine, so an unverifiable pack is never installed.
 pub fn verify(bytes: &[u8], sha256_hex: &str, signature: &str) -> Result<()> {
-    let key = PUBKEY.filter(|k| !k.is_empty()).context("This build has no update signing key")?;
+    let key = PUBKEY
+        .filter(|k| !k.is_empty())
+        .context("This build has no update signing key")?;
     verify_with(bytes, sha256_hex, signature, key)
 }
 
@@ -142,9 +160,12 @@ fn verify_with(bytes: &[u8], sha256_hex: &str, signature: &str, key: &str) -> Re
     if !hex.eq_ignore_ascii_case(sha256_hex.trim()) {
         bail!("The file did not match its checksum");
     }
-    let pk = minisign_verify::PublicKey::from_base64(key).context("bad signing key in this build")?;
-    let sig = minisign_verify::Signature::decode(signature).context("The pack signature is malformed")?;
-    pk.verify(bytes, &sig, false).context("The pack signature is not valid")?;
+    let pk =
+        minisign_verify::PublicKey::from_base64(key).context("bad signing key in this build")?;
+    let sig =
+        minisign_verify::Signature::decode(signature).context("The pack signature is malformed")?;
+    pk.verify(bytes, &sig, false)
+        .context("The pack signature is not valid")?;
     Ok(())
 }
 
@@ -200,7 +221,11 @@ fn pack_root(staging: &Path) -> Result<PathBuf> {
     if staging.join("manifest.yaml").exists() {
         return Ok(staging.to_path_buf());
     }
-    let dirs: Vec<PathBuf> = fs::read_dir(staging)?.flatten().map(|e| e.path()).filter(|p| p.is_dir()).collect();
+    let dirs: Vec<PathBuf> = fs::read_dir(staging)?
+        .flatten()
+        .map(|e| e.path())
+        .filter(|p| p.is_dir())
+        .collect();
     match dirs.as_slice() {
         [one] if one.join("manifest.yaml").exists() => Ok(one.clone()),
         _ => bail!("The lesson pack has no manifest.yaml"),
@@ -227,7 +252,11 @@ mod tests {
         let tmp = std::env::temp_dir().join(format!("canopy-upd-{}", std::process::id()));
         let src = tmp.join("src");
         fs::create_dir_all(&src).unwrap();
-        fs::write(src.join("manifest.yaml"), "formatVersion: 1\ncontentVersion: \"2030.01.01.1\"\n").unwrap();
+        fs::write(
+            src.join("manifest.yaml"),
+            "formatVersion: 1\ncontentVersion: \"2030.01.01.1\"\n",
+        )
+        .unwrap();
         fs::write(src.join("sections.yaml"), "[]\n").unwrap();
         let paths = AppPaths::new(tmp.join("data"));
         unpack_and_swap(&paths, &pack(&src), "2030.01.01.1").unwrap();
@@ -243,23 +272,63 @@ mod tests {
     fn real_signature_verifies_and_tampering_fails() {
         let tmp = std::env::temp_dir().join(format!("canopy-sig-{}", std::process::id()));
         fs::create_dir_all(&tmp).unwrap();
-        let (pk, sk, file) = (tmp.join("k.pub"), tmp.join("k.key"), tmp.join("pack.tar.gz"));
-        let gen = std::process::Command::new("minisign").args(["-G", "-W", "-f", "-p"]).arg(&pk).arg("-s").arg(&sk).output();
+        let (pk, sk, file) = (
+            tmp.join("k.pub"),
+            tmp.join("k.key"),
+            tmp.join("pack.tar.gz"),
+        );
+        let gen = std::process::Command::new("minisign")
+            .args(["-G", "-W", "-f", "-p"])
+            .arg(&pk)
+            .arg("-s")
+            .arg(&sk)
+            .output();
         let Ok(out) = gen else { return }; // minisign not installed: skip
-        assert!(out.status.success(), "{}", String::from_utf8_lossy(&out.stderr));
+        assert!(
+            out.status.success(),
+            "{}",
+            String::from_utf8_lossy(&out.stderr)
+        );
         fs::write(&file, b"lesson pack bytes").unwrap();
-        let sign = std::process::Command::new("minisign").args(["-S", "-s"]).arg(&sk).arg("-m").arg(&file).output().unwrap();
-        assert!(sign.status.success(), "{}", String::from_utf8_lossy(&sign.stderr));
-        let key = fs::read_to_string(&pk).unwrap().lines().nth(1).unwrap().to_string();
+        let sign = std::process::Command::new("minisign")
+            .args(["-S", "-s"])
+            .arg(&sk)
+            .arg("-m")
+            .arg(&file)
+            .output()
+            .unwrap();
+        assert!(
+            sign.status.success(),
+            "{}",
+            String::from_utf8_lossy(&sign.stderr)
+        );
+        let key = fs::read_to_string(&pk)
+            .unwrap()
+            .lines()
+            .nth(1)
+            .unwrap()
+            .to_string();
         let sig = fs::read_to_string(tmp.join("pack.tar.gz.minisig")).unwrap();
         let bytes = fs::read(&file).unwrap();
-        let sha: String = Sha256::digest(&bytes).iter().map(|b| format!("{b:02x}")).collect();
+        let sha: String = Sha256::digest(&bytes)
+            .iter()
+            .map(|b| format!("{b:02x}"))
+            .collect();
         verify_with(&bytes, &sha, &sig, &key).unwrap();
         let mut bad = bytes.clone();
         bad[0] ^= 1;
-        let bad_sha: String = Sha256::digest(&bad).iter().map(|b| format!("{b:02x}")).collect();
-        assert!(verify_with(&bad, &bad_sha, &sig, &key).is_err(), "tampered pack must fail");
-        assert!(verify_with(&bytes, &sha, &sig, PUBKEY.unwrap()).is_err(), "wrong key must fail");
+        let bad_sha: String = Sha256::digest(&bad)
+            .iter()
+            .map(|b| format!("{b:02x}"))
+            .collect();
+        assert!(
+            verify_with(&bad, &bad_sha, &sig, &key).is_err(),
+            "tampered pack must fail"
+        );
+        assert!(
+            verify_with(&bytes, &sha, &sig, PUBKEY.unwrap()).is_err(),
+            "wrong key must fail"
+        );
         fs::remove_dir_all(&tmp).ok();
     }
 

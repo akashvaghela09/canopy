@@ -151,7 +151,8 @@ pub struct Catalog {
 
 impl Catalog {
     pub fn load(root: &Path) -> Result<Catalog> {
-        let root = &fs::canonicalize(root).with_context(|| format!("lessons folder {}", root.display()))?;
+        let root = &fs::canonicalize(root)
+            .with_context(|| format!("lessons folder {}", root.display()))?;
         let manifest: Manifest = serde_yaml_ng::from_str(&read(&root.join("manifest.yaml"))?)
             .context("manifest.yaml")?;
         if manifest.format_version != FORMAT_VERSION {
@@ -161,8 +162,8 @@ impl Catalog {
                 FORMAT_VERSION
             );
         }
-        let sections: Vec<Section> =
-            serde_yaml_ng::from_str(&read(&root.join("sections.yaml"))?).context("sections.yaml")?;
+        let sections: Vec<Section> = serde_yaml_ng::from_str(&read(&root.join("sections.yaml"))?)
+            .context("sections.yaml")?;
 
         let mut lessons = Vec::new();
         let mut errors = Vec::new();
@@ -174,17 +175,26 @@ impl Catalog {
             }
             let dir = entry.path();
             let meta = read(&dir.join("lesson.yaml")).and_then(|text| {
-                serde_yaml_ng::from_str::<LessonMeta>(&text).with_context(|| format!("{name}/lesson.yaml"))
+                serde_yaml_ng::from_str::<LessonMeta>(&text)
+                    .with_context(|| format!("{name}/lesson.yaml"))
             });
             match meta {
                 Ok(meta) if meta.id == name => lessons.push(Lesson { meta, dir }),
-                Ok(meta) => errors.push((name.clone(), format!("lesson.yaml has id {:?}", meta.id))),
+                Ok(meta) => {
+                    errors.push((name.clone(), format!("lesson.yaml has id {:?}", meta.id)))
+                }
                 Err(e) => errors.push((name.clone(), format!("{e:#}"))),
             }
         }
         lessons.sort_by(|a, b| compare_ids(&a.meta.id, &b.meta.id));
         errors.sort_by(|a, b| compare_ids(&a.0, &b.0));
-        Ok(Catalog { root: root.to_path_buf(), manifest, sections, lessons, errors })
+        Ok(Catalog {
+            root: root.to_path_buf(),
+            manifest,
+            sections,
+            lessons,
+            errors,
+        })
     }
 
     pub fn lesson(&self, id: &str) -> Option<&Lesson> {

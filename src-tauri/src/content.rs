@@ -30,7 +30,14 @@ pub fn load_catalog(app: &AppHandle, paths: &AppPaths) -> Result<Catalog> {
     let update_dir = updates_dir(paths);
     if update_dir.join("manifest.yaml").exists() {
         match Catalog::load(&update_dir) {
-            Ok(update) if newer(&update.manifest.content_version, &bundled.manifest.content_version) => return Ok(update),
+            Ok(update)
+                if newer(
+                    &update.manifest.content_version,
+                    &bundled.manifest.content_version,
+                ) =>
+            {
+                return Ok(update)
+            }
             Ok(_) => {}
             Err(e) => eprintln!("ignoring installed content update: {e:#}"),
         }
@@ -40,7 +47,11 @@ pub fn load_catalog(app: &AppHandle, paths: &AppPaths) -> Result<Catalog> {
 
 /// Compare dotted numeric versions like "2026.10.03.2".
 pub fn newer(a: &str, b: &str) -> bool {
-    let parse = |v: &str| v.split('.').map(|p| p.parse::<u64>().unwrap_or(0)).collect::<Vec<_>>();
+    let parse = |v: &str| {
+        v.split('.')
+            .map(|p| p.parse::<u64>().unwrap_or(0))
+            .collect::<Vec<_>>()
+    };
     parse(a) > parse(b)
 }
 

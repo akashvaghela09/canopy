@@ -65,7 +65,8 @@ impl MarkerParser {
                             if !plain.is_empty() {
                                 out.push(Chunk::Output(std::mem::take(&mut plain)));
                             }
-                            let body = String::from_utf8_lossy(&rest[START.len()..end]).into_owned();
+                            let body =
+                                String::from_utf8_lossy(&rest[START.len()..end]).into_owned();
                             if let Some(ev) = parse_body(&body) {
                                 out.push(Chunk::Prompt(ev));
                             }
@@ -112,10 +113,18 @@ fn parse_body(body: &str) -> Option<PromptEvent> {
         (None, None)
     } else {
         let digits: String = hist.chars().take_while(|c| c.is_ascii_digit()).collect();
-        let cmd = hist[digits.len()..].trim_start().trim_end_matches('\n').to_string();
+        let cmd = hist[digits.len()..]
+            .trim_start()
+            .trim_end_matches('\n')
+            .to_string();
         (digits.parse().ok(), Some(cmd))
     };
-    Some(PromptEvent { exit_code: code.trim().parse().unwrap_or(0), cwd: cwd.to_string(), hist_num, command })
+    Some(PromptEvent {
+        exit_code: code.trim().parse().unwrap_or(0),
+        cwd: cwd.to_string(),
+        hist_num,
+        command,
+    })
 }
 
 #[cfg(test)]
@@ -145,17 +154,32 @@ mod tests {
         assert!(e1.is_empty());
         assert_eq!(
             e2,
-            vec![PromptEvent { exit_code: 1, cwd: "/tmp/x".into(), hist_num: Some(12), command: Some("git status".into()) }]
+            vec![PromptEvent {
+                exit_code: 1,
+                cwd: "/tmp/x".into(),
+                hist_num: Some(12),
+                command: Some("git status".into())
+            }]
         );
     }
 
     #[test]
     fn dedupes_empty_enter() {
         let mut p = MarkerParser::new();
-        let ev = PromptEvent { exit_code: 0, cwd: "/".into(), hist_num: Some(3), command: Some("ls".into()) };
+        let ev = PromptEvent {
+            exit_code: 0,
+            cwd: "/".into(),
+            hist_num: Some(3),
+            command: Some("ls".into()),
+        };
         assert!(p.command_for(&ev, 0).is_some());
         assert!(p.command_for(&ev, 0).is_none());
-        let first = PromptEvent { exit_code: 0, cwd: "/".into(), hist_num: None, command: None };
+        let first = PromptEvent {
+            exit_code: 0,
+            cwd: "/".into(),
+            hist_num: None,
+            command: None,
+        };
         assert!(p.command_for(&first, 0).is_none());
     }
 

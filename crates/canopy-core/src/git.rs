@@ -15,7 +15,10 @@ pub struct Git {
 
 impl Git {
     pub fn new(dir: impl Into<PathBuf>, env: EnvVars) -> Self {
-        Git { dir: dir.into(), env }
+        Git {
+            dir: dir.into(),
+            env,
+        }
     }
 
     pub fn command(&self, args: &[&str]) -> Command {
@@ -65,7 +68,13 @@ impl Git {
     pub fn resolve_commit(&self, rev: &str) -> Result<Option<String>> {
         let spec = format!("{rev}^{{commit}}");
         Ok(self
-            .try_run(&["rev-parse", "--verify", "--quiet", "--end-of-options", &spec])?
+            .try_run(&[
+                "rev-parse",
+                "--verify",
+                "--quiet",
+                "--end-of-options",
+                &spec,
+            ])?
             .map(|s| s.trim().to_string()))
     }
 
@@ -79,7 +88,9 @@ impl Git {
 
 /// Parse `git --version` output, e.g. "git version 2.43.0" -> (2, 43, 0).
 pub fn parse_version(s: &str) -> Option<(u32, u32, u32)> {
-    let v = s.split_whitespace().find(|w| w.chars().next().is_some_and(|c| c.is_ascii_digit()))?;
+    let v = s
+        .split_whitespace()
+        .find(|w| w.chars().next().is_some_and(|c| c.is_ascii_digit()))?;
     let mut parts = v.split('.').map(|p| {
         p.chars()
             .take_while(|c| c.is_ascii_digit())
@@ -87,7 +98,11 @@ pub fn parse_version(s: &str) -> Option<(u32, u32, u32)> {
             .parse::<u32>()
             .ok()
     });
-    Some((parts.next()??, parts.next().flatten().unwrap_or(0), parts.next().flatten().unwrap_or(0)))
+    Some((
+        parts.next()??,
+        parts.next().flatten().unwrap_or(0),
+        parts.next().flatten().unwrap_or(0),
+    ))
 }
 
 pub fn system_git_version() -> Option<(u32, u32, u32)> {
@@ -120,7 +135,13 @@ mod tests {
     #[test]
     fn versions() {
         assert_eq!(parse_version("git version 2.43.0"), Some((2, 43, 0)));
-        assert_eq!(parse_version("git version 2.39.3 (Apple Git-146)"), Some((2, 39, 3)));
-        assert_eq!(parse_version("git version 2.45.1.windows.1"), Some((2, 45, 1)));
+        assert_eq!(
+            parse_version("git version 2.39.3 (Apple Git-146)"),
+            Some((2, 39, 3))
+        );
+        assert_eq!(
+            parse_version("git version 2.45.1.windows.1"),
+            Some((2, 45, 1))
+        );
     }
 }

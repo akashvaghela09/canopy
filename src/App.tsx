@@ -8,7 +8,8 @@ import { paneFocus, Workspace } from "./components/Workspace";
 import { isAppChord } from "./components/Terminal";
 import { appActions, catalogActions, confirmLeave, go, leaveRisks, lessonActions, loadCatalog, resetProgress, setSetting, store, useAppDispatch, useAppSelector } from "./store";
 import { neighbours } from "./store/progress";
-import { applyMotion, applyTheme, CODE_DEFAULT, CODE_STEPS, codeFs, LESSON_DEFAULT, LESSON_STEPS, lessonFs, nearest, stepBy } from "./theme";
+import { TERMINAL_THEMES, type TerminalTheme } from "./terminalThemes";
+import { applyMotion, applyTerminalTheme, applyTheme, CODE_DEFAULT, CODE_STEPS, codeFs, LESSON_DEFAULT, LESSON_STEPS, lessonFs, nearest, stepBy } from "./theme";
 import { useRef, useState } from "react";
 
 let booting = false;
@@ -73,6 +74,7 @@ export default function App() {
   }, [screen.kind, dispatch]);
 
   useEffect(() => applyTheme(settings.theme), [settings.theme]);
+  useEffect(() => applyTerminalTheme(settings.terminalTheme), [settings.terminalTheme]);
   useEffect(() => applyMotion(settings.motion), [settings.motion]);
   // Two text sizes: lesson content and terminal/editors. The root stays 16px.
   useEffect(() => {
@@ -303,6 +305,19 @@ function SettingsSheet() {
               <Stepper label="Terminal text" value={codeFs(settings)} steps={CODE_STEPS} dflt={CODE_DEFAULT} onChange={(v) => set("codeText", String(v))} />
             </Row>
           </SettingsGroup>
+          <SettingsGroup title="Terminal">
+            <div className="px-3.5 py-3">
+              <div className="text-[0.84375rem] leading-5 font-medium" id="term-theme-label">
+                Colors
+              </div>
+              <div role="radiogroup" aria-labelledby="term-theme-label" className="mt-2.5 grid grid-cols-4 gap-2.5">
+                <TermSwatch id="canopy" label="Canopy" current={settings.terminalTheme ?? "canopy"} onPick={(v) => set("terminalTheme", v)} />
+                {TERMINAL_THEMES.map((t) => (
+                  <TermSwatch key={t.id} id={t.id} label={t.label} theme={t} current={settings.terminalTheme ?? "canopy"} onPick={(v) => set("terminalTheme", v)} />
+                ))}
+              </div>
+            </div>
+          </SettingsGroup>
           <SettingsGroup title="Graph">
             <Row label="Show commit ids" description="Instead of commit messages under each commit" onRowClick={() => set("graphIds", settings.graphIds === "1" ? "0" : "1")}>
               <Switch label="Show commit ids" checked={settings.graphIds === "1"} onChange={(v) => set("graphIds", v ? "1" : "0")} />
@@ -358,6 +373,33 @@ function SettingsSheet() {
         </Dialog>
       )}
     </div>
+  );
+}
+
+/** A tiny terminal drawn in a theme's colors: background, prompt, text. */
+function TermSwatch({ id, label, theme, current, onPick }: { id: string; label: string; theme?: TerminalTheme; current: string; onPick: (id: string) => void }) {
+  const on = current === id;
+  const c = theme
+    ? { bg: theme.bg, fg: theme.fg, a: theme.ansi[4], b: theme.ansi[2], r: theme.ansi[1] }
+    : { bg: "var(--color-sunken)", fg: "var(--color-fg)", a: "var(--color-accent)", b: "var(--color-success)", r: "var(--color-danger)" };
+  return (
+    <button role="radio" aria-checked={on} onClick={() => onPick(id)} className="group flex flex-col items-center gap-1 text-xs text-fg-2">
+      <span
+        className={`flex h-11 w-full flex-col justify-center gap-1 rounded-md px-2 ring-offset-2 ring-offset-surface ${on ? "ring-2 ring-accent" : "ring-1 ring-edge-2 group-hover:ring-fg-3"}`}
+        style={{ background: c.bg }}
+        aria-hidden
+      >
+        <span className="flex gap-1">
+          <span className="h-1.5 w-3 rounded-full" style={{ background: c.a }} />
+          <span className="h-1.5 w-4 rounded-full" style={{ background: c.b }} />
+        </span>
+        <span className="flex gap-1">
+          <span className="h-1.5 w-6 rounded-full" style={{ background: c.fg }} />
+          <span className="h-1.5 w-2 rounded-full" style={{ background: c.r }} />
+        </span>
+      </span>
+      <span className={on ? "font-medium text-fg" : ""}>{label}</span>
+    </button>
   );
 }
 

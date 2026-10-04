@@ -23,7 +23,7 @@ export async function setupPreview(): Promise<boolean> {
   const res = await fetch(`/preview/${lessonId}.json`);
   const data: PreviewData = await res.json();
   const screen = params.get("screen") ?? "lesson";
-  const settings: Record<string, string> = { theme: params.get("theme") ?? "system" };
+  const settings: Record<string, string> = { theme: params.get("theme") ?? "system", terminalTheme: params.get("term") ?? "canopy" };
   if (screen !== "firstRun") settings.firstRunDone = "1";
   if (params.get("completed")) {
     const c = data.catalog as { completed: Record<string, number>; lessons: { id: string }[] };
