@@ -36,6 +36,12 @@ export async function setupPreview(): Promise<boolean> {
     }
   }
   (window as { __CANOPY_PREVIEW__?: boolean }).__CANOPY_PREVIEW__ = true;
+  // ?tab=read|try|hints opens the lesson on that tab.
+  const tab = params.get("tab");
+  if (tab) {
+    const { lessonTabMemory } = await import("../components/LessonPanel");
+    lessonTabMemory.set(lessonId, tab as "read" | "try" | "hints");
+  }
 
   mockIPC(
     (cmd, args) => {

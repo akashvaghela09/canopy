@@ -204,7 +204,7 @@ pub fn get_lesson(state: State<AppState>, id: String) -> CmdResult<LessonView> {
             })
             .collect(),
         recommended: recommended_before(&catalog, &lesson),
-        has_attempt: state.paths.lesson_root(&id).exists(),
+        has_attempt: canopy_core::runner::is_prepared(&state.paths, &id),
         meta: lesson.meta,
     })
 }
@@ -228,6 +228,7 @@ pub async fn start_lesson(
     rows: u16,
     output: Channel<String>,
 ) -> CmdResult<StartInfo> {
+    let _starting = state.starting.lock().await;
     // Stop the previous shell first so it releases the folder.
     *state.session.lock().unwrap() = None;
 
@@ -235,7 +236,9 @@ pub async fn start_lesson(
     let catalog = state.catalog.read().unwrap().clone();
     let paths = state.paths.clone();
     let root = paths.lesson_root(&id);
-    let fresh = reset || !root.exists();
+    // A folder whose setup never finished (app closed, setup failed) is not
+    // resumable.
+    let fresh = reset || !canopy_core::runner::is_prepared(&paths, &id);
     let attempt = if fresh {
         state.db.lock().unwrap().clear_attempt(&id).map_err(anyhow_err)?;
         let lib = catalog.lib_dir();

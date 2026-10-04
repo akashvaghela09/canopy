@@ -1,3 +1,5 @@
+<img src="assets/icon.png" alt="" width="96" height="96">
+
 # Canopy
 
 Learn git by running real git. Canopy is a desktop app with a terminal, a file tree and editor, and an animated commit graph on one screen. 225 lessons take you from your first `cd` to git internals. Every command runs in real git inside a learning folder Canopy creates; your own projects are never touched.

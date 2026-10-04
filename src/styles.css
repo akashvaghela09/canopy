@@ -83,7 +83,7 @@
   --color-graph-7:  oklch(50% 0.108 110); /* lime    #676803 5.7:1 (C clipped) */
   --color-graph-unreachable: oklch(62% 0 0); /* #868686 3.5:1 */
   --color-graph-ghost:       oklch(62% 0 0); /* drawn at 55% opacity, dashed */
-  --color-graph-head:        oklch(22% 0.012 260); /* ring = fg */
+  --graph-halo-alpha:        0.18; /* soft disc behind the HEAD commit */
   --color-graph-highlight:   oklch(50% 0.088 185 / 0.14); /* range bands, accent at 14% */
   --color-graph-label-fg:    oklch(99% 0 0); /* text on filled flags */
 
@@ -184,7 +184,7 @@
   --color-graph-7:  oklch(78% 0.110 110); /* #BBBE67 9.2:1 */
   --color-graph-unreachable: oklch(55% 0 0); /* #717171 3.7:1 */
   --color-graph-ghost:       oklch(55% 0 0);
-  --color-graph-head:        oklch(93% 0.008 260);
+  --graph-halo-alpha:        0.28;
   --color-graph-highlight:   oklch(78% 0.110 185 / 0.16);
   --color-graph-label-fg:    oklch(15% 0.010 260); /* dark text on light fills */
 }
@@ -253,7 +253,7 @@
   --color-graph-7:  oklch(78% 0.110 110); /* #BBBE67 9.2:1 */
   --color-graph-unreachable: oklch(55% 0 0); /* #717171 3.7:1 */
   --color-graph-ghost:       oklch(55% 0 0);
-  --color-graph-head:        oklch(93% 0.008 260);
+  --graph-halo-alpha:        0.28;
   --color-graph-highlight:   oklch(78% 0.110 185 / 0.16);
   --color-graph-label-fg:    oklch(15% 0.010 260); /* dark text on light fills */
   }
@@ -315,4 +315,27 @@
 .lesson-scale {
   font-size: var(--lesson-fs);
   line-height: 1.6;
+}
+
+/* While a pane is being resized: no transitions, and the cursor stays put. */
+:root[data-resizing] *,
+:root[data-resizing] {
+  transition: none !important;
+  cursor: inherit;
+}
+:root[data-resizing] body {
+  user-select: none;
+}
+
+.skeleton {
+  background: linear-gradient(90deg, var(--color-sunken) 0%, var(--color-edge) 50%, var(--color-sunken) 100%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+}
+@keyframes skeleton-shimmer {
+  from { background-position: 100% 0; }
+  to { background-position: -100% 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .skeleton { animation: none; }
 }

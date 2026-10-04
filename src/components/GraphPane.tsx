@@ -1,10 +1,11 @@
 // Center-top pane: the commit graph for the repo the learner is looking at
 // (DESIGN.md 4.4).
 
-import { Archive, Circle, CircleDashed, CircleDot, CircleHelp, Copy, GitMerge, Terminal as TerminalIcon, X } from "lucide-react";
+import { Archive, Circle, CircleDashed, CircleHelp, Copy, GitMerge, Tag as TagIcon, Terminal as TerminalIcon, X } from "lucide-react";
 import React, { useEffect, useMemo, useState } from "react";
 import type { RepoSnapshot } from "../api";
 import { GraphView, graphHeight } from "../graph/GraphView";
+import type { OtherWorktree } from "../graph/geometry";
 import { layout } from "../graph/layout";
 import type { Snapshot } from "../graph/types";
 import { lessonActions, useAppDispatch, useAppSelector } from "../store";
@@ -30,7 +31,7 @@ export function useActiveRepo(): { repos: RepoSnapshot[]; active: RepoSnapshot |
 }
 
 /** Height the pane wants: header (if any) + graph + stash strip, clamped. */
-export function GraphPane({ showIds, scale, maxHeight, manualHeight }: { showIds: boolean; scale: number; maxHeight: number; manualHeight: number | null }) {
+export function GraphPane({ showIds, maxHeight, manualHeight }: { showIds: boolean; maxHeight: number; manualHeight: number | null }) {
   const dispatch = useAppDispatch();
   const pinned = useAppSelector((s) => s.lesson.pinnedRepo);
   const { repos, active, cwdRepo } = useActiveRepo();
@@ -38,16 +39,17 @@ export function GraphPane({ showIds, scale, maxHeight, manualHeight }: { showIds
   const [selected, setSelected] = useState<string | null>(null);
   const [sideBySide, setSideBySide] = useState(false);
   const asText = useAppSelector((s) => s.app.settings.graphText === "1");
+  const starting = useAppSelector((s) => s.lesson.status === "starting" || (s.lesson.status === "running" && !s.lesson.update));
   const origin = repos.find((r) => r.snapshot?.bare);
   const showSide = sideBySide && origin !== undefined && origin.path !== active?.path;
   const originGraph = useMemo(() => (showSide && origin?.snapshot ? layout(origin.snapshot) : null), [showSide, origin]);
   const graph = useMemo(() => (snap ? layout(snap) : null), [snap]);
   const selectedCommit = snap?.commits.find((c) => c.id === selected) ?? null;
-  const extraHeads = useMemo(() => worktreeHeads(snap), [snap]);
+  const others = useMemo(() => otherWorktrees(snap), [snap]);
 
   // A header only when it holds a control (multi-repo lessons).
   const hasHeader = repos.length > 1;
-  const lanes = Math.max(graph ? graphHeight(graph, showIds, scale) : 0, originGraph ? graphHeight(originGraph, showIds, scale) : 0);
+  const lanes = Math.max(graph ? graphHeight(graph, showIds) : 0, originGraph ? graphHeight(originGraph, showIds) : 0);
   const content = (hasHeader ? 36 : 0) + (asText ? 220 : Math.max(lanes, 100)) + (snap && snap.stashes.length > 0 ? 32 : 0);
   const height = manualHeight ?? Math.min(Math.max(content, 136), Math.max(136, maxHeight));
 
@@ -55,7 +57,7 @@ export function GraphPane({ showIds, scale, maxHeight, manualHeight }: { showIds
     <section
       role="region"
       aria-label="Graph"
-      className="flex min-h-0 shrink-0 flex-col bg-canvas transition-[height] duration-[var(--dur-slow)]"
+      className={`flex min-h-0 shrink-0 flex-col bg-canvas ${manualHeight === null ? "transition-[height] duration-[var(--dur-slow)]" : ""}`}
       style={{ height }}
       data-pane="graph"
       tabIndex={-1}
@@ -126,7 +128,6 @@ export function GraphPane({ showIds, scale, maxHeight, manualHeight }: { showIds
             <GraphView
               layout={graph}
               showIds={showIds}
-              scale={scale}
               selected={selected}
               onSelect={(id) => {
                 // A focused "which commit" answer box takes the clicked id (DESIGN.md 7.7).
@@ -137,9 +138,11 @@ export function GraphPane({ showIds, scale, maxHeight, manualHeight }: { showIds
                 }
                 setSelected((s) => (s === id ? null : id));
               }}
-              extraHeads={extraHeads}
+              others={others}
               ariaLabel={describe(snap)}
             />
+          ) : starting ? (
+            <GraphSkeleton />
           ) : (
             <div className="flex h-full items-center justify-center text-sm text-fg-3">
               {active?.error ? `Could not read this repo: ${active.error}` : "No repository here yet."}
@@ -151,7 +154,7 @@ export function GraphPane({ showIds, scale, maxHeight, manualHeight }: { showIds
           <div className="flex min-h-0 min-w-0 flex-1 flex-col border-l border-edge">
             <div className="px-3 pt-2 text-xs text-fg-3">{origin.label} (bare)</div>
             <div className="min-h-0 flex-1">
-              <GraphView layout={originGraph} showIds={showIds} scale={scale} ariaLabel={`origin: ${describe(origin.snapshot)}`} />
+              <GraphView layout={originGraph} showIds={showIds} ariaLabel={`origin: ${describe(origin.snapshot)}`} />
             </div>
           </div>
         )}
@@ -203,10 +206,23 @@ function GraphKey() {
     <div className="absolute top-2 right-3 z-30">
       {open && (
         <ul className="absolute top-8 right-0 w-[22rem] space-y-1.5 rounded-md border border-edge-2 bg-raised p-3 text-xs text-fg shadow-[0_4px_12px_oklch(0%_0_0/0.12)]" role="note" aria-label="Graph key">
-          {row(<Circle size={10} className="fill-[var(--color-graph-main)] text-[var(--color-graph-main)]" />, "a commit (its message is under it)")}
-          {row(<CircleDot size={14} />, "the ring marks HEAD: where you are")}
-          {row(<span className="rounded-full bg-[var(--color-graph-main)] px-1.5 text-[0.625rem] font-semibold text-[var(--color-graph-label-fg)]">main</span>, "a branch; HEAD → main: you are on main")}
-          {row(<span className="rounded-full border border-dashed border-[var(--color-graph-main)] px-1.5 text-[0.625rem] text-[var(--color-graph-main)]">origin/main</span>, "the remote's copy, as of your last fetch")}
+          {row(<Circle size={10} className="fill-[var(--color-graph-main)] text-[var(--color-graph-main)]" />, "a commit; its message is under it")}
+          {row(
+            <span className="relative flex size-[22px] items-center justify-center">
+              <span className="absolute inset-0 rounded-full bg-[var(--color-graph-main)]" style={{ opacity: "var(--graph-halo-alpha)" }} />
+              <span className="size-3 rounded-full bg-[var(--color-graph-main)]" />
+            </span>,
+            "soft glow: HEAD, the commit you are on",
+          )}
+          {row(<span className="rounded-full bg-[var(--color-graph-main)] px-1.5 font-mono text-[0.625rem] font-semibold text-[var(--color-graph-label-fg)]">HEAD → main</span>, "you are on branch main")}
+          {row(<span className="rounded-full border border-dashed border-[var(--color-graph-main)] px-1.5 font-mono text-[0.625rem] text-[var(--color-graph-main)]">origin/main</span>, "the remote's copy, as of your last fetch")}
+          {row(
+            <span className="inline-flex items-center gap-1 rounded-[4px] border border-edge-2 px-1.5 font-mono text-[0.625rem] font-medium">
+              <TagIcon size={10} className="text-fg-2" /> v1.0
+            </span>,
+            "a tag (filled icon: annotated)",
+          )}
+          {row(<Copy size={12} className="text-fg-2" />, "checked out in another folder (worktree)")}
           {row(<Circle size={10} className="fill-[var(--color-graph-unreachable)] text-[var(--color-graph-unreachable)]" />, "grey: on no branch")}
           {row(<CircleDashed size={12} className="text-[var(--color-graph-unreachable)]" />, "dashed: replaced by a newer copy")}
           {row(<span className="text-fg-2">→</span>, "time runs left to right")}
@@ -230,12 +246,10 @@ function operationLabel(op: string) {
   return { merge: "Merge", rebase: "Rebase", am: "Applying patches", "cherry-pick": "Cherry-pick", revert: "Revert", bisect: "Bisect" }[op] ?? op;
 }
 
-function worktreeHeads(snap: Snapshot | null) {
+/** Worktrees besides the main one: their HEADs show on the branch pills. */
+function otherWorktrees(snap: Snapshot | null): OtherWorktree[] {
   if (!snap || snap.worktrees.length < 2) return [];
-  return snap.worktrees
-    .slice(1)
-    .filter((w) => w.head)
-    .map((w) => ({ commit: w.head!, name: w.path.split("/").pop() ?? w.path }));
+  return snap.worktrees.slice(1).map((w) => ({ name: w.path.split("/").pop() ?? w.path, head: w.head, branch: w.branch }));
 }
 
 /** Text summary of the graph for screen readers (DESIGN.md 10.3). */
@@ -292,6 +306,20 @@ function CommitCard({ commit, onClose }: { commit: Snapshot["commits"][number]; 
           {copied ? "Copied" : "Copy id"}
         </Button>
       </div>
+    </div>
+  );
+}
+
+/** Placeholder commits while the lesson's repo is being set up. */
+function GraphSkeleton() {
+  return (
+    <div role="status" aria-label="Setting up the lesson" className="flex h-full items-center gap-0 px-10">
+      {[0, 1, 2, 3].map((i) => (
+        <div key={i} className="flex items-center">
+          {i > 0 && <div className="skeleton h-0.5 w-20" />}
+          <div className="skeleton size-3 rounded-full" />
+        </div>
+      ))}
     </div>
   );
 }

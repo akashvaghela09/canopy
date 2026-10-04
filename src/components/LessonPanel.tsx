@@ -1,7 +1,7 @@
 // Left pane of the workspace: the lesson, as two tabs (Read, Try it) under a
 // pinned title, with a hint button and a bottom bar (UX_REVIEW_3.md 4–5).
 
-import { ArrowRight, Check, CheckCircle2, ChevronLeft, ChevronRight, Circle, Lightbulb, PanelLeftClose, Play, X } from "lucide-react";
+import { ArrowRight, Check, CheckCircle2, ChevronLeft, Circle, Eye, PanelLeftClose, Play, X } from "lucide-react";
 import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -9,9 +9,9 @@ import type { LessonView, PublicQuestion } from "../api";
 import { api } from "../api";
 import { go, lessonActions, runAction, setSetting, skipLesson, submitAnswer, useAppDispatch, useAppSelector } from "../store";
 import { missingRecommended, neighbours } from "../store/progress";
-import { Banner, Button, IconButton } from "./ui";
+import { Banner, Button, IconButton, Skeleton } from "./ui";
 
-type Tab = "read" | "try";
+type Tab = "read" | "try" | "hints";
 
 /** Remembered tab per lesson for this session (not persisted). */
 export const lessonTabMemory = new Map<string, Tab>();
@@ -49,7 +49,7 @@ export function LessonPanel({
   const ticks = useGoalTicksSafe(view);
   const [tab, setTabState] = useState<Tab>("read");
   const panelRef = useRef<HTMLDivElement>(null);
-  const scrollMemory = useRef<Record<Tab, number>>({ read: 0, try: 0 });
+  const scrollMemory = useRef<Record<Tab, number>>({ read: 0, try: 0, hints: 0 });
 
   // Pick the tab when a lesson opens: Read the first time, Try it when resuming or done.
   const lessonKey = view ? `${view.meta.id}:${lesson.generation}` : "";
@@ -57,8 +57,9 @@ export function LessonPanel({
   useEffect(() => {
     if (!view) return;
     const remembered = lessonTabMemory.get(view.meta.id);
-    setTabState(remembered ?? (resumed ? "try" : "read"));
-    scrollMemory.current = { read: 0, try: 0 };
+    const boss = splitLesson(view.content).steps === null;
+    setTabState(remembered ?? (resumed || boss ? "try" : "read"));
+    scrollMemory.current = { read: 0, try: 0, hints: 0 };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lessonKey]);
   // A lesson that turns out to be resumed (update arrives after load) opens on Try it.
@@ -67,13 +68,39 @@ export function LessonPanel({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [resumed]);
 
-  if (!view || !ticks) return <div className="p-5 text-sm text-fg-3">Loading lesson…</div>;
+  // Alt+H (handled in the store) asks for the Hints tab.
+  useEffect(() => {
+    if (lesson.hintRequest > 0 && view) {
+      setTabState("hints");
+      lessonTabMemory.set(view.meta.id, "hints");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lesson.hintRequest]);
+
+  if (!view || !ticks)
+    return (
+      <div className="p-5">
+        <Skeleton label="Loading lesson" lines={["70%", 40]} className="mb-8 [&>div]:h-5" />
+        <Skeleton label="" lines={[100, 96, 88, 100, 62]} />
+      </div>
+    );
   const meta = view.meta;
   const missing = missingRecommended(cat, meta.id);
   const sectionDoneOtherwise = cat.lessons.filter((l) => l.section === meta.section && l.id !== meta.id).every((l) => cat.completed[l.id]);
   const showNotice = missing.length > 0 && !(meta.kind === "boss" && sectionDoneOtherwise);
   const parts = splitLesson(view.content);
   const tabbed = parts.steps !== null;
+  // Boss lessons have no Read/Try it split: one Challenge tab holds both.
+  const tabs: { id: Tab; label: string }[] = [
+    ...(tabbed
+      ? [
+          { id: "read" as Tab, label: "Read" },
+          { id: "try" as Tab, label: "Try it" },
+        ]
+      : [{ id: "try" as Tab, label: "Challenge" }]),
+    ...(meta.hints.length > 0 ? [{ id: "hints" as Tab, label: "Hints" }] : []),
+  ];
+  const current: Tab = tabs.some((t) => t.id === tab) ? tab : tabs[0].id;
 
   const setTab = (t: Tab) => {
     if (panelRef.current) scrollMemory.current[tab] = panelRef.current.scrollTop;
@@ -119,24 +146,21 @@ export function LessonPanel({
       </header>
 
       <div className="flex h-9 shrink-0 items-center gap-1 border-b border-edge pr-2 pl-5 2xl:pl-6">
-        {tabbed ? <LessonTabs tab={tab} onTab={setTab} /> : <span className="text-sm text-fg-2">Challenge</span>}
+        <LessonTabs tab={tab} onTab={setTab} tabs={tabs} />
         <div className="ml-auto flex items-center gap-1">
-          <HintButton hints={meta.hints} complete={ticks.complete} />
           <IconButton icon={PanelLeftClose} label="Hide lesson panel (Alt+[)" onClick={onCollapse} />
         </div>
       </div>
 
-      <HintCard hints={meta.hints} complete={ticks.complete} onReset={onReset} />
-
       <div
         ref={panelRef}
-        role={tabbed ? "tabpanel" : undefined}
-        id={tabbed ? `lesson-panel-${tab}` : undefined}
-        aria-labelledby={tabbed ? `lesson-tab-${tab}` : "lesson-title"}
+        role="tabpanel"
+        id={`lesson-panel-${current}`}
+        aria-labelledby={`lesson-tab-${current}`}
         tabIndex={0}
         className="lesson-scale min-h-0 flex-1 overflow-y-auto px-5 pt-4 pb-8 outline-none 2xl:px-6"
       >
-        {(!tabbed || tab === "read") && (
+        {(current === "read" || (!tabbed && current === "try")) && (
           <>
             <div className="flex flex-col gap-3 empty:hidden">
               <Preflight />
@@ -154,9 +178,10 @@ export function LessonPanel({
             )}
           </>
         )}
-        {(!tabbed || tab === "try") && (
+        {current === "try" && (
           <TryIt view={view} steps={parts.steps} recap={parts.recap} ticks={ticks} tabbed={tabbed} onReset={onReset} onViewScript={onViewScript} />
         )}
+        {current === "hints" && <Hints hints={meta.hints} onReset={onReset} />}
       </div>
       <BottomBar ticks={ticks} onComplete={showRecap} />
     </div>
@@ -191,20 +216,18 @@ function useGoalTicks(view: LessonView | null): Ticks {
   return { labels, done, total: labels.length, complete, justTicked };
 }
 
-/** Read | Try it, as ARIA tabs with arrow keys and a roving tabindex. */
-function LessonTabs({ tab, onTab }: { tab: Tab; onTab: (t: Tab) => void }) {
-  const tabs: { id: Tab; label: string }[] = [
-    { id: "read", label: "Read" },
-    { id: "try", label: "Try it" },
-  ];
-  const refs = useRef<Record<Tab, HTMLButtonElement | null>>({ read: null, try: null });
+/** Read | Try it | Hints, as ARIA tabs with arrow keys and a roving tabindex. */
+function LessonTabs({ tab, onTab, tabs }: { tab: Tab; onTab: (t: Tab) => void; tabs: { id: Tab; label: string }[] }) {
+  const refs = useRef<Partial<Record<Tab, HTMLButtonElement | null>>>({});
   const move = (to: Tab) => {
     onTab(to);
     refs.current[to]?.focus();
   };
+  const ids = tabs.map((t) => t.id);
+  const current = ids.includes(tab) ? tab : ids[0];
   return (
     <div role="tablist" aria-label="Lesson" className="flex h-full items-end gap-6">
-      {tabs.map((t) => (
+      {tabs.map((t, i) => (
         <button
           key={t.id}
           ref={(el) => {
@@ -213,22 +236,16 @@ function LessonTabs({ tab, onTab }: { tab: Tab; onTab: (t: Tab) => void }) {
           role="tab"
           id={`lesson-tab-${t.id}`}
           aria-controls={`lesson-panel-${t.id}`}
-          aria-selected={tab === t.id}
-          tabIndex={tab === t.id ? 0 : -1}
+          aria-selected={current === t.id}
+          tabIndex={current === t.id ? 0 : -1}
           onClick={() => onTab(t.id)}
           onKeyDown={(e) => {
-            if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
-              e.preventDefault();
-              move(t.id === "read" ? "try" : "read");
-            } else if (e.key === "Home") {
-              e.preventDefault();
-              move("read");
-            } else if (e.key === "End") {
-              e.preventDefault();
-              move("try");
-            }
+            const to = { ArrowRight: i + 1, ArrowLeft: i - 1, Home: 0, End: ids.length - 1 }[e.key];
+            if (to === undefined) return;
+            e.preventDefault();
+            move(ids[(to + ids.length) % ids.length]);
           }}
-          className={`-mb-px h-9 border-b-2 text-sm font-medium transition-colors ${tab === t.id ? "border-fg text-fg" : "border-transparent text-fg-2 hover:text-fg"}`}
+          className={`-mb-px h-9 border-b-2 text-sm font-medium transition-colors ${current === t.id ? "border-fg text-fg" : "border-transparent text-fg-2 hover:text-fg"}`}
         >
           {t.label}
         </button>
@@ -431,83 +448,49 @@ function GoalsList({ ticks }: { ticks: Ticks }) {
   );
 }
 
-/** Hint button in the tab strip (UX_REVIEW_3.md 5). */
-function HintButton({ hints, complete }: { hints: string[]; complete: boolean }) {
+/** Hints tab: each hint stays blurred until the learner asks for it. */
+function Hints({ hints, onReset }: { hints: string[]; onReset: () => void }) {
   const dispatch = useAppDispatch();
-  const open = useAppSelector((s) => s.lesson.hintOpen);
   const shown = useAppSelector((s) => s.lesson.hintsShown);
-  if (hints.length === 0 || complete) return null;
   return (
-    <button
-      type="button"
-      aria-expanded={open}
-      aria-controls="hint-card"
-      title="Hint (Alt+H)"
-      onClick={() => dispatch(lessonActions.toggleHint())}
-      className={`relative inline-flex h-7 items-center gap-1.5 rounded-sm px-2 text-sm font-medium transition-colors ${open ? "bg-sunken text-fg" : "text-fg-2 hover:bg-sunken hover:text-fg"}`}
-    >
-      <Lightbulb size={14} />
-      Hint
-      {shown > 0 && !open && <span className="absolute top-1 left-[1.3rem] h-1.5 w-1.5 rounded-full bg-accent" aria-label={`${shown} shown`} />}
-    </button>
-  );
-}
-
-/** Pinned card under the tab strip: one hint at a time. */
-function HintCard({ hints, complete, onReset }: { hints: string[]; complete: boolean; onReset: () => void }) {
-  const dispatch = useAppDispatch();
-  const open = useAppSelector((s) => s.lesson.hintOpen);
-  const shown = useAppSelector((s) => s.lesson.hintsShown);
-  const [viewing, setViewing] = useState(0);
-  const body = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    if (shown > 0) setViewing(shown - 1);
-  }, [shown]);
-  if (!open || complete || hints.length === 0 || shown === 0) return null;
-  const i = Math.min(viewing, shown - 1);
-  const last = shown >= hints.length;
-  return (
-    <section
-      id="hint-card"
-      role="region"
-      aria-label="Hint"
-      className="lesson-scale editor-sheet mx-5 mt-3 max-h-[35%] shrink-0 overflow-y-auto rounded-md bg-sunken px-3 py-2.5 2xl:mx-6"
-      onKeyDown={(e) => {
-        if (e.key === "Escape") {
-          e.stopPropagation();
-          dispatch(lessonActions.toggleHint());
-        }
-      }}
-    >
-      <div className="flex items-center gap-1 text-[0.8em] text-fg-3">
-        <span>
-          Hint {i + 1} of {hints.length}
-        </span>
-        {shown > 1 && (
-          <>
-            <IconButton icon={ChevronLeft} label="Previous hint" disabled={i === 0} onClick={() => setViewing(i - 1)} />
-            <IconButton icon={ChevronRight} label="Next revealed hint" disabled={i >= shown - 1} onClick={() => setViewing(i + 1)} />
-          </>
-        )}
-        <IconButton icon={X} label="Close hint (Esc)" className="ml-auto" onClick={() => dispatch(lessonActions.toggleHint())} />
-      </div>
-      <div ref={body} tabIndex={-1} aria-live="polite" className="lesson-md mt-[0.3em] text-[0.9333em] leading-[1.55] outline-none selectable">
-        <ReactMarkdown>{hints[i]}</ReactMarkdown>
-      </div>
-      <div className="mt-2 flex items-center justify-end gap-2 text-[0.8em] text-fg-3">
-        {!last ? (
-          <Button scaled variant="ghost" icon={Lightbulb} onClick={() => dispatch(lessonActions.showHint())}>
-            Next hint
-          </Button>
-        ) : (
-          <span>
-            That was the last hint.{" "}
-            <button className="font-medium text-fg-2 hover:text-fg hover:underline" onClick={onReset}>
-              Reset lesson
-            </button>
-          </span>
-        )}
-      </div>
+    <section aria-label="Hints">
+      <p className="text-[0.8667em] text-fg-3">Try on your own first. Each hint gives away a little more.</p>
+      <ol className="mt-[1em] flex flex-col gap-[0.8em]">
+        {hints.map((h, i) => {
+          const open = i < shown;
+          return (
+            <li key={i} className="rounded-md border border-edge bg-surface px-[0.9em] py-[0.7em]">
+              <div className="text-[0.8em] font-medium text-fg-3">Hint {i + 1}</div>
+              {open ? (
+                <div aria-live="polite" className="lesson-md mt-[0.3em] text-[0.9333em] leading-[1.55] selectable">
+                  <ReactMarkdown>{h}</ReactMarkdown>
+                </div>
+              ) : (
+                <div className="relative mt-[0.3em]">
+                  {/* The real text, blurred, so the length shows but not the words. */}
+                  <div aria-hidden className="lesson-md pointer-events-none text-[0.9333em] leading-[1.55] blur-[5px] select-none">
+                    <ReactMarkdown>{h}</ReactMarkdown>
+                  </div>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <Button scaled size="sm" icon={Eye} onClick={() => dispatch(lessonActions.showHint(i + 1))}>
+                      {i > shown ? `Show hints ${shown + 1}–${i + 1}` : "Show hint"}
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </li>
+          );
+        })}
+      </ol>
+      {shown >= hints.length && (
+        <p className="mt-[1em] text-[0.8em] text-fg-3">
+          Still stuck?{" "}
+          <button className="font-medium text-fg-2 hover:text-fg hover:underline" onClick={onReset}>
+            Reset lesson
+          </button>{" "}
+          and start over.
+        </p>
+      )}
     </section>
   );
 }

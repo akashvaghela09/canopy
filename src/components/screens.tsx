@@ -1,7 +1,7 @@
 // Top bar, git gate, first run, home and section view (DESIGN.md sections 2-3).
 
 import { openUrl } from "@tauri-apps/plugin-opener";
-import { Check, CheckCircle2, ChevronDown, ChevronRight, Circle, ExternalLink, GitBranch, Home as HomeIcon, Settings } from "lucide-react";
+import { Check, CheckCircle2, ChevronDown, ChevronRight, Circle, ExternalLink,  Settings } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { api, type LessonSummary } from "../api";
 import { appActions, go, loadCatalog, resetProgress, setSetting, useAppDispatch, useAppSelector } from "../store";
@@ -39,7 +39,7 @@ export function TopBar() {
     <header className="relative flex h-[var(--size-topbar)] shrink-0 items-center gap-1 border-b border-edge bg-surface px-2">
       <nav aria-label="Breadcrumb" className="flex min-w-0 items-center gap-0.5 text-sm">
         <button className={`${crumb} font-semibold text-fg`} onClick={() => dispatch(go({ kind: "home" }))} title="Home (Alt+Home)">
-          <HomeIcon size={16} strokeWidth={1.75} aria-hidden />
+          <img src="/icon.svg" alt="" width={18} height={18} />
           Canopy
         </button>
         {section && (
@@ -187,7 +187,7 @@ export function GitGate() {
   return (
     <main className="flex h-full items-center justify-center bg-bg">
       <div className="w-[440px] text-center">
-        <GitBranch size={32} className="mx-auto text-fg-2" aria-hidden />
+        <img src="/icon.svg" alt="" width={56} height={56} className="mx-auto" />
         <h1 className="mt-4 text-xl font-semibold">{tooOld ? "Canopy needs a newer git" : "Canopy needs git to run"}</h1>
         <p className="mt-2 text-base text-fg-2">
           {tooOld
@@ -230,6 +230,7 @@ export function FirstRun() {
   return (
     <main className="flex h-full items-center justify-center bg-bg">
       <div className="w-[560px]">
+        <img src="/icon.svg" alt="" width={64} height={64} className="mb-5" />
         <h1 className="text-2xl font-semibold">Welcome to Canopy</h1>
         <p className="mt-3 text-base text-fg-2">
           Learn git by using it. Every command you type runs in real git, inside lesson folders Canopy creates

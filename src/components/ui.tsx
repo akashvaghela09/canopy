@@ -325,3 +325,14 @@ export function Stepper({ value, steps, dflt, onChange, label }: { value: number
     </div>
   );
 }
+
+/** Grey placeholder bars that shimmer while something loads. */
+export function Skeleton({ lines, className = "", label }: { lines: (number | string)[]; className?: string; label: string }) {
+  return (
+    <div role="status" aria-label={label} className={`flex flex-col gap-2.5 ${className}`}>
+      {lines.map((w, i) => (
+        <div key={i} className="skeleton h-3 rounded-sm" style={{ width: typeof w === "number" ? `${w}%` : w }} />
+      ))}
+    </div>
+  );
+}

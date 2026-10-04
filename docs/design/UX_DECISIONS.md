@@ -59,3 +59,11 @@ Deviations:
 ## Round 3 (`UX_REVIEW_3.md`)
 
 Owner feedback after v0.3.0: settings sheet cramped; lesson panel width followed text size; wanted lesson text and terminal sizes separate; wanted reading and hands-on parts separated (e.g. tabs); hints as a button. All P1–P3 items of `UX_REVIEW_3.md` accepted except P3.15 (interface zoom, only if testers ask). Notably: two text settings (Lessons 13–22px, Terminal and editors 11–20px) with fixed 16px root and px panel widths; lesson tabs Read / Try it (no Goals tab: goals sit with the steps they confirm); actions inline at the step that names them; hint button with a pinned one-at-a-time hint card; recap only on completion; grouped settings with switches, segmented control and steppers.
+
+## Round 4 (owner feedback on v0.4.0, `GRAPH_SPEC.md`)
+
+- Hints become their own tab (Read · Try it · Hints). Each hint is blurred until "Show hint"; showing a later hint shows the ones before it, since hints get more specific. Alt+H opens the tab and shows the next one.
+- Graph rebuilt to `GRAPH_SPEC.md`: lane changes are one S-curve centred in a column gap; HEAD is a soft halo plus the `HEAD → name` pill (ring removed, reopening ruling 25); one pill row per commit, beside a tip or above a commit with children, fitted so rows never collide; worktrees as a ⧉ mark on branch pills; subjects cut by measured width. Everything is positioned with SVG transform attributes: CSS transforms on SVG drifted from the edges in WebKitGTK. Deviation: moved nodes no longer slide (only opacity animates); the S-curve and ghost/copy marks carry the "history changed" story.
+- Resizing measures once per drag and applies once per frame, with transitions off while dragging.
+- Setup shows skeletons; two starts of the same lesson can no longer run setup.sh at once (the "re-init" / "nothing to commit" setup errors), and a folder whose setup never finished is not resumed.
+- App icon: a git graph drawn as a tree under a canopy (`assets/icon.svg`).

@@ -146,18 +146,25 @@ export function Terminal({
       .catch((e) => onError(String(e)));
 
     let last = { cols: t.cols, rows: t.rows };
+    // Refit at most once per frame; tell the shell only when the grid changed.
+    let frame = 0;
     const ro = new ResizeObserver(() => {
-      if (el.clientWidth === 0 || el.clientHeight === 0) return;
-      fit.fit();
-      if (t.cols !== last.cols || t.rows !== last.rows) {
-        last = { cols: t.cols, rows: t.rows };
-        api.terminalResize(t.cols, t.rows).catch(() => {});
-      }
+      if (frame) return;
+      frame = requestAnimationFrame(() => {
+        frame = 0;
+        if (disposed || el.clientWidth === 0 || el.clientHeight === 0) return;
+        fit.fit();
+        if (t.cols !== last.cols || t.rows !== last.rows) {
+          last = { cols: t.cols, rows: t.rows };
+          api.terminalResize(t.cols, t.rows).catch(() => {});
+        }
+      });
     });
     ro.observe(el);
 
     return () => {
       disposed = true;
+      cancelAnimationFrame(frame);
       ro.disconnect();
       onData.dispose();
       t.dispose();

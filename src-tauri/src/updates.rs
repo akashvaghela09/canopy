@@ -55,11 +55,18 @@ pub struct CheckResult {
     pub needs_newer_app: Option<Feed>,
 }
 
+/// One client for the app's lifetime, so a check followed by an install
+/// reuses the open HTTPS connections instead of handshaking again.
 fn client() -> Result<reqwest::blocking::Client> {
-    Ok(reqwest::blocking::Client::builder()
+    static CLIENT: std::sync::OnceLock<reqwest::blocking::Client> = std::sync::OnceLock::new();
+    if let Some(c) = CLIENT.get() {
+        return Ok(c.clone());
+    }
+    let c = reqwest::blocking::Client::builder()
         .user_agent(concat!("Canopy/", env!("CARGO_PKG_VERSION")))
         .timeout(std::time::Duration::from_secs(60))
-        .build()?)
+        .build()?;
+    Ok(CLIENT.get_or_init(|| c).clone())
 }
 
 pub fn check(installed: &str) -> Result<CheckResult> {
@@ -90,6 +97,16 @@ pub fn install(paths: &AppPaths, feed: &Feed, mut progress: impl FnMut(u64, u64)
         bail!("The lesson pack is unexpectedly large");
     }
     let client = client()?;
+    // The signature is tiny: fetch it while the pack downloads.
+    let sig_client = client.clone();
+    let sig_url = format!("{}.minisig", feed.url);
+    let sig = std::thread::spawn(move || {
+        sig_client
+            .get(sig_url)
+            .send()
+            .and_then(|r| r.error_for_status())
+            .and_then(|r| r.text())
+    });
     let mut resp = client.get(&feed.url).send().context("Could not reach the update server")?.error_for_status()?;
     let mut bytes = Vec::with_capacity(feed.size as usize);
     let mut buf = [0u8; 64 * 1024];
@@ -104,11 +121,9 @@ pub fn install(paths: &AppPaths, feed: &Feed, mut progress: impl FnMut(u64, u64)
         }
         progress(bytes.len() as u64, feed.size);
     }
-    let signature = client
-        .get(format!("{}.minisig", feed.url))
-        .send()
-        .and_then(|r| r.error_for_status())
-        .and_then(|r| r.text())
+    let signature = sig
+        .join()
+        .map_err(|_| anyhow::anyhow!("signature download panicked"))?
         .context("Could not download the pack signature")?;
     verify(&bytes, &feed.sha256, &signature)?;
     unpack_and_swap(paths, &bytes, &feed.content_version)

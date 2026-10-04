@@ -11,7 +11,7 @@ import { AreasStrip, Inspector, type InspectorTab, type OpenFile } from "./Inspe
 import { LessonPanel, lessonTabMemory } from "./LessonPanel";
 import { Terminal } from "./Terminal";
 import { codeFs } from "../theme";
-import { Banner, Button, Dialog, PaneHeader } from "./ui";
+import { Banner, Button, Dialog, PaneHeader, Skeleton } from "./ui";
 
 type Panes = {
   /** Lesson panel width in px, or null for the default clamp(360px, 28vw, 512px). */
@@ -200,12 +200,8 @@ export function Workspace({ lessonId }: { lessonId: string }) {
           </section>
           <Resizer
             orientation="vertical"
-            onDrag={(dx) =>
-              setPanes((p) => {
-                const cur = document.querySelector<HTMLElement>("[data-pane=lesson]")?.offsetWidth ?? 400;
-                return { ...p, lessonPx: clamp(cur + dx, 320, 576) };
-              })
-            }
+            measure={() => document.querySelector<HTMLElement>("[data-pane=lesson]")?.offsetWidth ?? 400}
+            onSize={(px) => setPanes((p) => ({ ...p, lessonPx: clamp(px, 320, 576) }))}
             onReset={() => setPanes((p) => ({ ...p, lessonPx: null }))}
           />
         </>
@@ -219,16 +215,12 @@ export function Workspace({ lessonId }: { lessonId: string }) {
             <EditorSheet request={lesson.editor} onDone={() => paneFocus.terminal?.()} />
           </div>
         )}
-        {showGraph && <GraphPane showIds={settings.graphIds === "1"} scale={1} maxHeight={centerH * 0.45} manualHeight={graphManual} />}
+        {showGraph && <GraphPane showIds={settings.graphIds === "1"} maxHeight={centerH * 0.45} manualHeight={graphManual} />}
         {showGraph && (
           <Resizer
             orientation="horizontal"
-            onDrag={(_, dy) =>
-              setGraphManual((h) => {
-                const cur = h ?? document.querySelector<HTMLElement>("[data-pane=graph]")?.offsetHeight ?? 200;
-                return clamp(cur + dy, 120, centerH - 220);
-              })
-            }
+            measure={() => document.querySelector<HTMLElement>("[data-pane=graph]")?.offsetHeight ?? 200}
+            onSize={(px) => setGraphManual(clamp(px, 120, centerH - 220))}
             onReset={() => setGraphManual(null)}
           />
         )}
@@ -261,8 +253,17 @@ export function Workspace({ lessonId }: { lessonId: string }) {
               The graph and goals update only inside it.
             </Banner>
           )}
-          <div className="min-h-0 flex-1">
-            {lesson.status !== "idle" && (
+          <div className="relative min-h-0 flex-1">
+            {/* setup.sh can take a few seconds: show where the terminal will be. */}
+            {lesson.status === "starting" && (
+              <div className="absolute inset-0 z-10 bg-term-bg px-3 py-3">
+                <div className="mb-3 text-xs text-fg-3">Setting up the lesson…</div>
+                <Skeleton label="Setting up the lesson" lines={[38, 56, 30]} />
+              </div>
+            )}
+            {/* Only once the store has switched to this lesson: rendering with the
+                previous lesson's generation would start the shell twice. */}
+            {lesson.status !== "idle" && lesson.id === lessonId && (
               <Terminal
                 key={`${lessonId}:${lesson.generation}`}
                 lessonId={lessonId}
@@ -290,12 +291,9 @@ export function Workspace({ lessonId }: { lessonId: string }) {
         <>
           <Resizer
             orientation="vertical"
-            onDrag={(dx) =>
-              setPanes((p) => {
-                const cur = document.querySelector<HTMLElement>("[data-pane=inspector]")?.offsetWidth ?? 360;
-                return { ...p, drawerPx: clamp(cur - dx, 288, 640) };
-              })
-            }
+            reverse
+            measure={() => document.querySelector<HTMLElement>("[data-pane=inspector]")?.offsetWidth ?? 360}
+            onSize={(px) => setPanes((p) => ({ ...p, drawerPx: clamp(px, 288, 640) }))}
             onReset={() => setPanes((p) => ({ ...p, drawerPx: null }))}
           />
           <div className="min-h-0 shrink-0 border-l border-edge" style={{ width: drawerWidth }}>
@@ -359,8 +357,26 @@ function Rail({ label, side, onOpen, chip }: { label: string; side: "left" | "ri
   );
 }
 
-function Resizer({ orientation, onDrag, onReset }: { orientation: "vertical" | "horizontal"; onDrag: (dx: number, dy: number) => void; onReset: () => void }) {
+/**
+ * Drag handle between panes. The pane is measured once when the drag starts
+ * and sized from the total pointer movement, at most once per frame, so the
+ * size never lags behind the pointer. `reverse` is for panes on the right.
+ */
+function Resizer({
+  orientation,
+  measure,
+  onSize,
+  onReset,
+  reverse,
+}: {
+  orientation: "vertical" | "horizontal";
+  measure: () => number;
+  onSize: (px: number) => void;
+  onReset: () => void;
+  reverse?: boolean;
+}) {
   const vertical = orientation === "vertical";
+  const sign = reverse ? -1 : 1;
   return (
     <div
       role="separator"
@@ -368,31 +384,47 @@ function Resizer({ orientation, onDrag, onReset }: { orientation: "vertical" | "
       tabIndex={0}
       onDoubleClick={onReset}
       onKeyDown={(e) => {
-        const step = e.shiftKey ? 32 : 8;
-        if (vertical && e.key === "ArrowLeft") onDrag(-step, 0);
-        if (vertical && e.key === "ArrowRight") onDrag(step, 0);
-        if (!vertical && e.key === "ArrowUp") onDrag(0, -step);
-        if (!vertical && e.key === "ArrowDown") onDrag(0, step);
+        const step = (e.shiftKey ? 32 : 8) * sign;
+        const grow: Record<string, number> = vertical ? { ArrowRight: step, ArrowLeft: -step } : { ArrowDown: step, ArrowUp: -step };
+        const d = grow[e.key];
+        if (d !== undefined) {
+          e.preventDefault();
+          onSize(measure() + d);
+        }
       }}
       onPointerDown={(e) => {
         e.preventDefault();
-        let x = e.clientX;
-        let y = e.clientY;
+        const handle = e.currentTarget;
+        handle.setPointerCapture(e.pointerId);
+        const base = measure();
+        const origin = vertical ? e.clientX : e.clientY;
+        let frame = 0;
+        let latest = origin;
+        document.documentElement.dataset.resizing = "";
         const move = (ev: PointerEvent) => {
-          onDrag(ev.clientX - x, ev.clientY - y);
-          x = ev.clientX;
-          y = ev.clientY;
+          latest = vertical ? ev.clientX : ev.clientY;
+          if (!frame) {
+            frame = requestAnimationFrame(() => {
+              frame = 0;
+              onSize(base + (latest - origin) * sign);
+            });
+          }
         };
         const up = () => {
-          window.removeEventListener("pointermove", move);
-          window.removeEventListener("pointerup", up);
+          cancelAnimationFrame(frame);
+          onSize(base + (latest - origin) * sign);
+          delete document.documentElement.dataset.resizing;
+          handle.removeEventListener("pointermove", move);
+          handle.removeEventListener("pointerup", up);
+          handle.removeEventListener("pointercancel", up);
         };
-        window.addEventListener("pointermove", move);
-        window.addEventListener("pointerup", up);
+        handle.addEventListener("pointermove", move);
+        handle.addEventListener("pointerup", up);
+        handle.addEventListener("pointercancel", up);
       }}
-      className={`group relative z-10 shrink-0 ${vertical ? "-mx-[5px] w-[10px] cursor-col-resize" : "-my-[5px] h-[10px] cursor-row-resize"}`}
+      className={`group relative z-10 shrink-0 touch-none ${vertical ? "-mx-[5px] w-[10px] cursor-col-resize" : "-my-[5px] h-[10px] cursor-row-resize"}`}
     >
-      <div className={`absolute bg-transparent group-hover:bg-accent group-focus-visible:bg-accent ${vertical ? "inset-y-0 left-[4px] w-[2px]" : "inset-x-0 top-[4px] h-[2px]"}`} />
+      <div className={`absolute bg-transparent group-hover:bg-accent group-focus-visible:bg-accent group-active:bg-accent ${vertical ? "inset-y-0 left-[4px] w-[2px]" : "inset-x-0 top-[4px] h-[2px]"}`} />
     </div>
   );
 }

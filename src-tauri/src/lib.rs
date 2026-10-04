@@ -16,6 +16,9 @@ pub struct AppState {
     pub catalog: RwLock<Arc<Catalog>>,
     pub db: Arc<Mutex<db::Db>>,
     pub session: Mutex<Option<session::Session>>,
+    /// Held for the whole of start_lesson so two starts never run setup.sh
+    /// in the same folder at once.
+    pub starting: tauri::async_runtime::Mutex<()>,
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -26,6 +29,7 @@ pub fn run() {
             let data = app.path().app_data_dir()?;
             let paths = AppPaths::new(&data);
             paths.ensure()?;
+            canopy_core::runner::migrate_prepared_markers(&paths)?;
             let db = db::Db::open(&data.join("canopy.db"))?;
             let catalog = content::load_catalog(app.handle(), &paths)?;
             editor::spawn_watcher(app.handle().clone(), paths.editor_requests());
@@ -34,6 +38,7 @@ pub fn run() {
                 catalog: RwLock::new(Arc::new(catalog)),
                 db: Arc::new(Mutex::new(db)),
                 session: Mutex::new(None),
+                starting: tauri::async_runtime::Mutex::new(()),
             });
             Ok(())
         })

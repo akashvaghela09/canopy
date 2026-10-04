@@ -5,7 +5,7 @@ import process from "node:process";
 const host = process.env.TAURI_DEV_HOST;
 
 // https://vite.dev/config/
-import pkg from "./package.json";
+import pkg from "./package.json" with { type: "json" };
 
 export default defineConfig(() => ({
   define: { __APP_VERSION__: JSON.stringify(pkg.version) },

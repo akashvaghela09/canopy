@@ -24,6 +24,35 @@ pub struct Attempt {
     pub start: PathBuf,
 }
 
+/// Written to the state folder once setup.sh has finished.
+const READY: &str = "prepared";
+
+/// True when the lesson has a folder whose setup finished.
+pub fn is_prepared(paths: &AppPaths, id: &str) -> bool {
+    paths.lesson_root(id).is_dir() && paths.lesson_state(id).join(READY).exists()
+}
+
+/// Attempts made before the marker existed count as prepared, once.
+pub fn migrate_prepared_markers(paths: &AppPaths) -> Result<()> {
+    let done = paths.lesson_state("").join(".prepared-migrated");
+    if done.exists() {
+        return Ok(());
+    }
+    if let Ok(entries) = fs::read_dir(paths.workspace()) {
+        for e in entries.flatten() {
+            if e.path().is_dir() {
+                let id = e.file_name().to_string_lossy().into_owned();
+                let state = paths.lesson_state(&id);
+                fs::create_dir_all(&state)?;
+                fs::write(state.join(READY), "")?;
+            }
+        }
+    }
+    fs::create_dir_all(paths.lesson_state(""))?;
+    fs::write(done, "")?;
+    Ok(())
+}
+
 /// Delete any previous attempt and run setup.sh. Returns setup's combined
 /// output on failure.
 pub fn prepare(paths: &AppPaths, lib: &Path, lesson: &Lesson) -> Result<Attempt> {
@@ -47,6 +76,7 @@ pub fn prepare(paths: &AppPaths, lib: &Path, lesson: &Lesson) -> Result<Attempt>
     if !start.is_dir() {
         bail!("lesson {id}: start folder {:?} was not created by setup", lesson.meta.start);
     }
+    fs::write(state.join(READY), "")?;
     Ok(Attempt { lesson_id: id.clone(), root, state, start })
 }
 
