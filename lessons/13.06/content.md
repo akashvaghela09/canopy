@@ -9,7 +9,7 @@ Both are written with `git config --global`, where the key is `include.path` or 
 
 The folder `conf/` holds three ready-made files: `shared.gitconfig` (an alias and a line-ending setting), `work.gitconfig` (name and company email) and `personal.gitconfig` (name and home email). Two repos live here: `work/client-app` and `personal/blog`.
 
-1. Run `pwd` to see the full path of this lesson folder. You need it for every path below.
+1. Run `pwd` to see the full path of this lesson folder. You need it for every path below. On Windows, run `pwd -W` instead: git needs the `C:/...` form, not `/c/...`.
 2. Include `conf/shared.gitconfig` unconditionally in the global config. Then `git st` works in any repo.
 3. Add a conditional include for `gitdir:<lesson folder>/work/` that loads `conf/work.gitconfig`, and one for `personal/` that loads `conf/personal.gitconfig`.
 4. In each repo, there is an uncommitted file waiting. Commit it in both repos, then check the author of each new commit.

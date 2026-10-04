@@ -1,8 +1,8 @@
 commands: |
   pwd
   git config --global include.path "$PWD/conf/shared.gitconfig"
-  git config --global includeIf."gitdir:$PWD/work/".path "$PWD/conf/work.gitconfig"
-  git config --global includeIf."gitdir:$PWD/personal/".path "$PWD/conf/personal.gitconfig"
+  git config --global includeIf."gitdir:$(pwd -W 2>/dev/null || pwd)/work/".path "$PWD/conf/work.gitconfig"
+  git config --global includeIf."gitdir:$(pwd -W 2>/dev/null || pwd)/personal/".path "$PWD/conf/personal.gitconfig"
   cd work/client-app
   git st
   git add TODO.md

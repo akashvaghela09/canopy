@@ -1,6 +1,6 @@
 commands: |
-  git config --global includeIf."gitdir:$PWD/work/".path "$PWD/conf/work.gitconfig"
-  git config --global includeIf."gitdir:$PWD/personal/".path "$PWD/conf/personal.gitconfig"
+  git config --global includeIf."gitdir:$(pwd -W 2>/dev/null || pwd)/work/".path "$PWD/conf/work.gitconfig"
+  git config --global includeIf."gitdir:$(pwd -W 2>/dev/null || pwd)/personal/".path "$PWD/conf/personal.gitconfig"
   git config --global alias.lg "log --oneline --graph --decorate --all"
   printf '%s\n' '*.swp' > ignore-everywhere
   git config --global core.excludesFile "$PWD/ignore-everywhere"

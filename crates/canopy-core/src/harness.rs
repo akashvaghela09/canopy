@@ -50,7 +50,11 @@ pub fn test_lesson_with(
 ) -> Result<TestReport> {
     // Long-form path: Windows temp dirs can come as 8.3 short names
     // (RUNNER~1), which git's includeIf "gitdir:" never matches.
-    let data_dir = std::fs::canonicalize(data_dir).unwrap_or_else(|_| data_dir.to_path_buf());
+    // canonicalize gives \\?\C:\..., which bash and git cannot use as a
+    // working directory; keep the long form without that prefix.
+    let data_dir = std::fs::canonicalize(data_dir)
+        .map(|p| PathBuf::from(p.to_string_lossy().trim_start_matches(r"\\?\").to_string()))
+        .unwrap_or_else(|_| data_dir.to_path_buf());
     let paths = AppPaths::new(&data_dir);
     let lib = catalog.lib_dir();
     let id = lesson.meta.id.clone();
@@ -129,6 +133,11 @@ pub fn test_lesson_with(
     // that produces no prompt within a moment is taken as input for a
     // waiting command (e.g. `add -p` answers or a multi-line quote).
     let mut shell = Shell::spawn(&attempt.start, &env)?;
+    if cfg!(windows) {
+        shell.prompts = Some(crate::marker::PromptFile::new(crate::env::prompt_file(
+            &paths, &id,
+        )));
+    }
     let mut parser = MarkerParser::new();
     let started = Instant::now();
     let mut timed_out = false;
@@ -219,6 +228,8 @@ struct Shell {
     writer: Option<Box<dyn Write + Send>>,
     _master: Box<dyn portable_pty::MasterPty + Send>,
     out: mpsc::Receiver<Vec<u8>>,
+    /// Windows: the prompt hook's marker file (see env::PROMPT_COMMAND).
+    prompts: Option<crate::marker::PromptFile>,
 }
 
 impl Shell {
@@ -260,6 +271,7 @@ impl Shell {
             writer: Some(writer),
             _master: pair.master,
             out: rx,
+            prompts: None,
         })
     }
 
@@ -296,14 +308,33 @@ impl Shell {
         let mut events = Vec::new();
         while events.is_empty() {
             let left = deadline.saturating_duration_since(Instant::now());
-            let Ok(data) = self.out.recv_timeout(left) else {
+            if left.is_zero() {
                 break;
+            }
+            // With a marker file, wake up regularly to read it.
+            let step = if self.prompts.is_some() {
+                left.min(Duration::from_millis(50))
+            } else {
+                left
             };
-            self.answer_queries(&data);
-            for chunk in parser.feed(&data) {
-                match chunk {
-                    Chunk::Output(b) => transcript.push_str(&String::from_utf8_lossy(&b)),
-                    Chunk::Prompt(ev) => events.push(ev),
+            match self.out.recv_timeout(step) {
+                Ok(data) => {
+                    self.answer_queries(&data);
+                    for chunk in parser.feed(&data) {
+                        match chunk {
+                            Chunk::Output(b) => transcript.push_str(&String::from_utf8_lossy(&b)),
+                            Chunk::Prompt(ev) => events.push(ev),
+                        }
+                    }
+                }
+                Err(mpsc::RecvTimeoutError::Timeout) if self.prompts.is_some() => {}
+                Err(_) => break,
+            }
+            if let Some(file) = self.prompts.as_mut() {
+                for chunk in parser.feed(&file.read_new()) {
+                    if let Chunk::Prompt(ev) = chunk {
+                        events.push(ev);
+                    }
                 }
             }
         }

@@ -29,6 +29,40 @@ pub struct CommandEntry {
     pub at: i64,
 }
 
+/// Tails the file the Windows prompt hook appends markers to. Starts at the
+/// file's current end, so a resumed lesson does not replay old prompts.
+pub struct PromptFile {
+    path: std::path::PathBuf,
+    offset: u64,
+}
+
+impl PromptFile {
+    pub fn new(path: std::path::PathBuf) -> Self {
+        let offset = std::fs::metadata(&path).map(|m| m.len()).unwrap_or(0);
+        Self { path, offset }
+    }
+
+    /// Bytes appended since the last call (feed them to a `MarkerParser`).
+    pub fn read_new(&mut self) -> Vec<u8> {
+        use std::io::{Read, Seek, SeekFrom};
+        let Ok(mut f) = std::fs::File::open(&self.path) else {
+            return Vec::new();
+        };
+        let len = f.metadata().map(|m| m.len()).unwrap_or(0);
+        if len < self.offset {
+            self.offset = 0; // the file was recreated (lesson reset)
+        }
+        if len == self.offset || f.seek(SeekFrom::Start(self.offset)).is_err() {
+            return Vec::new();
+        }
+        let mut buf = Vec::new();
+        if f.read_to_end(&mut buf).is_ok() {
+            self.offset += buf.len() as u64;
+        }
+        buf
+    }
+}
+
 #[derive(Debug, Default)]
 pub struct MarkerParser {
     buf: Vec<u8>,

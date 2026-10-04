@@ -116,10 +116,16 @@ const BASE_CONFIG: &str = "\
 /// Rust paths understand, instead of the MSYS form /c/....
 #[cfg(not(windows))]
 pub const PROMPT_COMMAND: &str = r#"__canopy_ec=$?; __canopy_h=$(history 1); __canopy_h=${__canopy_h//[$'\a\e']/}; printf '\e]7770;%s;%s\x1f%s\a' "$__canopy_ec" "$PWD" "$__canopy_h""#;
-// The short pause lets Windows' console finish repainting first: an OSC
-// sent mid-repaint can be dropped.
+// Windows' console layer (ConPTY) does not reliably pass this private OSC
+// through, so there the same bytes go to a file the app tails
+// (`marker::PromptFile`) instead of the terminal.
 #[cfg(windows)]
-pub const PROMPT_COMMAND: &str = r#"__canopy_ec=$?; sleep 0.05; __canopy_h=$(history 1); __canopy_h=${__canopy_h//[$'\a\e']/}; printf '\e]7770;%s;%s\x1f%s\a' "$__canopy_ec" "$(pwd -W)" "$__canopy_h""#;
+pub const PROMPT_COMMAND: &str = r#"__canopy_ec=$?; __canopy_h=$(history 1); __canopy_h=${__canopy_h//[$'\a\e']/}; printf '\e]7770;%s;%s\x1f%s\a' "$__canopy_ec" "$(pwd -W)" "$__canopy_h" >> "$CANOPY_PROMPTS""#;
+
+/// The file the Windows prompt hook appends markers to.
+pub fn prompt_file(paths: &AppPaths, lesson_id: &str) -> std::path::PathBuf {
+    paths.lesson_state(lesson_id).join("prompts")
+}
 
 /// Extra environment for the interactive shell only: coloured ls and grep
 /// without an rc file (bash imports exported functions from the environment,
@@ -380,6 +386,8 @@ pub fn learner_env(paths: &AppPaths, lesson_id: &str, editor: EditorMode) -> Env
         ("PS1".into(), PS1.into()),
         ("PROMPT_COMMAND".into(), PROMPT_COMMAND.into()),
         ("CANOPY_LESSON".into(), lesson_id.into()),
+        // Where the Windows prompt hook writes its markers (see PROMPT_COMMAND).
+        ("CANOPY_PROMPTS".into(), s(&prompt_file(paths, lesson_id))),
     ]);
     env
 }

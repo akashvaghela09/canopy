@@ -98,6 +98,12 @@ impl Session {
         // attempt (including a redo after reset) should.
         let was_complete = !fresh_attempt && db.lock().unwrap().completed()?.contains_key(&id);
 
+        // Windows marker file, opened before the shell starts so its first
+        // prompt is not skipped.
+        #[cfg(windows)]
+        let prompt_file =
+            canopy_core::marker::PromptFile::new(canopy_core::env::prompt_file(paths, &id));
+
         let Shell {
             master,
             child,
@@ -128,8 +134,11 @@ impl Session {
             std::thread::spawn(move || refresh_loop(shared, refresh_rx));
         }
 
+        let stopped = Arc::new(std::sync::atomic::AtomicBool::new(false));
+
         // PTY reader: strips prompt markers, logs commands, streams output.
         {
+            let stopped = stopped.clone();
             let shared = shared.clone();
             let refresh = refresh_tx.clone();
             let busy = busy.clone();
@@ -147,16 +156,7 @@ impl Session {
                         match chunk {
                             Chunk::Output(b) => text.extend(b),
                             Chunk::Prompt(ev) => {
-                                busy.store(false, std::sync::atomic::Ordering::Relaxed);
-                                *shared.cwd.lock().unwrap() = Some(PathBuf::from(&ev.cwd));
-                                if let Some(entry) = parser.command_for(&ev, now_ms()) {
-                                    let _ = shared
-                                        .db
-                                        .lock()
-                                        .unwrap()
-                                        .add_command(&shared.lesson.meta.id, &entry);
-                                }
-                                let _ = refresh.send(());
+                                on_prompt(&shared, &mut parser, &ev, &busy, &refresh)
                             }
                         }
                     }
@@ -170,7 +170,31 @@ impl Session {
                         }
                     }
                 }
+                stopped.store(true, std::sync::atomic::Ordering::Relaxed);
                 let _ = shared.app.emit("terminal-exit", &shared.lesson.meta.id);
+            });
+        }
+
+        // Windows: the prompt hook writes its markers to a file instead of the
+        // terminal (ConPTY can drop them); tail it.
+        #[cfg(windows)]
+        {
+            let shared = shared.clone();
+            let refresh = refresh_tx.clone();
+            let busy = busy.clone();
+            let stopped = stopped.clone();
+            let mut file = prompt_file;
+            std::thread::spawn(move || {
+                let mut parser = MarkerParser::new();
+                while !stopped.load(std::sync::atomic::Ordering::Relaxed) {
+                    let bytes = file.read_new();
+                    for chunk in parser.feed(&bytes) {
+                        if let Chunk::Prompt(ev) = chunk {
+                            on_prompt(&shared, &mut parser, &ev, &busy, &refresh);
+                        }
+                    }
+                    std::thread::sleep(std::time::Duration::from_millis(80));
+                }
             });
         }
 
@@ -474,4 +498,24 @@ mod tests {
         assert_eq!(utf8_prefix_len(&s[..2]), 1); // cut inside é
         assert_eq!(utf8_prefix_len(s), s.len());
     }
+}
+
+/// A prompt came back: the command finished. Log it and re-check goals.
+fn on_prompt(
+    shared: &Arc<Shared>,
+    parser: &mut MarkerParser,
+    ev: &canopy_core::marker::PromptEvent,
+    busy: &Arc<std::sync::atomic::AtomicBool>,
+    refresh: &std::sync::mpsc::Sender<()>,
+) {
+    busy.store(false, std::sync::atomic::Ordering::Relaxed);
+    *shared.cwd.lock().unwrap() = Some(PathBuf::from(&ev.cwd));
+    if let Some(entry) = parser.command_for(ev, now_ms()) {
+        let _ = shared
+            .db
+            .lock()
+            .unwrap()
+            .add_command(&shared.lesson.meta.id, &entry);
+    }
+    let _ = refresh.send(());
 }
