@@ -17,7 +17,9 @@ use canopy_core::validate::recommended_before;
 use serde_json::{json, Value};
 
 pub fn preview(catalog: &Catalog, lesson: &Lesson, run_solution: bool) -> Result<Value> {
-    let tmp = tempfile::Builder::new().prefix("canopy-preview-").tempdir()?;
+    let tmp = tempfile::Builder::new()
+        .prefix("canopy-preview-")
+        .tempdir()?;
     let paths = AppPaths::new(tmp.path());
     let id = &lesson.meta.id;
     let mut transcript = String::new();
@@ -52,7 +54,12 @@ pub fn preview(catalog: &Catalog, lesson: &Lesson, run_solution: bool) -> Result
     let goals = harness_goals.unwrap_or_else(|| evaluate_goals(&goal, &ctx, &mut HashSet::new()));
     let complete = goals.iter().all(|g| g.passed);
 
-    let mut repo_list: Vec<(String, String)> = lesson.meta.repos.iter().map(|r| (r.path.clone(), r.label.clone())).collect();
+    let mut repo_list: Vec<(String, String)> = lesson
+        .meta
+        .repos
+        .iter()
+        .map(|r| (r.path.clone(), r.label.clone()))
+        .collect();
     if let Some(p) = &lesson.meta.repo {
         if !repo_list.iter().any(|(x, _)| x == p) {
             repo_list.insert(0, (p.clone(), p.clone()));
@@ -106,7 +113,9 @@ pub fn preview(catalog: &Catalog, lesson: &Lesson, run_solution: bool) -> Result
         "repos": repos,
         "commands": commands.len(),
     });
-    Ok(json!({ "catalog": catalog_view, "lesson": lesson_view, "update": update, "transcript": transcript, "files": files }))
+    Ok(
+        json!({ "catalog": catalog_view, "lesson": lesson_view, "update": update, "transcript": transcript, "files": files }),
+    )
 }
 
 fn list_tree(root: &Path, dir: &Path, out: &mut HashMap<String, Vec<Value>>) -> Result<()> {
@@ -116,12 +125,18 @@ fn list_tree(root: &Path, dir: &Path, out: &mut HashMap<String, Vec<Value>>) -> 
         let name = e.file_name().to_string_lossy().into_owned();
         let meta = e.metadata()?;
         let path = e.path().strip_prefix(root)?.to_string_lossy().into_owned();
-        entries.push(json!({ "name": name, "path": path, "dir": meta.is_dir(), "size": meta.len() }));
+        entries
+            .push(json!({ "name": name, "path": path, "dir": meta.is_dir(), "size": meta.len() }));
         if meta.is_dir() && name != ".git" {
             list_tree(root, &e.path(), out)?;
         }
     }
-    entries.sort_by(|a, b| b["dir"].as_bool().cmp(&a["dir"].as_bool()).then(a["name"].as_str().cmp(&b["name"].as_str())));
+    entries.sort_by(|a, b| {
+        b["dir"]
+            .as_bool()
+            .cmp(&a["dir"].as_bool())
+            .then(a["name"].as_str().cmp(&b["name"].as_str()))
+    });
     out.insert(rel, entries);
     Ok(())
 }

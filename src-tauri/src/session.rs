@@ -254,14 +254,14 @@ pub fn spawn_shell(env: &EnvVars, start_dir: &Path, size: (u16, u16)) -> Result<
             pixel_height: 0,
         })
         .context("opening a terminal")?;
-    let mut cmd = CommandBuilder::new("bash");
+    let mut cmd = CommandBuilder::new(canopy_core::env::bash());
     cmd.args(["--noprofile", "--norc", "-i"]);
     cmd.cwd(start_dir);
     cmd.env_clear();
     for (k, v) in env {
         cmd.env(k, v);
     }
-    for (k, v) in canopy_core::env::SHELL_FUNCTIONS {
+    for (k, v) in canopy_core::env::shell_extras() {
         cmd.env(k, v);
     }
     let child = pair.slave.spawn_command(cmd).context("starting bash")?;

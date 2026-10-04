@@ -112,20 +112,81 @@ const BASE_CONFIG: &str = "\
 /// Prompt hook for the learner's shell (passed via the environment so the
 /// shell can run with --norc). After every command it prints a hidden OSC
 /// marker: ESC ] 7770 ; <exit> ; <cwd> US <history line> BEL.
+/// On Windows (Git Bash) the cwd is printed as C:/... with `pwd -W`, which
+/// Rust paths understand, instead of the MSYS form /c/....
+#[cfg(not(windows))]
 pub const PROMPT_COMMAND: &str = r#"__canopy_ec=$?; __canopy_h=$(history 1); __canopy_h=${__canopy_h//[$'\a\e']/}; printf '\e]7770;%s;%s\x1f%s\a' "$__canopy_ec" "$PWD" "$__canopy_h""#;
+#[cfg(windows)]
+pub const PROMPT_COMMAND: &str = r#"__canopy_ec=$?; __canopy_h=$(history 1); __canopy_h=${__canopy_h//[$'\a\e']/}; printf '\e]7770;%s;%s\x1f%s\a' "$__canopy_ec" "$(pwd -W)" "$__canopy_h""#;
+
+/// Extra environment for the interactive shell only: coloured ls and grep
+/// without an rc file (bash imports exported functions from the environment,
+/// even with --norc). macOS ls has no --color; CLICOLOR turns its colours on.
+pub fn shell_extras() -> Vec<(&'static str, &'static str)> {
+    let grep = (
+        "BASH_FUNC_grep%%",
+        "() {  command grep --color=auto \"$@\"\n}",
+    );
+    if cfg!(target_os = "macos") {
+        vec![("CLICOLOR", "1"), grep]
+    } else {
+        vec![
+            ("BASH_FUNC_ls%%", "() {  command ls --color=auto \"$@\"\n}"),
+            grep,
+        ]
+    }
+}
+
+/// The bash to run. On Windows this is Git for Windows' bash (never WSL's
+/// C:\Windows\System32\bash.exe), found next to the git on PATH.
+pub fn bash() -> std::path::PathBuf {
+    #[cfg(windows)]
+    {
+        static BASH: std::sync::OnceLock<std::path::PathBuf> = std::sync::OnceLock::new();
+        return BASH.get_or_init(find_git_bash).clone();
+    }
+    #[cfg(not(windows))]
+    std::path::PathBuf::from("bash")
+}
+
+#[cfg(windows)]
+fn find_git_bash() -> std::path::PathBuf {
+    // `git --exec-path` is e.g. C:/Program Files/Git/mingw64/libexec/git-core;
+    // bin/bash.exe sits a few levels up and sets up the MSYS PATH itself.
+    if let Ok(out) = std::process::Command::new("git")
+        .arg("--exec-path")
+        .output()
+    {
+        let exec = std::path::PathBuf::from(String::from_utf8_lossy(&out.stdout).trim());
+        for dir in exec.ancestors() {
+            let candidate = dir.join("bin").join("bash.exe");
+            if candidate.is_file() {
+                return candidate;
+            }
+        }
+    }
+    for root in [
+        std::env::var("ProgramFiles").ok(),
+        std::env::var("LOCALAPPDATA")
+            .ok()
+            .map(|l| format!("{l}\\Programs")),
+    ]
+    .into_iter()
+    .flatten()
+    {
+        let candidate = std::path::PathBuf::from(root)
+            .join("Git")
+            .join("bin")
+            .join("bash.exe");
+        if candidate.is_file() {
+            return candidate;
+        }
+    }
+    std::path::PathBuf::from("bash.exe")
+}
 
 /// Prompt: folder, then the branch (or short id when detached) and any
 /// operation in progress, e.g. `project (main|MERGING) $ `.
-/// Coloured ls and grep for the interactive shell only, without an rc file:
-/// bash imports exported functions from the environment, even with --norc.
-pub const SHELL_FUNCTIONS: [(&str, &str); 2] = [
-    ("BASH_FUNC_ls%%", "() {  command ls --color=auto \"$@\"\n}"),
-    (
-        "BASH_FUNC_grep%%",
-        "() {  command grep --color=auto \"$@\"\n}",
-    ),
-];
-
 pub const PS1: &str = r#"\[\e[1;34m\]\W\[\e[0m\]$(__b=$(git symbolic-ref --short -q HEAD 2>/dev/null || git rev-parse --short -q HEAD 2>/dev/null); if [ -n "$__b" ]; then __d=$(git rev-parse --git-dir 2>/dev/null); __o=; if [ -f "$__d/rebase-apply/applying" ]; then __o="|AM"; elif [ -d "$__d/rebase-merge" ] || [ -d "$__d/rebase-apply" ]; then __o="|REBASING"; elif [ -f "$__d/MERGE_HEAD" ]; then __o="|MERGING"; elif [ -f "$__d/CHERRY_PICK_HEAD" ]; then __o="|CHERRY-PICKING"; elif [ -f "$__d/REVERT_HEAD" ]; then __o="|REVERTING"; elif [ -f "$__d/BISECT_LOG" ]; then __o="|BISECTING"; fi; printf ' \001\e[32m\002(%s\001\e[1;33m\002%s\001\e[0;32m\002)\001\e[0m\002' "$__b" "$__o"; fi) \$ "#;
 
 /// GIT_EDITOR / GIT_SEQUENCE_EDITOR. Asks the app to open the file in the
@@ -134,7 +195,7 @@ const EDITOR_SCRIPT: &str = r#"#!/bin/sh
 dir="${CANOPY_EDITOR_DIR:?}"
 id="$$-$(date +%s)"
 file="$1"
-case "$file" in /*) ;; *) file="$PWD/$file" ;; esac
+case "$file" in /*|?:*) ;; *) file="$(pwd -W 2>/dev/null || pwd)/$file" ;; esac
 printf '%s\n' "$file" > "$dir/$id.req.tmp" && mv "$dir/$id.req.tmp" "$dir/$id.req"
 printf 'Waiting for you to save the file in the Canopy editor...\n' >&2
 while [ ! -e "$dir/$id.done" ] && [ ! -e "$dir/$id.cancel" ]; do sleep 0.1; done
@@ -171,6 +232,28 @@ fn base_env() -> EnvVars {
         "DISPLAY",
         "WAYLAND_DISPLAY",
         "XDG_RUNTIME_DIR",
+    ] {
+        if let Ok(v) = std::env::var(key) {
+            env.push((key.to_string(), v));
+        }
+    }
+    // Windows programs (git, bash) need these to start at all.
+    #[cfg(windows)]
+    for key in [
+        "SYSTEMROOT",
+        "SystemRoot",
+        "WINDIR",
+        "COMSPEC",
+        "PATHEXT",
+        "TEMP",
+        "TMP",
+        "USERPROFILE",
+        "APPDATA",
+        "LOCALAPPDATA",
+        "ProgramData",
+        "ProgramFiles",
+        "HOMEDRIVE",
+        "HOMEPATH",
     ] {
         if let Ok(v) = std::env::var(key) {
             env.push((key.to_string(), v));

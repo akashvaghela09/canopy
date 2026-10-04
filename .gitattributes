@@ -1,0 +1,7 @@
+# Lesson scripts run in bash on every platform: keep LF line endings.
+* text=auto eol=lf
+*.png binary
+*.gif binary
+*.mp4 binary
+*.ico binary
+*.icns binary

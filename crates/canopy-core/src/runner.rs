@@ -113,7 +113,7 @@ fn run_script(
     cwd: &Path,
 ) -> Result<String> {
     let env = setup_env(paths, lib, &lesson.dir, &lesson.meta.id);
-    let out = Command::new("bash")
+    let out = Command::new(crate::env::bash())
         .arg(script)
         .current_dir(cwd)
         .env_clear()

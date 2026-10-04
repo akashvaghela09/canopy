@@ -694,7 +694,7 @@ pub fn eval(check: &Check, ctx: &CheckContext) -> Result<bool> {
             let dir = ctx
                 .repo_path(repo)
                 .unwrap_or_else(|_| ctx.root.to_path_buf());
-            std::process::Command::new("bash")
+            std::process::Command::new(crate::env::bash())
                 .args(["-c", script])
                 .current_dir(dir)
                 .env_clear()

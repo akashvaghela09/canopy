@@ -93,11 +93,24 @@ fn run() -> Result<bool> {
                         if !ok {
                             failed += 1;
                         }
-                        println!("{} {} {}", if ok { "ok  " } else { "FAIL" }, r.lesson, lesson.meta.title);
+                        println!(
+                            "{} {} {}",
+                            if ok { "ok  " } else { "FAIL" },
+                            r.lesson,
+                            lesson.meta.title
+                        );
                         if !ok || verbose {
                             for g in &r.goals {
-                                let err = g.error.as_deref().map(|e| format!("  ({e})")).unwrap_or_default();
-                                println!("       [{}] {}{err}", if g.passed { "x" } else { " " }, g.label);
+                                let err = g
+                                    .error
+                                    .as_deref()
+                                    .map(|e| format!("  ({e})"))
+                                    .unwrap_or_default();
+                                println!(
+                                    "       [{}] {}{err}",
+                                    if g.passed { "x" } else { " " },
+                                    g.label
+                                );
                             }
                             if !r.passing_at_start.is_empty() {
                                 println!("       passing at start: {:?}", r.passing_at_start);
@@ -120,9 +133,14 @@ fn run() -> Result<bool> {
         }
         "preview" => {
             let id = args.get(1).cloned().unwrap_or_default();
-            let lesson = catalog.lesson(&id).ok_or_else(|| anyhow::anyhow!("no lesson {id}"))?;
+            let lesson = catalog
+                .lesson(&id)
+                .ok_or_else(|| anyhow::anyhow!("no lesson {id}"))?;
             let run = !args.iter().any(|a| a == "--no-solution");
-            println!("{}", serde_json::to_string(&preview::preview(&catalog, lesson, run)?)?);
+            println!(
+                "{}",
+                serde_json::to_string(&preview::preview(&catalog, lesson, run)?)?
+            );
             Ok(true)
         }
         other => {

@@ -33,3 +33,23 @@ jobs:
         run: pnpm exec tsc --noEmit
       - name: Frontend tests
         run: pnpm test
+
+  # The lessons run real bash and git: prove all of them on macOS (bash 3.2,
+  # BSD tools) and Windows (Git for Windows' bash) too.
+  lessons:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: git and bash versions
+        shell: bash
+        run: git --version && bash --version | head -1
+      - name: Core tests
+        run: cargo test -p canopy-core
+      - name: Test every lesson's solution against its goals
+        run: cargo run -q -p canopy-lesson -- test

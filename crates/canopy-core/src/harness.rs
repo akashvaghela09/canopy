@@ -219,14 +219,14 @@ impl Shell {
                 pixel_height: 0,
             })
             .context("opening a terminal")?;
-        let mut cmd = CommandBuilder::new("bash");
+        let mut cmd = CommandBuilder::new(crate::env::bash());
         cmd.args(["--noprofile", "--norc", "-i"]);
         cmd.cwd(cwd);
         cmd.env_clear();
         for (k, v) in env {
             cmd.env(k, v);
         }
-        for (k, v) in crate::env::SHELL_FUNCTIONS {
+        for (k, v) in crate::env::shell_extras() {
             cmd.env(k, v);
         }
         let child = pair.slave.spawn_command(cmd).context("starting bash")?;

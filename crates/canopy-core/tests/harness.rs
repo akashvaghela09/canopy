@@ -29,7 +29,7 @@ fn catalog_with(id: &str, files: &[(&str, &str)]) -> (tempfile::TempDir, Catalog
         &root.join("sections.yaml"),
         "- { id: 9, slug: t, title: T, level: core, summary: s }\n",
     );
-    std::os::unix::fs::symlink(lib_dir(), root.join("_lib")).unwrap();
+    copy_dir(&lib_dir(), &root.join("_lib"));
     for (name, body) in files {
         write(&root.join(id).join(name), body);
     }
@@ -278,4 +278,16 @@ fn identity_carries_between_lessons_but_not_into_identity_lessons() {
         gc.run(&["config", "user.name"]).unwrap().trim(),
         "Canopy Learner"
     );
+}
+
+fn copy_dir(from: &std::path::Path, to: &std::path::Path) {
+    std::fs::create_dir_all(to).unwrap();
+    for e in std::fs::read_dir(from).unwrap() {
+        let e = e.unwrap();
+        if e.path().is_dir() {
+            copy_dir(&e.path(), &to.join(e.file_name()));
+        } else {
+            std::fs::copy(e.path(), to.join(e.file_name())).unwrap();
+        }
+    }
 }

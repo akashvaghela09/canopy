@@ -18,7 +18,14 @@ fn main() {
             .map(|o| String::from_utf8_lossy(&o.stdout).trim().to_string())
             .filter(|s| !s.is_empty())
     };
-    let date = git(&["log", "-1", "--date=format-local:%Y.%m.%d", "--format=%cd", "--", "lessons"]);
+    let date = git(&[
+        "log",
+        "-1",
+        "--date=format-local:%Y.%m.%d",
+        "--format=%cd",
+        "--",
+        "lessons",
+    ]);
     let count = git(&["rev-list", "--count", "HEAD", "--", "lessons"]);
     let version = match (date, count) {
         (Some(d), Some(n)) => format!("{d}.{n}"),
