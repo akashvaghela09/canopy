@@ -437,6 +437,7 @@ const SHORTCUTS: [string, string][] = [
   ["Alt+H", "Show next hint"],
   ["Alt+G", "Graph follows the terminal"],
   ["Alt+[", "Hide or show the lesson panel"],
+  ["Alt+]", "Hide or show the graph"],
   ["Ctrl+,", "Settings"],
   ["Ctrl+/", "Keyboard shortcuts"],
   ["Ctrl+Shift+C / V", "Copy / paste in the terminal"],

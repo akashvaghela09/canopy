@@ -72,3 +72,7 @@ Owner feedback after v0.3.0: settings sheet cramped; lesson panel width followed
 
 - Home becomes a course front page: hero (icon, "Canopy", "Learn git by using it.", live counts), a 15-node learning path drawn like a small commit graph, one "Up next" card, and the syllabus as rows grouped by level with summaries and counts. Bars only for sections in progress. Section pages get Start/Continue and no 0% bar. Accepted as specified.
 - Terminal: coloured prompt (folder, branch, operation), coloured ls/grep for the interactive shell only, and a terminal colour picker (Canopy, Tokyo Night, Dracula, Nord, Gruvbox, Solarized Light, GitHub Light). Fable's performance review: no idle cost, theme switch is a one-off few ms; its two hygiene nits were applied.
+
+## Round 6 (owner feedback on v1.1.1)
+
+- The graph always has a header (it now holds controls): collapse (Alt+]) to a one-line bar showing where HEAD is; zoom out/in in steps 50–150% with the current percentage (click for 100%) and Ctrl+scroll; "Fit" shrinks to the pane width (never below 50%, never above 100%) so the scrollbar goes away. The Key moved into the header. Collapsed state and zoom are remembered.

@@ -1,10 +1,10 @@
 // Center-top pane: the commit graph for the repo the learner is looking at
 // (DESIGN.md 4.4).
 
-import { Archive, Circle, CircleDashed, CircleHelp, Copy, GitMerge, Tag as TagIcon, Terminal as TerminalIcon, X } from "lucide-react";
-import React, { useEffect, useMemo, useState } from "react";
+import { Archive, ChevronDown, ChevronUp, Circle, CircleDashed, CircleHelp, Copy, GitMerge, Maximize2, Tag as TagIcon, Terminal as TerminalIcon, X, ZoomIn, ZoomOut } from "lucide-react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import type { RepoSnapshot } from "../api";
-import { GraphView, graphHeight } from "../graph/GraphView";
+import { GraphView, graphSize } from "../graph/GraphView";
 import type { OtherWorktree } from "../graph/geometry";
 import { layout } from "../graph/layout";
 import type { Snapshot } from "../graph/types";
@@ -31,7 +31,19 @@ export function useActiveRepo(): { repos: RepoSnapshot[]; active: RepoSnapshot |
 }
 
 /** Height the pane wants: header (if any) + graph + stash strip, clamped. */
-export function GraphPane({ showIds, maxHeight, manualHeight }: { showIds: boolean; maxHeight: number; manualHeight: number | null }) {
+export function GraphPane({
+  showIds,
+  maxHeight,
+  manualHeight,
+  collapsed,
+  onToggleCollapsed,
+}: {
+  showIds: boolean;
+  maxHeight: number;
+  manualHeight: number | null;
+  collapsed: boolean;
+  onToggleCollapsed: () => void;
+}) {
   const dispatch = useAppDispatch();
   const pinned = useAppSelector((s) => s.lesson.pinnedRepo);
   const { repos, active, cwdRepo } = useActiveRepo();
@@ -47,23 +59,69 @@ export function GraphPane({ showIds, maxHeight, manualHeight }: { showIds: boole
   const selectedCommit = snap?.commits.find((c) => c.id === selected) ?? null;
   const others = useMemo(() => otherWorktrees(snap), [snap]);
 
-  // A header only when it holds a control (multi-repo lessons).
-  const hasHeader = repos.length > 1;
-  const lanes = Math.max(graph ? graphHeight(graph, showIds) : 0, originGraph ? graphHeight(originGraph, showIds) : 0);
-  const content = (hasHeader ? 36 : 0) + (asText ? 220 : Math.max(lanes, 100)) + (snap && snap.stashes.length > 0 ? 32 : 0);
-  const height = manualHeight ?? Math.min(Math.max(content, 136), Math.max(136, maxHeight));
+  // Zoom: a fixed step, or "fit" (shrink to the pane width, never below 50%).
+  const [zoom, setZoomState] = useState<Zoom>(loadZoom);
+  const setZoom = (z: Zoom) => {
+    setZoomState(z);
+    try {
+      localStorage.setItem("canopy.graphZoom", String(z));
+    } catch {
+      /* ignore */
+    }
+  };
+  const canvas = useRef<HTMLDivElement>(null);
+  const [canvasW, setCanvasW] = useState(0);
+  useEffect(() => {
+    const el = canvas.current;
+    if (!el) return;
+    const ro = new ResizeObserver(() => setCanvasW(el.clientWidth));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [collapsed]);
+  const sizes = useMemo(
+    () => [graph ? graphSize(graph, showIds) : null, originGraph ? graphSize(originGraph, showIds) : null],
+    [graph, originGraph, showIds],
+  );
+  const naturalW = Math.max(sizes[0]?.width ?? 0, sizes[1]?.width ?? 0);
+  // Side by side, each graph gets half the canvas.
+  const fitW = showSide ? canvasW / 2 : canvasW;
+  const z = zoom === "fit" ? (naturalW > 0 && fitW > 0 ? Math.min(1, Math.max(MIN_ZOOM, fitW / naturalW)) : 1) : zoom;
+
+  const lanes = Math.max(sizes[0]?.height ?? 0, sizes[1]?.height ?? 0) * z;
+  const content = HEADER + (asText ? 220 : Math.max(lanes, 100)) + (snap && snap.stashes.length > 0 ? 32 : 0);
+  const height = collapsed ? HEADER : (manualHeight ?? Math.min(Math.max(content, 136), Math.max(136, maxHeight)));
+  // Ctrl+scroll zooms. A native non-passive listener, so the page itself never zooms.
+  const stepRef = useRef<(dir: 1 | -1) => void>(() => {});
+  useEffect(() => {
+    const el = canvas.current;
+    if (!el) return;
+    const onWheel = (e: WheelEvent) => {
+      if (!e.ctrlKey) return;
+      e.preventDefault();
+      stepRef.current(e.deltaY < 0 ? 1 : -1);
+    };
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => el.removeEventListener("wheel", onWheel);
+  }, [collapsed]);
+  const step = (dir: 1 | -1) => {
+    const i = ZOOMS.findIndex((v) => v >= z - 0.001);
+    const at = i === -1 ? ZOOMS.length - 1 : ZOOMS[i] > z + 0.001 && dir === 1 ? i - 1 : i;
+    setZoom(ZOOMS[Math.min(ZOOMS.length - 1, Math.max(0, at + dir))]);
+  };
+  stepRef.current = asText ? () => {} : step;
 
   return (
     <section
       role="region"
       aria-label="Graph"
-      className={`flex min-h-0 shrink-0 flex-col bg-canvas ${manualHeight === null ? "transition-[height] duration-[var(--dur-slow)]" : ""}`}
+      className={`flex min-h-0 shrink-0 flex-col bg-canvas ${manualHeight === null || collapsed ? "transition-[height] duration-[var(--dur-slow)]" : ""}`}
       style={{ height }}
       data-pane="graph"
       tabIndex={-1}
     >
-      {hasHeader && (
-        <PaneHeader label="Graph">
+      <PaneHeader label="Graph" context={collapsed && snap ? headSummary(snap) : undefined}>
+        {!collapsed && repos.length > 1 && (
+          <>
           {repos.length > 1 && pinned !== null && (
             <Button variant="link" size="sm" className="mr-1 text-xs" onClick={() => dispatch(lessonActions.pinRepo(null))} title="Show the repo the terminal is in (Alt+G)">
               Follow terminal
@@ -101,10 +159,41 @@ export function GraphPane({ showIds, maxHeight, manualHeight }: { showIds: boole
               </button>
             )}
           </div>
-        </PaneHeader>
-      )}
+          </>
+        )}
+        {!collapsed && graph && graph.nodes.length > 0 && !asText && (
+          <>
+            <div className="ml-2 flex items-center" role="group" aria-label="Zoom">
+              <IconButton icon={ZoomOut} label="Zoom out (Ctrl+scroll)" disabled={z <= ZOOMS[0] + 0.001} onClick={() => step(-1)} />
+              <button
+                className="h-7 min-w-11 rounded-sm px-1 font-mono text-xs text-fg-2 tabular-nums hover:bg-sunken hover:text-fg"
+                title="Back to 100%"
+                onClick={() => setZoom(1)}
+              >
+                {Math.round(z * 100)}%
+              </button>
+              <IconButton icon={ZoomIn} label="Zoom in (Ctrl+scroll)" disabled={z >= ZOOMS[ZOOMS.length - 1] - 0.001} onClick={() => step(1)} />
+              <Button variant="ghost" size="sm" icon={Maximize2} aria-pressed={zoom === "fit"} className={zoom === "fit" ? "bg-sunken text-fg" : ""} onClick={() => setZoom(zoom === "fit" ? 1 : "fit")} title="Shrink the graph to fit the pane">
+                Fit
+              </Button>
+            </div>
+            <GraphKey />
+          </>
+        )}
+        <IconButton
+          icon={collapsed ? ChevronDown : ChevronUp}
+          label={collapsed ? "Show graph (Alt+])" : "Hide graph (Alt+])"}
+          aria-expanded={!collapsed}
+          onClick={onToggleCollapsed}
+        />
+      </PaneHeader>
+      {!collapsed && (
+      <>
       <div className="flex min-h-0 flex-1">
-        <div className="relative min-h-0 min-w-0 flex-1">
+        <div
+          ref={canvas}
+          className="relative min-h-0 min-w-0 flex-1"
+        >
           {/* State chips float in the canvas instead of taking a row. */}
           {(snap?.operation || snap?.head.detached) && (
             <div className="pointer-events-none absolute top-3 left-3 z-10 flex flex-col items-start gap-1">
@@ -128,6 +217,7 @@ export function GraphPane({ showIds, maxHeight, manualHeight }: { showIds: boole
             <GraphView
               layout={graph}
               showIds={showIds}
+              zoom={z}
               selected={selected}
               onSelect={(id) => {
                 // A focused "which commit" answer box takes the clicked id (DESIGN.md 7.7).
@@ -148,13 +238,12 @@ export function GraphPane({ showIds, maxHeight, manualHeight }: { showIds: boole
               {active?.error ? `Could not read this repo: ${active.error}` : "No repository here yet."}
             </div>
           )}
-          {graph && graph.nodes.length > 0 && !asText && <GraphKey />}
         </div>
         {showSide && originGraph && origin?.snapshot && (
           <div className="flex min-h-0 min-w-0 flex-1 flex-col border-l border-edge">
             <div className="px-3 pt-2 text-xs text-fg-3">{origin.label} (bare)</div>
             <div className="min-h-0 flex-1">
-              <GraphView layout={originGraph} showIds={showIds} ariaLabel={`origin: ${describe(origin.snapshot)}`} />
+              <GraphView layout={originGraph} showIds={showIds} zoom={z} ariaLabel={`origin: ${describe(origin.snapshot)}`} />
             </div>
           </div>
         )}
@@ -172,8 +261,34 @@ export function GraphPane({ showIds, maxHeight, manualHeight }: { showIds: boole
           ))}
         </div>
       )}
+      </>
+      )}
     </section>
   );
+}
+
+type Zoom = number | "fit";
+const ZOOMS = [0.5, 0.67, 0.8, 0.9, 1, 1.1, 1.25, 1.5];
+const MIN_ZOOM = 0.5;
+const HEADER = 36;
+
+function loadZoom(): Zoom {
+  try {
+    const v = localStorage.getItem("canopy.graphZoom");
+    if (v === "fit") return "fit";
+    const n = Number(v);
+    return ZOOMS.includes(n) ? n : 1;
+  } catch {
+    return 1;
+  }
+}
+
+/** One line for the collapsed header: where HEAD is. */
+function headSummary(s: Snapshot): string {
+  if (!s.head.commit) return "no commits yet";
+  const c = s.commits.find((x) => x.id === s.head.commit);
+  const where = s.head.detached ? "HEAD detached" : `HEAD → ${s.head.branch}`;
+  return c ? `${where} · ${c.subject}` : where;
 }
 
 /** "Key" button in the corner; the popover opens by itself once, after the first command changes the graph. */
@@ -203,7 +318,7 @@ function GraphKey() {
     </li>
   );
   return (
-    <div className="absolute top-2 right-3 z-30">
+    <div className="relative z-30">
       {open && (
         <ul className="absolute top-8 right-0 w-[22rem] space-y-1.5 rounded-md border border-edge-2 bg-raised p-3 text-xs text-fg shadow-[0_4px_12px_oklch(0%_0_0/0.12)]" role="note" aria-label="Graph key">
           {row(<Circle size={10} className="fill-[var(--color-graph-main)] text-[var(--color-graph-main)]" />, "a commit; its message is under it")}

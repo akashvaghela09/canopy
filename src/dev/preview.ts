@@ -36,6 +36,9 @@ export async function setupPreview(): Promise<boolean> {
     }
   }
   (window as { __CANOPY_PREVIEW__?: boolean }).__CANOPY_PREVIEW__ = true;
+  // ?zoom=fit|0.8 and ?graph=collapsed set the graph's saved view.
+  if (params.get("zoom")) localStorage.setItem("canopy.graphZoom", params.get("zoom")!);
+  if (params.get("graph") === "collapsed") localStorage.setItem("canopy.panes2", JSON.stringify({ graphCollapsed: true }));
   // ?tab=read|try|hints opens the lesson on that tab.
   const tab = params.get("tab");
   if (tab) {

@@ -19,9 +19,11 @@ type Panes = {
   lessonCollapsed: boolean;
   /** Drawer width in px, or null for the default clamp(320px, 24vw, 416px). */
   drawerPx: number | null;
+  /** Graph hidden down to its header bar. */
+  graphCollapsed: boolean;
 };
 
-const DEFAULT_PANES: Panes = { lessonPx: null, lessonCollapsed: false, drawerPx: null };
+const DEFAULT_PANES: Panes = { lessonPx: null, lessonCollapsed: false, drawerPx: null, graphCollapsed: false };
 
 /** Pane widths never depend on text size (UX_REVIEW_3.md 3.1). */
 function loadPanes(): Panes {
@@ -32,6 +34,7 @@ function loadPanes(): Panes {
       lessonPx: saved.lessonPx ?? (saved.lessonRem ? saved.lessonRem * 16 : null),
       lessonCollapsed: Boolean(saved.lessonCollapsed),
       drawerPx: saved.drawerPx ?? (saved.drawerRem ? saved.drawerRem * 16 : null),
+      graphCollapsed: Boolean(saved.graphCollapsed),
     };
   } catch {
     return DEFAULT_PANES;
@@ -133,6 +136,9 @@ export function Workspace({ lessonId }: { lessonId: string }) {
       } else if (e.altKey && e.key === "[") {
         e.preventDefault();
         setPanes((p) => ({ ...p, lessonCollapsed: !p.lessonCollapsed }));
+      } else if (e.altKey && e.key === "]") {
+        e.preventDefault();
+        setPanes((p) => ({ ...p, graphCollapsed: !p.graphCollapsed }));
       } else if (e.altKey && (e.key === "h" || e.key === "H")) {
         e.preventDefault();
         // Reveal without taking focus: a learner asking while typing keeps typing.
@@ -215,8 +221,16 @@ export function Workspace({ lessonId }: { lessonId: string }) {
             <EditorSheet request={lesson.editor} onDone={() => paneFocus.terminal?.()} />
           </div>
         )}
-        {showGraph && <GraphPane showIds={settings.graphIds === "1"} maxHeight={centerH * 0.45} manualHeight={graphManual} />}
         {showGraph && (
+          <GraphPane
+            showIds={settings.graphIds === "1"}
+            maxHeight={centerH * 0.45}
+            manualHeight={graphManual}
+            collapsed={panes.graphCollapsed}
+            onToggleCollapsed={() => setPanes((p) => ({ ...p, graphCollapsed: !p.graphCollapsed }))}
+          />
+        )}
+        {showGraph && !panes.graphCollapsed && (
           <Resizer
             orientation="horizontal"
             measure={() => document.querySelector<HTMLElement>("[data-pane=graph]")?.offsetHeight ?? 200}

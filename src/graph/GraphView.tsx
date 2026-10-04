@@ -19,9 +19,10 @@ export const measureText: Measure = (text, weight, font) => {
   return measureCtx.measureText(text).width;
 };
 
-/** Height the graph needs (the pane sizes itself to this). */
-export function graphHeight(l: GraphLayout, showIds: boolean): number {
-  return computeGeometry(l, { showIds, measure: measureText }).height;
+/** Natural size of the graph at 100% (the pane sizes itself to this). */
+export function graphSize(l: GraphLayout, showIds: boolean): { width: number; height: number } {
+  const g = computeGeometry(l, { showIds, measure: measureText });
+  return { width: g.width, height: g.height };
 }
 
 export const colorVar = (c: number) => (c >= 0 ? `var(--color-graph-${c})` : c === -1 ? "var(--color-graph-main)" : "var(--color-graph-unreachable)");
@@ -33,12 +34,14 @@ type Props = {
   onSelect?: (id: string) => void;
   /** Worktrees other than the terminal's (their HEADs show on pills). */
   others?: OtherWorktree[];
+  /** 1 = 100%. The SVG scales through its viewBox; layout is unchanged. */
+  zoom?: number;
   ariaLabel: string;
 };
 
 const tr = (x: number, y: number) => `translate(${x} ${y})`;
 
-export function GraphView({ layout, showIds, selected, onSelect, others = [], ariaLabel }: Props) {
+export function GraphView({ layout, showIds, selected, onSelect, others = [], zoom = 1, ariaLabel }: Props) {
   const [hovered, setHovered] = useState<string | null>(null);
   const g = useMemo(() => computeGeometry(layout, { showIds, others, measure: measureText }), [layout, showIds, others]);
   const byId = useMemo(() => new Map(layout.nodes.map((n) => [n.id, n])), [layout]);
@@ -46,9 +49,9 @@ export function GraphView({ layout, showIds, selected, onSelect, others = [], ar
 
   // Keep HEAD and its labels in view after every update.
   const headNode = layout.head.commit ? byId.get(layout.head.commit) : layout.nodes[0];
-  const headX = headNode ? g.x(headNode) : 0;
+  const headX = (headNode ? g.x(headNode) : 0) * zoom;
   const headRow = headNode ? g.rows.get(headNode.id) : undefined;
-  const headRight = headX + (headRow?.placement === "beside" ? headRow.left + headRow.width : 60);
+  const headRight = headX + (headRow?.placement === "beside" ? headRow.left + headRow.width : 60) * zoom;
   useLayoutEffect(() => {
     const el = scroller.current;
     if (!el) return;
@@ -79,7 +82,7 @@ export function GraphView({ layout, showIds, selected, onSelect, others = [], ar
   const headId = layout.head.commit;
   return (
     <div ref={scroller} className="flex h-full w-full items-center overflow-auto">
-      <svg width={g.width} height={g.height} role="img" aria-label={ariaLabel} className="canopy-graph my-auto block shrink-0">
+      <svg width={g.width * zoom} height={g.height * zoom} viewBox={`0 0 ${g.width} ${g.height}`} role="img" aria-label={ariaLabel} className="canopy-graph my-auto block shrink-0">
         <g>
           {layout.edges
             .filter((e) => e.kind !== "copy" && e.kind !== "revert")
