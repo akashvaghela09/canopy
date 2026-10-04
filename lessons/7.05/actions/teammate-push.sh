@@ -14,7 +14,8 @@ as sam
 git pull -q --no-rebase origin main
 
 if ! git show HEAD:trails/lake.md | grep -q "Distance: 6 km"; then
-  sed -i 's/^Distance: 5 km$/Distance: 6 km/' trails/lake.md
+  # Portable in-place edit (BSD sed on macOS has no plain -i).
+  sed 's/^Distance: 5 km$/Distance: 6 km/' trails/lake.md > trails/lake.md.tmp && mv trails/lake.md.tmp trails/lake.md
   commit "Fix lake trail distance"
 elif ! git show HEAD:trails/lake.md | grep -q "^Parking:"; then
   append trails/lake.md "Parking: 20 spaces by the boathouse"

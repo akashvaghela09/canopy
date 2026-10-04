@@ -33,7 +33,9 @@ tick() {
 }
 
 at() {
-  _canopy_t=$(date -u -d "$1" +%s 2>/dev/null || date -u -j -f "%Y-%m-%dT%H:%M" "$1" +%s)
+  # GNU date, else BSD date (macOS). BSD fills unparsed fields such as the
+  # seconds from the current time, so give it the seconds explicitly.
+  _canopy_t=$(date -u -d "$1" +%s 2>/dev/null || date -u -j -f "%Y-%m-%dT%H:%M:%S" "$1:00" +%s)
   _canopy_set_clock
 }
 

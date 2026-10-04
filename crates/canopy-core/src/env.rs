@@ -210,7 +210,11 @@ exit 0
 /// with forward slashes.
 fn editor_command(script: &Path) -> String {
     let path = s(script);
-    let path = if cfg!(windows) { path.replace('\\', "/") } else { path };
+    let path = if cfg!(windows) {
+        path.replace('\\', "/")
+    } else {
+        path
+    };
     let quoted = format!("'{}'", path.replace('\'', r"'\''"));
     if cfg!(windows) {
         format!("sh {quoted}")
@@ -273,6 +277,8 @@ fn base_env() -> EnvVars {
             env.push((key.to_string(), v));
         }
     }
+    // macOS bash 3.2 otherwise greets every shell with a "use zsh" notice.
+    env.push(("BASH_SILENCE_DEPRECATION_WARNING".into(), "1".into()));
     if !env.iter().any(|(k, _)| k == "LANG") {
         env.push(("LANG".into(), "C.UTF-8".into()));
     }
@@ -280,7 +286,21 @@ fn base_env() -> EnvVars {
 }
 
 fn s(p: &Path) -> String {
-    p.to_string_lossy().into_owned()
+    shell_path(p)
+}
+
+/// A path as bash and git want it. On Windows: no `\\?\` prefix and forward
+/// slashes (C:/Users/...), which Git Bash, git and Windows all accept; bash
+/// would read backslashes as escapes.
+pub fn shell_path(p: &Path) -> String {
+    let text = p.to_string_lossy();
+    if cfg!(windows) {
+        text.strip_prefix(r"\\?\")
+            .unwrap_or(&text)
+            .replace('\\', "/")
+    } else {
+        text.into_owned()
+    }
 }
 
 /// Environment for setup.sh and actions/*.sh.
