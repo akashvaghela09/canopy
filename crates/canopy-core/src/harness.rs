@@ -48,7 +48,10 @@ pub fn test_lesson_with(
     data_dir: &Path,
     solution: crate::catalog::Solution,
 ) -> Result<TestReport> {
-    let paths = AppPaths::new(data_dir);
+    // Long-form path: Windows temp dirs can come as 8.3 short names
+    // (RUNNER~1), which git's includeIf "gitdir:" never matches.
+    let data_dir = std::fs::canonicalize(data_dir).unwrap_or_else(|_| data_dir.to_path_buf());
+    let paths = AppPaths::new(&data_dir);
     let lib = catalog.lib_dir();
     let id = lesson.meta.id.clone();
     let attempt = prepare(&paths, &lib, lesson)?;
@@ -262,7 +265,10 @@ impl Shell {
 
     fn send(&mut self, line: &str) {
         if let Some(w) = self.writer.as_mut() {
-            let _ = w.write_all(format!("{line}\n").as_bytes());
+            // Enter is \r in a real terminal (xterm.js too); native Windows
+            // programs such as git add -p wait for it.
+            let enter = if cfg!(windows) { "\r" } else { "\n" };
+            let _ = w.write_all(format!("{line}{enter}").as_bytes());
             let _ = w.flush();
         }
     }

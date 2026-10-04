@@ -47,7 +47,7 @@
       "label": "app-2.0.tar.gz has the prefix, the sources, and no tests/ or notes/",
       "check": {
         "type": "shell",
-        "script": "f=app-2.0.tar.gz; [ -f \"$f\" ] || f=\"$LESSON_ROOT/app-2.0.tar.gz\"; [ -f \"$f\" ] && l=$(tar tzf \"$f\") && echo \"$l\" | grep -q '^app-2.0/src/app.js$' && echo \"$l\" | grep -q '^app-2.0/README.md$' && ! echo \"$l\" | grep -q '/tests/.' && ! echo \"$l\" | grep -q '/notes/.'"
+        "script": "f=app-2.0.tar.gz; [ -f \"$f\" ] || f=\"$LESSON_ROOT/app-2.0.tar.gz\"; [ -f \"$f\" ] && l=$(tar tzf - < \"$f\") && echo \"$l\" | grep -q '^app-2.0/src/app.js$' && echo \"$l\" | grep -q '^app-2.0/README.md$' && ! echo \"$l\" | grep -q '/tests/.' && ! echo \"$l\" | grep -q '/notes/.'"
       }
     },
     {

@@ -58,7 +58,7 @@
       "label": "../release-2.0.tar.gz holds the tagged tree under release-2.0/, library included, tests excluded",
       "check": {
         "type": "shell",
-        "script": "f=\"$LESSON_ROOT/release-2.0.tar.gz\"; [ -f \"$f\" ] && l=$(tar tzf \"$f\") && echo \"$l\" | grep -q '^release-2.0/src/lantern.py$' && echo \"$l\" | grep -q '^release-2.0/vendor/lib/version.txt$' && ! echo \"$l\" | grep -q '/tests/.'"
+        "script": "f=\"$LESSON_ROOT/release-2.0.tar.gz\"; [ -f \"$f\" ] && l=$(tar tzf - < \"$f\") && echo \"$l\" | grep -q '^release-2.0/src/lantern.py$' && echo \"$l\" | grep -q '^release-2.0/vendor/lib/version.txt$' && ! echo \"$l\" | grep -q '/tests/.'"
       }
     },
     {

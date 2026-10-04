@@ -116,8 +116,10 @@ const BASE_CONFIG: &str = "\
 /// Rust paths understand, instead of the MSYS form /c/....
 #[cfg(not(windows))]
 pub const PROMPT_COMMAND: &str = r#"__canopy_ec=$?; __canopy_h=$(history 1); __canopy_h=${__canopy_h//[$'\a\e']/}; printf '\e]7770;%s;%s\x1f%s\a' "$__canopy_ec" "$PWD" "$__canopy_h""#;
+// The short pause lets Windows' console finish repainting first: an OSC
+// sent mid-repaint can be dropped.
 #[cfg(windows)]
-pub const PROMPT_COMMAND: &str = r#"__canopy_ec=$?; __canopy_h=$(history 1); __canopy_h=${__canopy_h//[$'\a\e']/}; printf '\e]7770;%s;%s\x1f%s\a' "$__canopy_ec" "$(pwd -W)" "$__canopy_h""#;
+pub const PROMPT_COMMAND: &str = r#"__canopy_ec=$?; sleep 0.05; __canopy_h=$(history 1); __canopy_h=${__canopy_h//[$'\a\e']/}; printf '\e]7770;%s;%s\x1f%s\a' "$__canopy_ec" "$(pwd -W)" "$__canopy_h""#;
 
 /// Extra environment for the interactive shell only: coloured ls and grep
 /// without an rc file (bash imports exported functions from the environment,
