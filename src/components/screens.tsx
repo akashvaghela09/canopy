@@ -310,30 +310,8 @@ export function Home() {
           )}
         </header>
 
-        <PathStrip current={next?.section ?? null} />
         <UpNextCard />
-
-        {LEVELS.map((level) => {
-          const sections = cat.sections.filter((s) => s.level === level);
-          if (!sections.length) return null;
-          return (
-            <section key={level} className="mt-8" aria-labelledby={`level-${level}`}>
-              <div className="flex h-10 items-baseline gap-3 border-b border-edge pt-2">
-                <h2 id={`level-${level}`} className="text-sm font-semibold">
-                  {LEVEL_NAMES[level] ?? level}
-                </h2>
-                <span className="truncate text-sm text-fg-3">{LEVEL_BLURB[level]}</span>
-              </div>
-              <ul className="divide-y divide-edge">
-                {sections.map((sec) => (
-                  <li key={sec.id}>
-                    <SectionRow id={sec.id} title={sec.title} summary={sec.summary} current={next?.section === sec.id} />
-                  </li>
-                ))}
-              </ul>
-            </section>
-          );
-        })}
+        <Syllabus current={next?.section ?? null} />
 
         <footer className="mt-8">
           <button className="text-xs text-fg-3 hover:text-fg hover:underline" onClick={() => dispatch(appActions.openShortcuts(true))}>
@@ -386,68 +364,64 @@ function SectionNode({ id, state, current, size }: { id: number; state: NodeStat
 const stateText = (p: { done: number; total: number; state: NodeState }) =>
   p.state === "complete" ? "complete" : p.state === "in-progress" ? `${p.done} of ${p.total} lessons complete` : "not started";
 
-/** 15 sections as a tiny commit graph, grouped by level (HOME_SPEC 5). */
-function PathStrip({ current }: { current: number | null }) {
-  const dispatch = useAppDispatch();
+/**
+ * The syllabus as one path: a line runs down through every section's node,
+ * green up to where the learner has got to, with the levels as milestones.
+ */
+function Syllabus({ current }: { current: number | null }) {
   const cat = useAppSelector((s) => s.catalog.data)!;
-  const all = cat.sections;
-  const [active, setActive] = useState(() => Math.max(0, all.findIndex((s) => s.id === current)));
-  const refs = useRef<(HTMLButtonElement | null)[]>([]);
-  const move = (i: number) => {
-    const n = (i + all.length) % all.length;
-    setActive(n);
-    refs.current[n]?.focus();
+  const done = (id: number) => sectionProgress(cat, id).state === "complete";
+  const items: ({ kind: "level"; level: string } | { kind: "section"; id: number })[] = [];
+  for (const level of LEVELS) {
+    const secs = cat.sections.filter((s) => s.level === level);
+    if (secs.length === 0) continue;
+    items.push({ kind: "level", level });
+    secs.forEach((s) => items.push({ kind: "section", id: s.id }));
+  }
+  const sectionIds = items.flatMap((i) => (i.kind === "section" ? [i.id] : []));
+  const first = sectionIds[0];
+  const last = sectionIds[sectionIds.length - 1];
+  // The line between two sections is green once the earlier one is complete.
+  const before = (idx: number) => {
+    for (let i = idx - 1; i >= 0; i--) {
+      const it = items[i];
+      if (it.kind === "section") return it.id;
+    }
+    return null;
   };
-  const groups = LEVELS.map((level) => all.filter((s) => s.level === level)).filter((g) => g.length > 0);
+  const tone = (prev: number | null) => (prev !== null && done(prev) ? "bg-success" : "bg-edge");
   return (
-    <div
-      role="group"
-      aria-label="Learning path"
-      className="mt-8 grid gap-10"
-      style={{ gridTemplateColumns: groups.map((g) => `${g.length}fr`).join(" ") }}
-      onKeyDown={(e) => {
-        const to = { ArrowRight: active + 1, ArrowLeft: active - 1, Home: 0, End: all.length - 1 }[e.key];
-        if (to === undefined) return;
-        e.preventDefault();
-        move(to);
-      }}
-    >
-      {groups.map((g) => (
-        <div key={g[0].level}>
-          <div className="mb-2 text-2xs font-semibold tracking-[0.06em] text-fg-3 uppercase">{LEVEL_NAMES[g[0].level] ?? g[0].level}</div>
-          <div className="relative flex justify-between">
-            {g.map((sec, i) => {
-              const p = sectionProgress(cat, sec.id);
-              const idx = all.indexOf(sec);
-              const nextDone = i < g.length - 1 && p.state === "complete" && sectionProgress(cat, g[i + 1].id).state === "complete";
-              const label = `Section ${sec.id}, ${sec.title}, ${stateText(p)}`;
-              return (
-                <div key={sec.id} className="relative flex flex-1 flex-col items-start last:flex-none">
-                  {/* connector to the next node in this level */}
-                  {i < g.length - 1 && <span aria-hidden className={`absolute top-[11px] right-0 left-3 h-0.5 ${nextDone ? "bg-success" : "bg-edge"}`} />}
-                  <button
-                    ref={(el) => {
-                      refs.current[idx] = el;
-                    }}
-                    tabIndex={idx === active ? 0 : -1}
-                    aria-label={label}
-                    title={label}
-                    onFocus={() => setActive(idx)}
-                    onClick={() => dispatch(go({ kind: "section", section: sec.id }))}
-                    className="group relative flex flex-col items-center gap-1.5 rounded-sm"
-                  >
-                    <span className="flex size-6 items-center justify-center">
-                      <SectionNode id={sec.id} state={p.state} current={sec.id === current} size={12} />
-                    </span>
-                    <span className="font-mono text-2xs text-fg-3 group-hover:text-fg">{sec.id}</span>
-                  </button>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      ))}
-    </div>
+    <ol className="mt-10" aria-label="Sections">
+      {items.map((it, idx) => {
+        const prev = before(idx);
+        if (it.kind === "level") {
+          return (
+            <li key={it.level} className="grid grid-cols-[32px_1fr] gap-4 px-3" aria-hidden={false}>
+              <span className="relative flex justify-center">
+                {prev !== null && <span className={`absolute inset-y-0 w-0.5 ${tone(prev)}`} />}
+              </span>
+              <div className={`flex items-baseline gap-3 pb-2 ${prev === null ? "pt-0" : "pt-6"}`}>
+                <h2 className="text-sm font-semibold">{LEVEL_NAMES[it.level] ?? it.level}</h2>
+                <span className="truncate text-sm text-fg-3">{LEVEL_BLURB[it.level]}</span>
+              </div>
+            </li>
+          );
+        }
+        const sec = cat.sections.find((s) => s.id === it.id)!;
+        return (
+          <li key={sec.id}>
+            <SectionRow
+              id={sec.id}
+              title={sec.title}
+              summary={sec.summary}
+              current={current === sec.id}
+              lineAbove={sec.id === first ? null : tone(prev)}
+              lineBelow={sec.id === last ? null : tone(sec.id)}
+            />
+          </li>
+        );
+      })}
+    </ol>
   );
 }
 
@@ -457,7 +431,7 @@ function UpNextCard() {
   const cat = useAppSelector((s) => s.catalog.data)!;
   const overall = overallProgress(cat);
   const next = nextLesson(cat);
-  const card = "mt-10 rounded-md border border-edge bg-surface px-6 py-5 dark:border-edge-2";
+  const card = "mt-8 rounded-md border border-edge bg-surface px-6 py-5 dark:border-edge-2";
   const eyebrow = "text-2xs font-semibold tracking-[0.06em] uppercase";
   if (!next) {
     return (
@@ -500,8 +474,23 @@ function UpNextCard() {
   );
 }
 
-/** One syllabus row: node, title, summary, state, bar (in progress only). */
-function SectionRow({ id, title, summary, current }: { id: number; title: string; summary: string; current: boolean }) {
+/** One syllabus row: node on the path, title, summary, state, bar (in progress only). */
+function SectionRow({
+  id,
+  title,
+  summary,
+  current,
+  lineAbove,
+  lineBelow,
+}: {
+  id: number;
+  title: string;
+  summary: string;
+  current: boolean;
+  /** Tailwind bg class of the path segment above / below the node, or null for none. */
+  lineAbove: string | null;
+  lineBelow: string | null;
+}) {
   const dispatch = useAppDispatch();
   const cat = useAppSelector((s) => s.catalog.data)!;
   const p = sectionProgress(cat, id);
@@ -510,12 +499,15 @@ function SectionRow({ id, title, summary, current }: { id: number; title: string
     <button
       onClick={() => dispatch(go({ kind: "section", section: id }))}
       aria-label={`Section ${id}, ${title}, ${stateText(p)}${current ? ", current section" : ""}`}
-      className={`group grid h-14 w-full grid-cols-[32px_minmax(180px,220px)_1fr_120px_96px_16px] items-center gap-4 px-3 text-left transition-colors hover:bg-sunken ${
-        current ? "border-l-2 border-l-accent pl-[10px]" : ""
-      }`}
+      className={`group grid h-14 w-full grid-cols-[32px_minmax(180px,220px)_1fr_120px_96px_16px] items-center gap-4 rounded-md px-3 text-left transition-colors hover:bg-sunken ${current ? "bg-surface" : ""}`}
     >
-      <SectionNode id={id} state={p.state} current={current} size={24} />
-      <span className="truncate text-sm font-medium">{title}</span>
+      <span className="relative flex h-full items-center justify-center">
+        {lineAbove && <span className={`absolute top-0 h-1/2 w-0.5 ${lineAbove}`} />}
+        {lineBelow && <span className={`absolute bottom-0 h-1/2 w-0.5 ${lineBelow}`} />}
+        {current && <span className="absolute size-9 rounded-full bg-[var(--color-graph-highlight)]" />}
+        <SectionNode id={id} state={p.state} current={current} size={24} />
+      </span>
+      <span className={`truncate text-sm ${current ? "font-semibold" : "font-medium"}`}>{title}</span>
       <span className="truncate text-sm text-fg-2">{summary}</span>
       <span className={`text-right text-sm tabular-nums ${p.state === "complete" ? "text-success" : p.state === "in-progress" ? "text-fg-2" : "text-fg-3"}`}>{state}</span>
       <span>{p.state === "in-progress" && <ProgressBar done={p.done} total={p.total} label={`Section ${id} progress`} />}</span>

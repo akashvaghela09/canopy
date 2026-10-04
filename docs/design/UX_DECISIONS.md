@@ -76,3 +76,7 @@ Owner feedback after v0.3.0: settings sheet cramped; lesson panel width followed
 ## Round 6 (owner feedback on v1.1.1)
 
 - The graph always has a header (it now holds controls): collapse (Alt+]) to a one-line bar showing where HEAD is; zoom out/in in steps 50–150% with the current percentage (click for 100%) and Ctrl+scroll; "Fit" shrinks to the pane width (never below 50%, never above 100%) so the scrollbar goes away. The Key moved into the header. Collapsed state and zoom are remembered.
+
+## Round 7 (owner feedback on v1.2.0)
+
+- The 15-dot path strip repeated the section list. Removed; the list itself is now the path: one line runs down through every section's node (green up to the learner's progress), the levels sit on it as milestones, and the current section is highlighted. Supersedes HOME_SPEC.md section 5.
