@@ -1,6 +1,6 @@
 [package]
 name = "canopy"
-version = "0.5.0"
+version = "1.0.1"
 description = "Learn git by running real git"
 authors = ["Akash Vaghela"]
 edition.workspace = true
