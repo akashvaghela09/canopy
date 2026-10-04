@@ -163,26 +163,43 @@ pub fn test_lesson_with(
         } else {
             LINE_WAIT
         };
-        for ev in shell.wait_prompt(&mut parser, &mut transcript, wait) {
-            cwd = Some(PathBuf::from(&ev.cwd));
-            if let Some(c) = parser.command_for(&ev, 0) {
-                transcript.push_str(&format!("[{} -> exit {}]\n", c.command, c.exit_code));
-                commands.push(c);
+        // A typed command is done when a prompt for *it* comes back; an older
+        // prompt arriving late (after a slow action) must not count. Action
+        // lines (leading space) and answers to prompts may never get one.
+        let is_command = !line.starts_with(' ');
+        let deadline = Instant::now() + wait;
+        loop {
+            let left = deadline.saturating_duration_since(Instant::now());
+            let events = shell.wait_prompt(&mut parser, &mut transcript, left);
+            if events.is_empty() {
+                break;
             }
-            // Like the app: re-check after every prompt (actions included),
-            // with marks re-read because actions may add some.
-            let marks = read_marks(&attempt.state)?;
-            let ctx = CheckContext {
-                root: &attempt.root,
-                default_repo: lesson.meta.repo.as_deref(),
-                env: &env,
-                marks: &marks,
-                commands: &commands,
-                questions: &goal.questions,
-                answers: &empty_answers,
-                cwd: cwd.as_deref(),
-            };
-            evaluate_goals(&goal, &ctx, &mut sticky);
+            let mut got_new = false;
+            for ev in events {
+                cwd = Some(PathBuf::from(&ev.cwd));
+                if let Some(c) = parser.command_for(&ev, 0) {
+                    transcript.push_str(&format!("[{} -> exit {}]\n", c.command, c.exit_code));
+                    commands.push(c);
+                    got_new = true;
+                }
+                // Like the app: re-check after every prompt (actions included),
+                // with marks re-read because actions may add some.
+                let marks = read_marks(&attempt.state)?;
+                let ctx = CheckContext {
+                    root: &attempt.root,
+                    default_repo: lesson.meta.repo.as_deref(),
+                    env: &env,
+                    marks: &marks,
+                    commands: &commands,
+                    questions: &goal.questions,
+                    answers: &empty_answers,
+                    cwd: cwd.as_deref(),
+                };
+                evaluate_goals(&goal, &ctx, &mut sticky);
+            }
+            if got_new || !is_command {
+                break;
+            }
         }
     }
     let stderr = shell.finish(&mut parser, &mut transcript, started);
