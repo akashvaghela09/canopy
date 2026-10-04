@@ -1,2 +1,5 @@
 formatVersion: 1
-contentVersion: "2026.10.03.1"
+# Builds replace this with a version derived from git history
+# (tools/content-version.sh, src-tauri/build.rs). This value is only used by
+# builds without git history.
+contentVersion: "0.0.0.0"

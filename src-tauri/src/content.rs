@@ -26,7 +26,13 @@ fn bundled_dir(app: &AppHandle) -> Result<PathBuf> {
 /// Use the newest content we can read: an installed update wins over the
 /// bundled copy only if it is a newer contentVersion with a supported format.
 pub fn load_catalog(app: &AppHandle, paths: &AppPaths) -> Result<Catalog> {
-    let bundled = Catalog::load(&bundled_dir(app)?).context("loading bundled lessons")?;
+    let mut bundled = Catalog::load(&bundled_dir(app)?).context("loading bundled lessons")?;
+    // The build stamps the version from git (build.rs); the manifest's own
+    // value is only a fallback for builds without git history.
+    let stamped = env!("CANOPY_CONTENT_VERSION");
+    if !stamped.is_empty() {
+        bundled.manifest.content_version = stamped.to_string();
+    }
     let update_dir = updates_dir(paths);
     if update_dir.join("manifest.yaml").exists() {
         match Catalog::load(&update_dir) {

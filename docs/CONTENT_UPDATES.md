@@ -6,7 +6,7 @@ Lessons are data (`lessons/`), separate from the app. Learners can pull new or f
 
 1. **Publishing.** When `lessons/` changes on `main`, `.github/workflows/lessons-release.yml`:
    - tests every lesson (`canopy-lesson test`),
-   - stamps `contentVersion` as `YYYY.MM.DD.<run>`,
+   - stamps `contentVersion` with `tools/content-version.sh`: `<UTC date of the last lessons commit>.<number of lessons commits>`, the same value `src-tauri/build.rs` stamps into the app's bundled lessons, so an app and a pack built from the same lessons always agree,
    - packs `lessons/` into `canopy-lessons-<version>.tar.gz` (`tools/package-lessons.sh`), without `_notes` and `_reviews`,
    - signs it with minisign using the `MINISIGN_SECRET_KEY` secret (`<pack>.minisig`),
    - publishes a release `lessons-<version>` and uploads `latest.json` to the fixed release `lessons-latest`.

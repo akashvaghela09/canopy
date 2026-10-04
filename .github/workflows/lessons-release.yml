@@ -29,7 +29,7 @@ jobs:
       - name: Stamp content version
         id: version
         run: |
-          v="$(date -u +%Y.%m.%d).${GITHUB_RUN_NUMBER}"
+          v="$(tools/content-version.sh)"
           sed -i "s/^contentVersion:.*/contentVersion: \"$v\"/" lessons/manifest.yaml
           echo "version=$v" >> "$GITHUB_OUTPUT"
       - name: Changelog

@@ -17,6 +17,8 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # build.rs stamps the lesson content version from git history
       - name: System packages
         run: |
           sudo apt-get update
@@ -47,5 +49,5 @@ jobs:
             Linux installers: `.deb` (Debian/Ubuntu/Mint), `.rpm` (Fedora/openSUSE) and `.AppImage` (any distro).
             Requires git 2.32 or newer. Lessons can be updated later from Settings → Check for updates.
           releaseDraft: false
-          prerelease: true
+          prerelease: ${{ startsWith(github.ref_name, 'v0.') }}
           args: --bundles deb,rpm,appimage

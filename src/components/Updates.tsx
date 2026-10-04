@@ -67,7 +67,7 @@ export function LessonUpdates() {
 
   // Row layout like the other settings: status left, one button right,
   // anything longer (changelog, progress, errors) below.
-  let status: React.ReactNode = `Version ${installed} · ${checked}`;
+  let status: React.ReactNode = `Lesson pack ${installed} · ${checked}`;
   let control: React.ReactNode = <Button onClick={check}>Check for updates</Button>;
   let extra: React.ReactNode = null;
   switch (state.kind) {
@@ -81,7 +81,7 @@ export function LessonUpdates() {
     case "upToDate":
       status = (
         <span className="inline-flex items-center gap-1">
-          <CheckCircle2 size={12} className="text-success" /> Up to date · version {installed}
+          <CheckCircle2 size={12} className="text-success" /> Up to date · lesson pack {installed}
         </span>
       );
       control = (
