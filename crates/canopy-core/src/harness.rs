@@ -243,6 +243,9 @@ struct Shell {
     out: mpsc::Receiver<Vec<u8>>,
     /// Windows: the prompt hook's marker file (see env::PROMPT_COMMAND).
     prompts: Option<crate::marker::PromptFile>,
+    /// Its own parser: a marker half-written to the file must not be mixed
+    /// with terminal output in the main parser's buffer.
+    prompt_parser: MarkerParser,
 }
 
 impl Shell {
@@ -285,6 +288,7 @@ impl Shell {
             _master: pair.master,
             out: rx,
             prompts: None,
+            prompt_parser: MarkerParser::new(),
         })
     }
 
@@ -344,7 +348,7 @@ impl Shell {
                 Err(_) => break,
             }
             if let Some(file) = self.prompts.as_mut() {
-                for chunk in parser.feed(&file.read_new()) {
+                for chunk in self.prompt_parser.feed(&file.read_new()) {
                     if let Chunk::Prompt(ev) = chunk {
                         events.push(ev);
                     }
