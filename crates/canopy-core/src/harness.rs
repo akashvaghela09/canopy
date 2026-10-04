@@ -11,7 +11,7 @@ use anyhow::{Context, Result};
 
 use crate::catalog::{Catalog, Lesson};
 use crate::check::{check_answer, evaluate_goals, CheckContext, GoalResult};
-use crate::env::{learner_env, setup_env, AppPaths, EditorMode};
+use crate::env::{learner_env, setup_env, shell_path, AppPaths, EditorMode};
 use crate::marker::{Chunk, CommandEntry, MarkerParser, PromptEvent};
 use crate::runner::{prepare, read_marks};
 
@@ -89,16 +89,26 @@ pub fn test_lesson_with(
                 .iter()
                 .find(|a| a.id == action_id.trim())
                 .with_context(|| format!("unknown action {action_id}"))?;
+            // PATH comes from the running shell: Git Bash has already turned
+            // the Windows PATH into its own form.
             let vars: Vec<String> = setup_vars
                 .iter()
+                .filter(|(k, _)| k != "PATH")
                 .map(|(k, v)| format!("{k}={}", shell_quote(v)))
                 .collect();
-            lines.push(format!(
-                " (cd {} && env -i {} bash {})",
-                shell_quote(&attempt.root.to_string_lossy()),
-                vars.join(" "),
-                shell_quote(&lesson.dir.join(&action.script).to_string_lossy())
-            ));
+            // The environment goes in a small runner script so the typed line
+            // stays short (Windows' console mangles very long input lines).
+            let runner = attempt.state.join(format!("run-{}.sh", action.id));
+            std::fs::write(
+                &runner,
+                format!(
+                    "cd {} && exec env -i PATH=\"$PATH\" {} bash {}\n",
+                    shell_quote(&shell_path(&attempt.root)),
+                    vars.join(" "),
+                    shell_quote(&shell_path(&lesson.dir.join(&action.script)))
+                ),
+            )?;
+            lines.push(format!(" bash {}", shell_quote(&shell_path(&runner))));
         } else if t.is_empty() || t.starts_with('#') {
             continue;
         } else {

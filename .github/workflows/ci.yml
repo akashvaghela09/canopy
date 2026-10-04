@@ -63,4 +63,4 @@ jobs:
       - name: Transcripts of a few failing lessons
         if: failure()
         shell: bash
-        run: cargo run -q -p canopy-lesson -- test -v 7.12 12.10 3.01 9.15 || true
+        run: cargo run -q -p canopy-lesson -- test -v 9.19 9.20 12.02 13.06 15.05 15.18 || true
