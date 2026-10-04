@@ -257,6 +257,18 @@ impl Shell {
         }
     }
 
+    /// Answer terminal queries a real terminal (xterm.js in the app) would:
+    /// Windows' ConPTY asks for the cursor position (ESC[6n) at start-up and
+    /// waits for the reply before running anything.
+    fn answer_queries(&mut self, data: &[u8]) {
+        if data.windows(4).any(|w| w == b"\x1b[6n") {
+            if let Some(w) = self.writer.as_mut() {
+                let _ = w.write_all(b"\x1b[1;1R");
+                let _ = w.flush();
+            }
+        }
+    }
+
     /// Read output until a prompt marker arrives or `wait` passes without one.
     fn wait_prompt(
         &mut self,
@@ -271,6 +283,7 @@ impl Shell {
             let Ok(data) = self.out.recv_timeout(left) else {
                 break;
             };
+            self.answer_queries(&data);
             for chunk in parser.feed(&data) {
                 match chunk {
                     Chunk::Output(b) => transcript.push_str(&String::from_utf8_lossy(&b)),
@@ -290,6 +303,7 @@ impl Shell {
     ) -> Option<String> {
         loop {
             while let Ok(data) = self.out.try_recv() {
+                self.answer_queries(&data);
                 for chunk in parser.feed(&data) {
                     if let Chunk::Output(b) = chunk {
                         transcript.push_str(&String::from_utf8_lossy(&b));
